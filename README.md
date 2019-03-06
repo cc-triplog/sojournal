@@ -1,8 +1,10 @@
 # Trip Log
 
-<h1 align="center" height="400px" width="800px">
-  <img src="./src/img/trip.jpg" alt="Trip Log Image" />
-</h1>
+<div height="400px" width="800px">
+    <h1 align="center">
+    <img src="./src/img/trip.jpg" alt="Trip Log Image" />
+    </h1>
+</div>
 
 <div align="center">
 
