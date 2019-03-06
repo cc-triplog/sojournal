@@ -1,6 +1,6 @@
 # Trip Log
 
-<h1 align="center">
+<h1 align="center" height="400px" width="800px">
   <img src="./src/img/trip.jpg" alt="Trip Log Image" />
 </h1>
 
