@@ -16,7 +16,7 @@
 
 ## 1. About
 
-Trip Log™ is a cloud image storage based on geographic location. Though Trip Log is aimed to expand creativity of our users through automatic mapping of photos and user friendly text editing interface, with Trip Cam, it can be expanded infinately more.
+Trip Log™ is a cloud image storage based on geographic location. Though Trip Log is aimed to expand creativity of our users through automatic mapping of photos and user friendly text editing interface, with Trip Cam, it can be expanded infinately more.Trip Log™ respects the privacy of our users. Although our users can share their stories via integrated image export or url, user decides if it is partially shared or the whole.
 
 <div width="400px">
 <img alt="Node.js" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1200px-Node.js_logo.svg.png" width="100px">
@@ -27,17 +27,17 @@ Trip Log™ is a cloud image storage based on geographic location. Though Trip L
 
 ## 2. Features
 
-### a) _Filter truck stops by state_
+### a) _Upload Photos That Automatically Locates on Map_
 
-Once you open the app, you will see markers on a map that designate the locations of truck stops in the US.
+Once you open the app, you will see your geographical location zoomed into google map.
 
 <img alt="PicOfApp" src="./img/map1.png">
 
-Click on the **States** drop-down menu and a list of the 48 continguous states will appear. Select any state to display only truck stops in that state.
+Click on the **Upload** button and it will direct you to your image gallery on your mobile device. Select one or multiple images to upload.
 
 <img alt="PicOfApp" src="./img/map2.png">
 
-If you want to display truck stops from all 48 contiguous states again, click on the drop down menu again and select markers to show up, select **State** (from the top of the drop down menu) again.
+Once photos are chosen, you will be able to see it on the map. Please refer to the instruction below to learn more about writting comments for each photo uploads.
 
 ### b) _Check out the name of a truck stop_
 
