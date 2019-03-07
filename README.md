@@ -1,5 +1,11 @@
 # Trip Log
 
+\$ createdb triplog;
+
+\$ yarn knex migrate:latest
+
+\$ yarn knex migrate:rollback
+
 <div height="400px" width="800px">
     <h1 align="center">
     <img src="./src/img/trip.jpg" alt="Trip Log Image" />

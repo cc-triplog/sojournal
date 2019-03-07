@@ -48,7 +48,7 @@ export default class HomeScreen extends React.Component {
               </MonoText>
             </View>
 
-            <Text style={styles.getStartedText}>Hello Brian.</Text>
+            <Text style={styles.getStartedText}>Hello Chazzy.</Text>
           </View>
 
           <View style={styles.helpContainer}>
