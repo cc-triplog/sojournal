@@ -1,5 +1,7 @@
 # Trip Log
 
+## How to Setup the Database
+
 \$ createdb triplog
 
 \$ yarn knex migrate:latest
