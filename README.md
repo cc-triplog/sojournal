@@ -6,6 +6,8 @@
 
 \$ yarn knex migrate:rollback
 
+\$ knex seed:run
+
 <div height="400px" width="800px">
     <h1 align="center">
     <img src="./src/img/trip.jpg" alt="Trip Log Image" />

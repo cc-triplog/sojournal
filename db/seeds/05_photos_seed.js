@@ -7,7 +7,7 @@ exports.seed = function(knex, Promise) {
       return knex("photos").insert([
         {
           title: "Look at this guy",
-          camera_id: "fake_serial",
+          device_id: "1",
           group_id: "1",
           user_id: "4",
           comment_id: "1",

@@ -24,9 +24,9 @@ exports.up = function(knex, Promise) {
       table.string("longitude");
       table.string("latitude");
       table
-        .integer("camera_id")
+        .integer("device_id")
         .references("id")
-        .inTable("cameras")
+        .inTable("devices")
         .notNullable();
       table
         .integer("group_id")
@@ -42,7 +42,7 @@ exports.up = function(knex, Promise) {
         .integer("comment_id")
         .references("id")
         .inTable("comments");
-      table.string("photo_location");
+      table.string("document_location");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),

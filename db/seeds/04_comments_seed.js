@@ -7,8 +7,12 @@ exports.seed = function(knex, Promise) {
       return knex("comments").insert([
         {
           title: "Look at this guy (comment)",
-          camera_id: "fake_serial",
           user_id: "4"
+        },
+        {
+          title: "Comment without a Photo. Wow!",
+          user_id: "4",
+          group_id: "1"
         }
       ]);
     });
