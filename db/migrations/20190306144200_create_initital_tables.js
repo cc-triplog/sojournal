@@ -8,11 +8,26 @@ exports.up = function(knex, Promise) {
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
+    knex.schema.createTable("devices", function(table) {
+      table.increments();
+      table.string("title");
+      table.string("device_serial");
+      table
+        .integer("user_id")
+        .references("id")
+        .inTable("users")
+        .notNullable();
+    }),
     knex.schema.createTable("photos", function(table) {
       table.increments();
       table.string("title");
       table.string("longitude");
       table.string("latitude");
+      table
+        .integer("camera_id")
+        .references("id")
+        .inTable("cameras")
+        .notNullable();
       table
         .integer("group_id")
         .references("id")
@@ -74,6 +89,7 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable("photos"),
     knex.schema.dropTable("comments"),
+    knex.schema.dropTable("devices"),
     knex.schema.dropTable("groups"),
     knex.schema.dropTable("users")
   ]);

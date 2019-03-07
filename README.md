@@ -1,6 +1,6 @@
 # Trip Log
 
-\$ createdb triplog;
+\$ createdb triplog
 
 \$ yarn knex migrate:latest
 
