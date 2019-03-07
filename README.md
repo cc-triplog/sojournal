@@ -1,10 +1,14 @@
 # Trip Log
 
-\$ createdb triplog;
+## How to Setup the Database
+
+\$ createdb triplog
 
 \$ yarn knex migrate:latest
 
 \$ yarn knex migrate:rollback
+
+\$ knex seed:run
 
 <div height="400px" width="800px">
     <h1 align="center">

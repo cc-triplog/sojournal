@@ -8,11 +8,26 @@ exports.up = function(knex, Promise) {
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
+    knex.schema.createTable("devices", function(table) {
+      table.increments();
+      table.string("title");
+      table.string("device_serial");
+      table
+        .integer("user_id")
+        .references("id")
+        .inTable("users")
+        .notNullable();
+    }),
     knex.schema.createTable("photos", function(table) {
       table.increments();
       table.string("title");
       table.string("longitude");
       table.string("latitude");
+      table
+        .integer("device_id")
+        .references("id")
+        .inTable("devices")
+        .notNullable();
       table
         .integer("group_id")
         .references("id")
@@ -27,7 +42,7 @@ exports.up = function(knex, Promise) {
         .integer("comment_id")
         .references("id")
         .inTable("comments");
-      table.string("photo_location");
+      table.string("document_location");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
@@ -74,6 +89,7 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable("photos"),
     knex.schema.dropTable("comments"),
+    knex.schema.dropTable("devices"),
     knex.schema.dropTable("groups"),
     knex.schema.dropTable("users")
   ]);
