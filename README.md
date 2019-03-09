@@ -4,11 +4,15 @@
 
 \$ createdb triplog
 
-\$ yarn knex migrate:latest
+\$ yarn knex --knexfile=./db/knexfile.js migrate:latest
 
-\$ yarn knex migrate:rollback
+\$ yarn knex --knexfile=./db/knexfile.js migrate:rollback
 
-\$ knex seed:run
+\$ yarn knex --knexfile=./db/knexfile.js seed:run
+
+## How to Run the Database for testing
+
+\$ yarn nodemon ./db/server.js
 
 <div height="400px" width="800px">
     <h1 align="center">

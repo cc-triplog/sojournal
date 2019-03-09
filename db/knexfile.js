@@ -1,5 +1,3 @@
-// Update with your config settings.
-
 module.exports = {
   development: {
     client: "pg",
@@ -10,10 +8,10 @@ module.exports = {
       database: "triplog"
     },
     migrations: {
-      directory: "./db/migrations"
+      directory: "./migrations"
     },
     seeds: {
-      directory: "./db/seeds"
+      directory: "./seeds"
     },
     useNullAsDefault: true
   },
@@ -27,10 +25,10 @@ module.exports = {
       database: "triplog"
     },
     migrations: {
-      directory: "./db/migrations"
+      directory: "./migrations"
     },
     seeds: {
-      directory: "./db/seeds"
+      directory: "./seeds"
     },
     useNullAsDefault: true
   }
