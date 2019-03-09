@@ -4,6 +4,8 @@ const { buildSchema } = require("graphql");
 const config = require("./knexfile");
 const db = require("knex")(config.development);
 
+const currentUser = 4;
+
 // GraphQL schema
 let schema = buildSchema(`
     type User {
@@ -14,7 +16,6 @@ let schema = buildSchema(`
     type Device {
         id: Int
         deviceSerial: String
-        userId: Int
     }
     type Photo {
         id: Int
@@ -24,7 +25,6 @@ let schema = buildSchema(`
         deviceId: Int
         groupId: Int
         orderInGroup: Int
-        userId: Int
         commentId: Int
         documentLocation: String
     }
@@ -35,7 +35,6 @@ let schema = buildSchema(`
         latitude: String
         groupId: Int
         orderInGroup: Int
-        userId: Int
     }
     type Group {
         id: Int
@@ -43,7 +42,6 @@ let schema = buildSchema(`
         longitude: String
         latitude: String
         groupId: Int
-        userId: Int
     }
     input InputUser {
       id: Int
@@ -54,7 +52,6 @@ let schema = buildSchema(`
     input InputDevice {
       id: Int
       deviceSerial: String
-      userId: Int!
     }
     input InputPhoto {
       id: Int
@@ -64,7 +61,6 @@ let schema = buildSchema(`
       deviceId: Int
       groupId: Int
       orderInGroup: Int
-      userId: Int!
       commentId: Int
       documentLocation: String
     }
@@ -75,7 +71,6 @@ let schema = buildSchema(`
       latitude: String
       groupId: Int
       orderInGroup: Int
-      userId: Int!
     }
     input InputGroup {
       id: Int
@@ -83,7 +78,6 @@ let schema = buildSchema(`
       longitude: String
       latitude: String
       groupId: Int
-      userId: Int!
     }
     type Query {
         ReadUser(type: InputUser): [User]
@@ -115,19 +109,54 @@ let schema = buildSchema(`
 let root = {
   message: () => "Hello World!",
   ReadUser: (req, res) => {
-    console.log(req.type.id);
+    //let key = req.type.name || req.type.email;
     return db("users")
       .select()
-      .where({ id: req.type.id })
+      .where({ id: currentUser })
       .then(data => {
-        console.log(data);
+        return data;
+      });
+  },
+  ReadDevice: (req, res) => {
+    return db("devices")
+      .select()
+      .where({ user_id: currentUser })
+      .then(data => {
+        return data;
+      });
+  },
+  ReadPhoto: (req, res) => {
+    return db("photos")
+      .select()
+      .where({ user_id: currentUser })
+      .then(data => {
+        return data;
+      });
+  },
+  ReadComment: (req, res) => {
+    return db("comments")
+      .select()
+      .where({ user_id: currentUser })
+      .then(data => {
+        return data;
+      });
+  },
+  ReadGroup: (req, res) => {
+    return db("groups")
+      .select()
+      .where({ user_id: currentUser })
+      .then(data => {
         return data;
       });
   }
+  // CreateUser: (req, res) => {
+  //   return db("users");
+  // }
+
   //ReadUser: () => [{ id: 1, name: "poopy pants", email: "poop@pants.com" }]
 };
 
-// Create an express server and a GraphQL endpoint
+// Create an express server and a groupsgroupsgroupsgroupsgroupsgroupsgroupsgroupsGraphQL endpoint
 let app = express();
 app.use(
   "/graphql",
