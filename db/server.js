@@ -1,6 +1,8 @@
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
 const { buildSchema } = require("graphql");
+const config = require("./knexfile");
+const db = require("knex")(config.development);
 
 // GraphQL schema
 let schema = buildSchema(`
@@ -112,7 +114,17 @@ let schema = buildSchema(`
 // Root resolver
 let root = {
   message: () => "Hello World!",
-  ReadUser: () => [{ id: 1, name: "poopy pants", email: "poop@pants.com" }]
+  ReadUser: (req, res) => {
+    console.log(req.type.id);
+    return db("users")
+      .select()
+      .where({ id: req.type.id })
+      .then(data => {
+        console.log(data);
+        return data;
+      });
+  }
+  //ReadUser: () => [{ id: 1, name: "poopy pants", email: "poop@pants.com" }]
 };
 
 // Create an express server and a GraphQL endpoint
