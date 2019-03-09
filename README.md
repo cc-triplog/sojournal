@@ -14,6 +14,14 @@
 
 \$ yarn nodemon ./db/server.js
 
+{
+ReadUser(type: {
+id: 1
+}) {
+id, name, email
+}
+}
+
 <div height="400px" width="800px">
     <h1 align="center">
     <img src="./src/img/trip.jpg" alt="Trip Log Image" />

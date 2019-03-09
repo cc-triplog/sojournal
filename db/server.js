@@ -44,15 +44,18 @@ let schema = buildSchema(`
         userId: Int
     }
     input InputUser {
-      name: String!
+      id: Int
+      name: String
       email: String
       password: String
     }
     input InputDevice {
+      id: Int
       deviceSerial: String
       userId: Int!
     }
     input InputPhoto {
+      id: Int
       title: String
       longitude: String
       latitude: String
@@ -64,6 +67,7 @@ let schema = buildSchema(`
       documentLocation: String
     }
     input InputComment {
+      id: Int
       title: String
       longitude: String
       latitude: String
@@ -72,6 +76,7 @@ let schema = buildSchema(`
       userId: Int!
     }
     input InputGroup {
+      id: Int
       title: String
       longitude: String
       latitude: String
@@ -79,11 +84,11 @@ let schema = buildSchema(`
       userId: Int!
     }
     type Query {
-        Users: [User]
-        Devices: [Device]
-        Photos: [Photo]
-        Comments: [Comment]
-        Groups: [Group]
+        ReadUser(type: InputUser): [User]
+        ReadDevice(type: InputDevice): [Device]
+        ReadPhoto(type: InputPhoto): [Photo]
+        ReadComment(type: InputComment): [Comment]
+        ReadGroup(type: InputGroup): [Group]
     }
     type Mutation {
         CreateUser(input: InputUser): User
@@ -106,7 +111,8 @@ let schema = buildSchema(`
 
 // Root resolver
 let root = {
-  message: () => "Hello World!"
+  message: () => "Hello World!",
+  ReadUser: () => [{ id: 1, name: "poopy pants", email: "poop@pants.com" }]
 };
 
 // Create an express server and a GraphQL endpoint
