@@ -1,6 +1,6 @@
 const fs = require("fs");
 let testPhoto = fs.readFileSync("./seeds/photos/bribri.jpg").toString("base64");
-console.log(testPhoto);
+//console.log(testPhoto);
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
