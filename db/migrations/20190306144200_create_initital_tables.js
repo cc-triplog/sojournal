@@ -42,7 +42,7 @@ exports.up = function(knex, Promise) {
         .integer("comment_id")
         .references("id")
         .inTable("comments");
-      table.string("document_location");
+      table.text("document_location");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),

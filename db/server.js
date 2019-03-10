@@ -32,16 +32,16 @@ let schema = buildSchema(`
     type Comment {
         id: Int
         title: String
-        longitude: String
-        latitude: String
+        longitude: Float
+        latitude: Float
         groupId: Int
         orderInGroup: Int
     }
     type Group {
         id: Int
         title: String
-        longitude: String
-        latitude: String
+        longitude: Float
+        latitude: Float
         groupId: Int
     }
     input InputUser {
@@ -58,8 +58,8 @@ let schema = buildSchema(`
     input InputPhoto {
       id: Int
       title: String
-      longitude: String
-      latitude: String
+      longitude: Float
+      latitude: Float
       deviceId: Int
       groupId: Int
       orderInGroup: Int
@@ -69,16 +69,16 @@ let schema = buildSchema(`
     input InputComment {
       id: Int
       title: String
-      longitude: String
-      latitude: String
+      longitude: Float
+      latitude: Float
       groupId: Int
       orderInGroup: Int
     }
     input InputGroup {
       id: Int
       title: String
-      longitude: String
-      latitude: String
+      longitude: Float
+      latitude: Float
       groupId: Int
     }
     type Query {
@@ -184,14 +184,33 @@ let root = {
         longitude: req.input.longitude,
         latitude: req.input.latitude,
         device_id: "1",
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
         user_id: currentUser,
-        comment_id: req.input.comment_id,
+        comment_id: req.input.commentId,
         document_location: "fake"
       })
       .then(function(result) {
         console.log(result);
       });
     return newPhoto;
+  },
+  CreateGroup: (req, res) => {
+    const newGroup = req.input;
+    db("groups")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        user_id: currentUser,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return newGroup;
   }
 };
 
