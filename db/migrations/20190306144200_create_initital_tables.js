@@ -17,6 +17,8 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("users")
         .notNullable();
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("photos", function(table) {
       table.increments();
