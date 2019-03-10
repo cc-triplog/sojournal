@@ -21,8 +21,8 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("photos", function(table) {
       table.increments();
       table.string("title");
-      table.float("longitude");
-      table.float("latitude");
+      table.double("longitude");
+      table.double("latitude");
       table
         .integer("device_id")
         .references("id")
@@ -49,8 +49,8 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("comments", function(table) {
       table.increments();
       table.string("title");
-      table.float("longitude");
-      table.float("latitude");
+      table.double("longitude");
+      table.double("latitude");
       table
         .integer("group_id")
         .references("id")
@@ -68,8 +68,8 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("groups", function(table) {
       table.increments();
       table.string("title");
-      table.float("longitude");
-      table.float("latitude");
+      table.double("longitude");
+      table.double("latitude");
       table
         .integer("group_id")
         .references("id")

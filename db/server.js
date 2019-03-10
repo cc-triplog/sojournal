@@ -81,6 +81,61 @@ let schema = buildSchema(`
       latitude: Float
       groupId: Int
     }
+
+    input UpdateUser {
+      id: Int!
+      name: String
+      email: String
+      password: String
+    }
+    input UpdateDevice {
+      id: Int!
+      title: String
+      deviceSerial: String
+    }
+    input UpdatePhoto {
+      id: Int!
+      title: String
+      longitude: Float
+      latitude: Float
+      deviceId: Int
+      groupId: Int
+      orderInGroup: Int
+      commentId: Int
+      documentLocation: String
+    }
+    input UpdateComment {
+      id: Int!
+      title: String
+      longitude: Float
+      latitude: Float
+      groupId: Int
+      orderInGroup: Int
+    }
+    input UpdateGroup {
+      id: Int!
+      title: String
+      longitude: Float
+      latitude: Float
+      groupId: Int
+    }
+
+    input DestroyUser {
+      id: Int!
+    }
+    input DestroyDevice {
+      id: Int!
+    }
+    input DestroyPhoto {
+      id: Int!
+    }
+    input DestroyComment {
+      id: Int!
+    }
+    input DestroyGroup {
+      id: Int!
+    }
+
     type Query {
         ReadUser(type: InputUser): [User]
         ReadDevice(type: InputDevice): [Device]
@@ -88,32 +143,34 @@ let schema = buildSchema(`
         ReadComment(type: InputComment): [Comment]
         ReadGroup(type: InputGroup): [Group]
     }
+
     type Mutation {
         CreateUser(input: InputUser): User
         CreateDevice(input: InputDevice): Device
         CreatePhoto(input: InputPhoto): Photo
         CreateComment(input: InputComment): Comment
         CreateGroup(input: InputGroup): Group
-        UpdateUser(input: InputUser): User
-        UpdateDevice(input: InputDevice): Device
-        UpdatePhoto(input: InputPhoto): Photo
-        UpdateComment(input: InputComment): Comment
-        UpdateGroup(input: InputGroup): Group
-        DestroyUser(input: InputUser): Boolean
-        DestroyDevice(input: InputDevice): Boolean
-        DestroyPhoto(input: InputPhoto): Boolean
-        DestroyComment(input: InputComment): Boolean
-        DestroyGroup(input: InputGroup): Boolean
+        UpdateUser(input: UpdateUser): User
+        UpdateDevice(input: UpdateDevice): Device
+        UpdatePhoto(input: UpdatePhoto): Photo
+        UpdateComment(input: UpdateComment): Comment
+        UpdateGroup(input: UpdateGroup): Group
+        DestroyUser(input: DestroyUser): Boolean
+        DestroyDevice(input: DestroyDevice): Boolean
+        DestroyPhoto(input: DestroyPhoto): Boolean
+        DestroyComment(input: DestroyComment): Boolean
+        DestroyGroup(input: DestroyGroup): Boolean
     }
 `);
 
 // Root resolver
 let root = {
+  // READ
   ReadUser: (req, res) => {
     //let key = req.type.name || req.type.email;
     return db("users")
       .select()
-      .where({ id: currentUser })
+      .where({ id: req.type.id })
       .then(data => {
         return data;
       });
@@ -150,6 +207,7 @@ let root = {
         return data;
       });
   },
+  // CREATE
   CreateUser: (req, res) => {
     const newUser = req.input;
     db("users")
@@ -195,7 +253,7 @@ let root = {
       });
     return newPhoto;
   },
-  CreateGroup: (req, res) => {
+  UpdateGroup: (req, res) => {
     const newGroup = req.input;
     db("groups")
       .insert({
@@ -211,10 +269,110 @@ let root = {
         console.log(result);
       });
     return newGroup;
+  },
+  // UPDATE
+  UpdateUser: (req, res) => {
+    const updatedUser = req.input;
+    db("users")
+      .update({
+        name: req.input.name,
+        email: req.input.email,
+        password: "fake"
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return updatedUser;
+  },
+  UpdateDevice: (req, res) => {
+    const updatedDevice = req.input;
+    db("devices")
+      .update({
+        title: "fake device",
+        device_serial: req.input.deviceSerial,
+        user_id: currentUser
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return updatedDevice;
+  },
+  UpdatePhoto: (req, res) => {
+    const updatedPhoto = req.input;
+    db("photos")
+      .update({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        device_id: "1",
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser,
+        comment_id: req.input.commentId,
+        document_location: "fake"
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return updatedPhoto;
+  },
+  UpdateGroup: (req, res) => {
+    const updatedGroup = req.input;
+    db("groups")
+      .update({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        user_id: currentUser,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return updatedGroup;
+  },
+  //DESTROY
+  DestroyUser: (req, res) => {
+    db("users")
+      .where({ id: req.input.id })
+      .del()
+      .then(function(result) {
+        console.log(result);
+      });
+    return true;
+  },
+  DestroyDevice: (req, res) => {
+    db("devices")
+      .where({ id: req.input.id, user_id: currentUser })
+      .del()
+      .then(function(result) {
+        console.log(result);
+      });
+    return true;
+  },
+  DestroyPhoto: (req, res) => {
+    db("photos")
+      .where({ id: req.input.id, user_id: currentUser })
+      .del()
+      .then(function(result) {
+        console.log(result);
+      });
+    return true;
+  },
+  DestroyGroup: (req, res) => {
+    db("groups")
+      .where({ id: req.input.id, user_id: currentUser })
+      .del()
+      .then(function(result) {
+        console.log(result);
+      });
+    return true;
   }
 };
 
-// Create an express server and a groupsgroupsgroupsgroupsgroupsgroupsgroupsgroupsGraphQL endpoint
+// Create an express server and a GraphQL endpoint
 let app = express();
 app.use(
   "/graphql",

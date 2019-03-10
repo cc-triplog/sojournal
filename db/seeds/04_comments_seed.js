@@ -7,12 +7,16 @@ exports.seed = function(knex, Promise) {
       return knex("comments").insert([
         {
           title: "Look at this guy (comment)",
-          user_id: "4"
+          user_id: "4",
+          latitude: "35.658124669454075",
+          longitude: "139.72756780246945"
         },
         {
           title: "Comment without a Photo. Wow!",
           user_id: "4",
-          group_id: "1"
+          group_id: "1",
+          latitude: "35.658124669454075",
+          longitude: "139.72756780246945"
         }
       ]);
     });
