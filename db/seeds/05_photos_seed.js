@@ -1,3 +1,7 @@
+const fs = require("fs");
+let testPhoto = fs.readFileSync("./seeds/photos/bribri.jpg").toString("base64");
+console.log(testPhoto);
+
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
   return knex("photos")
@@ -13,7 +17,7 @@ exports.seed = function(knex, Promise) {
           latitude: "35.658124669454075",
           longitude: "139.72756780246945",
           comment_id: "1",
-          document_location: "???"
+          document_location: testPhoto
         }
       ]);
     });

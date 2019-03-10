@@ -246,7 +246,7 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment_id: req.input.commentId,
-        document_location: "fake"
+        document_location: req.input.documentLocation
       })
       .then(function(result) {
         console.log(result);
