@@ -233,12 +233,12 @@ let root = {
         "group_id as groupId",
         "user_id as userId",
         "comment_id as commentId",
+        "document_location as documentLocation",
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
       .where({ user_id: currentUser })
       .then(data => {
-        console.log(data);
         return data;
       });
   },
