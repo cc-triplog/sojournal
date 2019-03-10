@@ -1,10 +1,35 @@
 # Trip Log
 
-\$ createdb triplog;
+## How to Setup the Database
 
-\$ yarn knex migrate:latest
+\$ createdb triplog
 
-\$ yarn knex migrate:rollback
+\$ yarn knex --knexfile=./db/knexfile.js migrate:latest
+
+\$ yarn knex --knexfile=./db/knexfile.js migrate:rollback
+
+\$ yarn knex --knexfile=./db/knexfile.js seed:run
+
+## How to Run the Database for testing
+
+\$ yarn nodemon ./db/server.js
+
+{
+ReadUser(type: {
+id: 1
+}) {
+id, name, email
+}
+}
+
+mutation{
+CreateUser(input: {
+id: 5
+name: "chaz"
+}) {
+id, name
+}
+}
 
 <div height="400px" width="800px">
     <h1 align="center">
