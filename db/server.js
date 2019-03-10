@@ -2,7 +2,7 @@ const express = require("express");
 const graphqlHTTP = require("express-graphql");
 const { buildSchema } = require("graphql");
 const config = require("./knexfile");
-const db = require("knex")(config.development);
+const db = require("knex")(config);
 
 const currentUser = 4;
 
@@ -15,13 +15,14 @@ let schema = buildSchema(`
     }
     type Device {
         id: Int
+        title: String
         deviceSerial: String
     }
     type Photo {
         id: Int
         title: String
-        longitude: String
-        latitude: String
+        longitude: Float
+        latitude: Float
         deviceId: Int
         groupId: Int
         orderInGroup: Int
@@ -51,6 +52,7 @@ let schema = buildSchema(`
     }
     input InputDevice {
       id: Int
+      title: String
       deviceSerial: String
     }
     input InputPhoto {
@@ -107,7 +109,6 @@ let schema = buildSchema(`
 
 // Root resolver
 let root = {
-  message: () => "Hello World!",
   ReadUser: (req, res) => {
     //let key = req.type.name || req.type.email;
     return db("users")
@@ -148,12 +149,50 @@ let root = {
       .then(data => {
         return data;
       });
+  },
+  CreateUser: (req, res) => {
+    const newUser = req.input;
+    db("users")
+      .insert({
+        name: req.input.name,
+        email: req.input.email,
+        password: "fake"
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return newUser;
+  },
+  CreateDevice: (req, res) => {
+    const newDevice = req.input;
+    db("devices")
+      .insert({
+        title: "fake device",
+        device_serial: req.input.deviceSerial,
+        user_id: currentUser
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return newDevice;
+  },
+  CreatePhoto: (req, res) => {
+    const newPhoto = req.input;
+    db("photos")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        device_id: "1",
+        user_id: currentUser,
+        comment_id: req.input.comment_id,
+        document_location: "fake"
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+    return newPhoto;
   }
-  // CreateUser: (req, res) => {
-  //   return db("users");
-  // }
-
-  //ReadUser: () => [{ id: 1, name: "poopy pants", email: "poop@pants.com" }]
 };
 
 // Create an express server and a groupsgroupsgroupsgroupsgroupsgroupsgroupsgroupsGraphQL endpoint

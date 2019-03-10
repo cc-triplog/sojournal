@@ -2,8 +2,8 @@ exports.up = function(knex, Promise) {
   return Promise.all([
     knex.schema.createTable("users", function(table) {
       table.increments();
-      table.string("name");
-      table.string("email").notNullable();
+      table.string("name").notNullable();
+      table.string("email");
       table.string("password").notNullable();
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
@@ -21,8 +21,8 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("photos", function(table) {
       table.increments();
       table.string("title");
-      table.string("longitude");
-      table.string("latitude");
+      table.float("longitude");
+      table.float("latitude");
       table
         .integer("device_id")
         .references("id")
@@ -49,8 +49,8 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("comments", function(table) {
       table.increments();
       table.string("title");
-      table.string("longitude");
-      table.string("latitude");
+      table.float("longitude");
+      table.float("latitude");
       table
         .integer("group_id")
         .references("id")
@@ -68,8 +68,8 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("groups", function(table) {
       table.increments();
       table.string("title");
-      table.string("longitude");
-      table.string("latitude");
+      table.float("longitude");
+      table.float("latitude");
       table
         .integer("group_id")
         .references("id")
