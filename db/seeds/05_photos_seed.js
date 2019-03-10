@@ -13,11 +13,12 @@ exports.seed = function(knex, Promise) {
           title: "Look at this guy",
           device_id: "1",
           group_id: "1",
+          order_in_group: "1",
           user_id: "4",
           latitude: "35.658124669454075",
           longitude: "139.72756780246945",
-          comment_id: "1",
-          document_location: testPhoto
+          comment_id: "1"
+          //document_location: testPhoto
         }
       ]);
     });

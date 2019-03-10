@@ -12,11 +12,15 @@ let schema = buildSchema(`
         id: Int
         name: String
         email: String
+        createdAt: Int
+        updatedAt: Int
     }
     type Device {
         id: Int
         title: String
         deviceSerial: String
+        createdAt: Int
+        updatedAt: Int
     }
     type Photo {
         id: Int
@@ -28,6 +32,8 @@ let schema = buildSchema(`
         orderInGroup: Int
         commentId: Int
         documentLocation: String
+        createdAt: Int
+        updatedAt: Int
     }
     type Comment {
         id: Int
@@ -36,6 +42,8 @@ let schema = buildSchema(`
         latitude: Float
         groupId: Int
         orderInGroup: Int
+        createdAt: Int
+        updatedAt: Int
     }
     type Group {
         id: Int
@@ -43,17 +51,23 @@ let schema = buildSchema(`
         longitude: Float
         latitude: Float
         groupId: Int
+        createdAt: Int
+        updatedAt: Int
     }
     input InputUser {
       id: Int
       name: String
       email: String
       password: String
+      createdAt: Int
+      updatedAt: Int
     }
     input InputDevice {
       id: Int
       title: String
       deviceSerial: String
+      createdAt: Int
+      updatedAt: Int
     }
     input InputPhoto {
       id: Int
@@ -65,6 +79,8 @@ let schema = buildSchema(`
       orderInGroup: Int
       commentId: Int
       documentLocation: String
+      createdAt: Int
+      updatedAt: Int
     }
     input InputComment {
       id: Int
@@ -73,6 +89,8 @@ let schema = buildSchema(`
       latitude: Float
       groupId: Int
       orderInGroup: Int
+      createdAt: Int
+      updatedAt: Int
     }
     input InputGroup {
       id: Int
@@ -80,6 +98,8 @@ let schema = buildSchema(`
       longitude: Float
       latitude: Float
       groupId: Int
+      createdAt: Int
+      updatedAt: Int
     }
 
     input UpdateUser {
@@ -87,11 +107,15 @@ let schema = buildSchema(`
       name: String
       email: String
       password: String
+      createdAt: Int
+      updatedAt: Int
     }
     input UpdateDevice {
       id: Int!
       title: String
       deviceSerial: String
+      createdAt: Int
+      updatedAt: Int
     }
     input UpdatePhoto {
       id: Int!
@@ -103,6 +127,8 @@ let schema = buildSchema(`
       orderInGroup: Int
       commentId: Int
       documentLocation: String
+      createdAt: Int
+      updatedAt: Int
     }
     input UpdateComment {
       id: Int!
@@ -111,6 +137,8 @@ let schema = buildSchema(`
       latitude: Float
       groupId: Int
       orderInGroup: Int
+      createdAt: Int
+      updatedAt: Int
     }
     input UpdateGroup {
       id: Int!
@@ -118,6 +146,8 @@ let schema = buildSchema(`
       longitude: Float
       latitude: Float
       groupId: Int
+      createdAt: Int
+      updatedAt: Int
     }
 
     input DestroyUser {
@@ -167,9 +197,13 @@ let schema = buildSchema(`
 let root = {
   // READ
   ReadUser: (req, res) => {
-    //let key = req.type.name || req.type.email;
     return db("users")
-      .select()
+      .select(
+        "name",
+        "email",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
       .where({ id: req.type.id })
       .then(data => {
         return data;
@@ -177,7 +211,13 @@ let root = {
   },
   ReadDevice: (req, res) => {
     return db("devices")
-      .select()
+      .select(
+        "title",
+        "device_serial as deviceSerial",
+        "user_id as userId",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
       .where({ user_id: currentUser })
       .then(data => {
         return data;
@@ -185,15 +225,34 @@ let root = {
   },
   ReadPhoto: (req, res) => {
     return db("photos")
-      .select()
+      .select(
+        "title",
+        "longitude",
+        "latitude",
+        "device_id as deviceId",
+        "group_id as groupId",
+        "user_id as userId",
+        "comment_id as commentId",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
       .where({ user_id: currentUser })
       .then(data => {
+        console.log(data);
         return data;
       });
   },
   ReadComment: (req, res) => {
     return db("comments")
-      .select()
+      .select(
+        "title",
+        "longitude",
+        "latitude",
+        "group_id as groupId",
+        "user_id as userId",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
       .where({ user_id: currentUser })
       .then(data => {
         return data;
@@ -201,7 +260,15 @@ let root = {
   },
   ReadGroup: (req, res) => {
     return db("groups")
-      .select()
+      .select(
+        "title",
+        "longitude",
+        "latitude",
+        "group_id as groupId",
+        "user_id as userId",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
       .where({ user_id: currentUser })
       .then(data => {
         return data;
