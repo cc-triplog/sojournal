@@ -175,11 +175,11 @@ let schema = buildSchema(`
     }
 
     type Mutation {
-        CreateUser(input: InputUser): User
-        CreateDevice(input: InputDevice): Device
-        CreatePhoto(input: InputPhoto): Photo
-        CreateComment(input: InputComment): Comment
-        CreateGroup(input: InputGroup): Group
+        CreateUser(input: InputUser): Boolean
+        CreateDevice(input: InputDevice): Boolean
+        CreatePhoto(input: InputPhoto): Boolean
+        CreateComment(input: InputComment): Boolean
+        CreateGroup(input: InputGroup): Boolean
         UpdateUser(input: UpdateUser): User
         UpdateDevice(input: UpdateDevice): Device
         UpdatePhoto(input: UpdatePhoto): Photo
@@ -192,6 +192,8 @@ let schema = buildSchema(`
         DestroyGroup(input: DestroyGroup): Boolean
     }
 `);
+
+let result;
 
 // Root resolver
 let root = {
@@ -276,68 +278,48 @@ let root = {
   },
   // CREATE
   CreateUser: (req, res) => {
-    const newUser = req.input;
-    db("users")
-      .insert({
-        name: req.input.name,
-        email: req.input.email,
-        password: "fake"
-      })
-      .then(function(result) {
-        console.log(result);
-      });
-    return newUser;
+    db("users").insert({
+      name: req.input.name,
+      email: req.input.email,
+      password: "fake"
+    });
+    return true;
   },
   CreateDevice: (req, res) => {
-    const newDevice = req.input;
-    db("devices")
-      .insert({
-        title: "fake device",
-        device_serial: req.input.deviceSerial,
-        user_id: currentUser
-      })
-      .then(function(result) {
-        console.log(result);
-      });
-    return newDevice;
+    db("devices").insert({
+      title: req.input.title,
+      device_serial: req.input.deviceSerial,
+      user_id: currentUser
+    });
+    return true;
   },
   CreatePhoto: (req, res) => {
-    const newPhoto = req.input;
-    db("photos")
-      .insert({
-        title: req.input.title,
-        longitude: req.input.longitude,
-        latitude: req.input.latitude,
-        device_id: "1",
-        group_id: req.input.groupId,
-        order_in_group: req.input.orderInGroup,
-        user_id: currentUser,
-        comment_id: req.input.commentId,
-        document_location: req.input.documentLocation
-      })
-      .then(function(result) {
-        console.log(result);
-      });
-    return newPhoto;
+    db("photos").insert({
+      title: req.input.title,
+      longitude: req.input.longitude,
+      latitude: req.input.latitude,
+      device_id: req.input.deviceId,
+      group_id: req.input.groupId,
+      order_in_group: req.input.orderInGroup,
+      user_id: currentUser,
+      comment_id: req.input.commentId,
+      document_location: req.input.documentLocation
+    });
+    return true;
   },
   UpdateGroup: (req, res) => {
-    const newGroup = req.input;
-    db("groups")
-      .insert({
-        title: req.input.title,
-        longitude: req.input.longitude,
-        latitude: req.input.latitude,
-        user_id: currentUser,
-        group_id: req.input.groupId,
-        order_in_group: req.input.orderInGroup,
-        user_id: currentUser
-      })
-      .then(function(result) {
-        console.log(result);
-      });
-    return newGroup;
+    db("groups").insert({
+      title: req.input.title,
+      longitude: req.input.longitude,
+      latitude: req.input.latitude,
+      user_id: currentUser,
+      group_id: req.input.groupId,
+      order_in_group: req.input.orderInGroup,
+      user_id: currentUser
+    });
+    return true;
   },
-  // UPDATE
+  // UPDATE - not working
   UpdateUser: (req, res) => {
     const updatedUser = req.input;
     db("users")
@@ -449,6 +431,6 @@ app.use(
     graphiql: true
   })
 );
-app.listen(4000, () =>
+app.listen(process.env.DB_PORT || 4000, () =>
   console.log("Express GraphQL Server Now Running On localhost:4000/graphql")
 );
