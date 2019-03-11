@@ -6,6 +6,7 @@ import styles from "../components/styles";
 import Toolbar from "../components/CameraToolbar";
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
+import CommentModal from "../components/CommentModal";
 
 export default class CameraPage extends React.Component {
   camera = null;
@@ -19,7 +20,8 @@ export default class CameraPage extends React.Component {
     hasCameraPermission: null,
     hasLocationPermission: null,
     capture: {},
-    imageView: false
+    imageView: false,
+    modalVisible: false
   };
 
   setFlashMode = flashMode => this.setState({ flashMode });
@@ -52,6 +54,19 @@ export default class CameraPage extends React.Component {
     console.log(this.state.capture);
   };
 
+  addStory = () => {
+    this.setModalVisible();
+  };
+  setModalVisible = () => {
+    this.setState({ modalVisible: !this.state.modalVisible });
+  };
+  setComment = comment => {
+    const current = this.state.capture;
+    current.comment = comment;
+    this.setState({ capture: current });
+    this.setModalVisible();
+  };
+
   async componentDidMount() {
     const camera = await Permissions.askAsync(Permissions.CAMERA);
     const hasCameraPermission = camera.status === "granted";
@@ -71,7 +86,8 @@ export default class CameraPage extends React.Component {
       capturing,
       capture,
       autofocus,
-      imageView
+      imageView,
+      modalVisible
     } = this.state;
 
     if (hasCameraPermission === null) {
@@ -88,12 +104,6 @@ export default class CameraPage extends React.Component {
 
     return imageView ? (
       <React.Fragment>
-        <Modal style={{ height: 100, width: 100 }} isVisible={true}>
-          <View>
-            <Text>I am the modal content!</Text>
-          </View>
-        </Modal>
-
         <CaptureView capture={capture} />
 
         <CaptureToolbar
@@ -101,6 +111,16 @@ export default class CameraPage extends React.Component {
           uploadPicture={this.uploadPicture}
           addStory={this.addStory}
         />
+        {modalVisible ? (
+          <CommentModal
+            modalVisible={modalVisible}
+            setModalVisible={this.setModalVisible}
+            setComment={this.setComment}
+            saved={this.state.capture.comment}
+          />
+        ) : (
+          <Text />
+        )}
       </React.Fragment>
     ) : (
       <React.Fragment>
