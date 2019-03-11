@@ -121,17 +121,31 @@ export default class HomeScreen extends React.Component {
 
   callDatabase() {
     axios({
-      url: 'localhost:4000/graphql',
+      url: 'http://192.168.10.98:4000/graphql',
       method: 'post',
       data: {
         query: `
-        query ReadPhoto(type: {
+        query {ReadPhoto(type: {
         }) {
-         title, latitude, longitude, comment
+         title, latitude, longitude, comment, imageFile
         }
+      }
         `
       }
-    }).then(result => console.log("============handle======", result.data))
+    }).then(result => this.state.markers.push(result.data.data.ReadPhoto.map(object => (
+      {
+        coordinate: {
+          latitude: `${object.latitude}`,
+          longitude: `${object.longitude}`,
+        },
+        title: `${object.comment}`,
+        description: `${object.comment}`,
+        image: `${object.imageFile}`,
+      }
+    )
+    )))
+    .catch(result => console.log("errr====", result))
+    .then(result => console.log("-=---=-====state", this.state.markers))
   }
 
 
