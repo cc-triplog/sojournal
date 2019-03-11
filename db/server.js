@@ -31,7 +31,7 @@ let schema = buildSchema(`
         groupId: Int
         orderInGroup: Int
         comment: String
-        documentLocation: String
+        imageFile: String
         altitude: Float
         bearing: Float
         createdAt: Int
@@ -80,7 +80,7 @@ let schema = buildSchema(`
       groupId: Int
       orderInGroup: Int
       comment: String
-      documentLocation: String
+      imageFile: String
       altitude: Float
       bearing: Float
       createdAt: Int
@@ -130,7 +130,7 @@ let schema = buildSchema(`
       groupId: Int
       orderInGroup: Int
       comment: String
-      documentLocation: String
+      imageFile: String
       altitude: Float
       bearing: Float
       createdAt: Int
@@ -241,7 +241,7 @@ let root = {
         "group_id as groupId",
         "user_id as userId",
         "comment",
-        "document_location as documentLocation",
+        "image_file as imageFile",
         "altitude",
         "bearing",
         "created_at as createdAt",
@@ -311,7 +311,7 @@ let root = {
       order_in_group: req.input.orderInGroup,
       user_id: currentUser,
       comment: req.input.comment,
-      document_location: req.input.documentLocation,
+      image_file: req.input.imageFile,
       altitude: req.input.altitude,
       bearing: req.input.bearing
     });

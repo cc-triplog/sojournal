@@ -25,7 +25,7 @@ for (let i in photoList) {
       (Number(i) + 1) +
       ".<br>The file name is " +
       photoList[i],
-    document_location: photo
+    image_file: photo
   });
 }
 

@@ -41,7 +41,7 @@ exports.up = function(knex, Promise) {
         .inTable("users")
         .notNullable();
       table.text("comment");
-      table.text("document_location");
+      table.text("image_file");
       table.double("altitude");
       table.double("bearing");
       table.timestamp("created_at").defaultTo(knex.fn.now());
