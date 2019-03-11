@@ -87,6 +87,7 @@ export default class HomeScreen extends React.Component {
     this.index = 0;
     this.animation = new Animated.Value(0);
     this.callDatabase()
+
   }
 
   componentDidMount() {
@@ -94,9 +95,9 @@ export default class HomeScreen extends React.Component {
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.markers.length) {
-        index = this.state.markers.length - 1;
-      }
+      // if (index >= this.state.markers.length) {
+      //   index = this.state.markers.length - 1;
+      // }
       if (index <= 0) {
         index = 0;
       }
@@ -117,7 +118,6 @@ export default class HomeScreen extends React.Component {
         }
       }, 10);
     });
-
 
   }
 
@@ -143,10 +143,29 @@ export default class HomeScreen extends React.Component {
         },
         title: `${object.comment}`,
         description: `${object.comment}`,
-        image: { uri: `data:image/jpg;base64,${object.imageFile}` },
+        image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
       }
     ));
-    mapResult.forEach(mappedImages => this.setState({ marker: { ...this.state.markers,mappedImages } }))
+
+    // const mapImages = result.data.data.ReadPhoto.map(object2 => (
+    //   { uri: `data:image/jpg;base64,${object2.imageFile}` }
+    // ))
+    // mapResult.forEach(object3 => {
+    //   this.state.markers.push(object3);
+    // })
+
+
+    mapResult.forEach(eachObject => {
+      eachObject.latitude = Number(eachObject.latitude)
+      eachObject.longitude = Number(eachObject.longitude)
+    
+      this.setState(previousState => (
+        {
+          markers: [ previousState, eachObject ]
+        }
+      ))
+    })
+
     })
     .catch(result => console.log("errr====", result))
     .then(result => console.log("-=---=-====state", this.state.markers))
@@ -181,7 +200,7 @@ export default class HomeScreen extends React.Component {
           initialRegion={this.state.region}
           style={styles.container}
         >
-          {this.state.markers.map((marker, index) => {
+          {/* {this.state.markers.map((marker, index) => {
             return (
               <MapView.Marker key={index} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
@@ -190,7 +209,7 @@ export default class HomeScreen extends React.Component {
                 </Animated.View>
               </MapView.Marker>
             );
-          })}
+          })} */}
         </MapView>
         <Animated.ScrollView
           horizontal
@@ -211,7 +230,8 @@ export default class HomeScreen extends React.Component {
           )}
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
-        >
+        > 
+        {console.log("just before the images are drawn")}
           {this.state.markers.map((marker, index) => (
             <View style={styles.card} key={index}>
               <Image
