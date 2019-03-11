@@ -36,6 +36,7 @@ let root = {
     }
     return db("devices")
       .select(
+        "id",
         "title",
         "device_serial as deviceSerial",
         "user_id as userId",
@@ -54,6 +55,7 @@ let root = {
     }
     return db("photos")
       .select(
+        "id",
         "title",
         "longitude",
         "latitude",
@@ -79,6 +81,7 @@ let root = {
     }
     return db("comments")
       .select(
+        "id",
         "title",
         "longitude",
         "latitude",
@@ -95,6 +98,7 @@ let root = {
   ReadGroup: (req, res) => {
     return db("groups")
       .select(
+        "id",
         "title",
         "longitude",
         "latitude",
@@ -110,47 +114,69 @@ let root = {
   },
   // CREATE
   CreateUser: (req, res) => {
-    db("users").insert({
-      name: req.input.name,
-      email: req.input.email,
-      password: "fake"
-    });
+    db("users")
+      .insert({
+        name: req.input.name,
+        email: req.input.email,
+        password: "fake"
+      })
+      .catch(err => {
+        console.log(err);
+      });
     return true;
   },
   CreateDevice: (req, res) => {
-    db("devices").insert({
-      title: req.input.title,
-      device_serial: req.input.deviceSerial,
-      user_id: currentUser
-    });
+    db("devices")
+      .insert({
+        title: req.input.title,
+        device_serial: req.input.deviceSerial,
+        user_id: currentUser
+      })
+      .catch(err => {
+        console.log(err);
+      });
     return true;
   },
   CreatePhoto: (req, res) => {
-    db("photos").insert({
-      title: req.input.title,
-      longitude: req.input.longitude,
-      latitude: req.input.latitude,
-      device_id: req.input.deviceId,
-      group_id: req.input.groupId,
-      order_in_group: req.input.orderInGroup,
-      user_id: currentUser,
-      comment: req.input.comment,
-      image_file: req.input.imageFile,
-      altitude: req.input.altitude,
-      bearing: req.input.bearing
-    });
+    db("photos")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        device_id: req.input.deviceId,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser,
+        comment: req.input.comment,
+        image_file: req.input.imageFile,
+        altitude: req.input.altitude,
+        bearing: req.input.bearing
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
     return true;
   },
   UpdateGroup: (req, res) => {
-    db("groups").insert({
-      title: req.input.title,
-      longitude: req.input.longitude,
-      latitude: req.input.latitude,
-      user_id: currentUser,
-      group_id: req.input.groupId,
-      order_in_group: req.input.orderInGroup,
-      user_id: currentUser
-    });
+    db("groups")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        user_id: currentUser,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
     return true;
   },
   // UPDATE - not working
