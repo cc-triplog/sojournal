@@ -42,6 +42,8 @@ exports.up = function(knex, Promise) {
         .notNullable();
       table.text("comment");
       table.text("document_location");
+      table.double("altitude");
+      table.double("bearing");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),

@@ -32,6 +32,8 @@ let schema = buildSchema(`
         orderInGroup: Int
         comment: String
         documentLocation: String
+        altitude: Float
+        bearing: Float
         createdAt: Int
         updatedAt: Int
     }
@@ -79,6 +81,8 @@ let schema = buildSchema(`
       orderInGroup: Int
       comment: String
       documentLocation: String
+      altitude: Float
+      bearing: Float
       createdAt: Int
       updatedAt: Int
     }
@@ -127,6 +131,8 @@ let schema = buildSchema(`
       orderInGroup: Int
       comment: String
       documentLocation: String
+      altitude: Float
+      bearing: Float
       createdAt: Int
       updatedAt: Int
     }
@@ -236,6 +242,8 @@ let root = {
         "user_id as userId",
         "comment",
         "document_location as documentLocation",
+        "altitude",
+        "bearing",
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
@@ -303,7 +311,9 @@ let root = {
       order_in_group: req.input.orderInGroup,
       user_id: currentUser,
       comment: req.input.comment,
-      document_location: req.input.documentLocation
+      document_location: req.input.documentLocation,
+      altitude: req.input.altitude,
+      bearing: req.input.bearing
     });
     return true;
   },
@@ -358,7 +368,8 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        document_location: "fake"
+        altitude: req.input.altitude,
+        bearing: req.input.bearing
       })
       .then(function(result) {
         console.log(result);
