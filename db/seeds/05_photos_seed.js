@@ -20,7 +20,11 @@ for (let i in photoList) {
     user_id: 4,
     latitude: 35.658124669454075 + 0.001 * i,
     longitude: 139.72756780246945 + 0.001 * i,
-    comment: "this is the comment field",
+    comment:
+      "This is test photo " +
+      (Number(i) + 1) +
+      ".<br>The file name is " +
+      photoList[i],
     document_location: photo
   });
 }
