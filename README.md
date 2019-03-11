@@ -45,7 +45,7 @@ id, name
 
 [About](#1-about)&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;[Features](#2-features)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Setup](#3-setup)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Deployment](#4-deployment)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Contributions](#5-contributions)
 
-**ChazGaz** is the application created by a team **Omar**.
+**Trip Log**
 
 </div>
 
