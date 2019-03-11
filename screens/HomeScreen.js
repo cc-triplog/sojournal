@@ -82,9 +82,11 @@ export default class HomeScreen extends React.Component {
     };
   }
 
+
     componentWillMount() {
     this.index = 0;
     this.animation = new Animated.Value(0);
+    this.callDatabase()
   }
 
   componentDidMount() {
@@ -116,7 +118,7 @@ export default class HomeScreen extends React.Component {
       }, 10);
     });
 
-    this.callDatabase()
+
   }
 
   callDatabase() {
@@ -132,7 +134,8 @@ export default class HomeScreen extends React.Component {
       }
         `
       }
-    }).then(result => this.state.markers.push(result.data.data.ReadPhoto.map(object => (
+    }).then(result => {
+      const mapResult = result.data.data.ReadPhoto.map(object => (
       {
         coordinate: {
           latitude: `${object.latitude}`,
@@ -140,10 +143,11 @@ export default class HomeScreen extends React.Component {
         },
         title: `${object.comment}`,
         description: `${object.comment}`,
-        image: `${object.imageFile}`,
+        image: { uri: `data:image/jpg;base64,${object.imageFile}` },
       }
-    )
-    )))
+    ));
+    mapResult.forEach(mappedImages => this.setState({ marker: { ...this.state.markers,mappedImages } }))
+    })
     .catch(result => console.log("errr====", result))
     .then(result => console.log("-=---=-====state", this.state.markers))
   }
