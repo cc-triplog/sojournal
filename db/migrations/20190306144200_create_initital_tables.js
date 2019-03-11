@@ -28,8 +28,7 @@ exports.up = function(knex, Promise) {
       table
         .integer("device_id")
         .references("id")
-        .inTable("devices")
-        .notNullable();
+        .inTable("devices");
       table
         .integer("group_id")
         .references("id")
