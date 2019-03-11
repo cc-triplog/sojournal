@@ -36,6 +36,7 @@ let root = {
     }
     return db("devices")
       .select(
+        "id",
         "title",
         "device_serial as deviceSerial",
         "user_id as userId",
@@ -54,6 +55,7 @@ let root = {
     }
     return db("photos")
       .select(
+        "id",
         "title",
         "longitude",
         "latitude",
@@ -79,6 +81,7 @@ let root = {
     }
     return db("comments")
       .select(
+        "id",
         "title",
         "longitude",
         "latitude",
@@ -95,6 +98,7 @@ let root = {
   ReadGroup: (req, res) => {
     return db("groups")
       .select(
+        "id",
         "title",
         "longitude",
         "latitude",
