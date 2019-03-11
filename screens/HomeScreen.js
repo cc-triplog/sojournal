@@ -14,6 +14,7 @@ import {
 import { WebBrowser, Component } from "expo";
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
+import axios from 'axios'
 
 const Images = [
   { uri: "https://i.imgur.com/sNam9iJ.jpg" },
@@ -81,6 +82,11 @@ export default class HomeScreen extends React.Component {
     };
   }
 
+    componentWillMount() {
+    this.index = 0;
+    this.animation = new Animated.Value(0);
+  }
+
   componentDidMount() {
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
@@ -109,12 +115,24 @@ export default class HomeScreen extends React.Component {
         }
       }, 10);
     });
+
+    this.callDatabase()
   }
 
-  componentWillMount() {
-    this.index = 0;
-    this.animation = new Animated.Value(0);
+  callDatabase() {
+    axios({
+      url: 'localhost:4000/graphql',
+      method: 'post',
+      data: {
+        query: `ReadPhoto(type: {
+        }) {
+         title, latitude, longitude, comment
+        }`
+        }
+    }).then(data => console.log("============handle======", data))
   }
+
+
 
   render() {
     const interpolations = this.state.markers.map((marker, index) => {
