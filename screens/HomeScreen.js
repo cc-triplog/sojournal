@@ -124,12 +124,14 @@ export default class HomeScreen extends React.Component {
       url: 'localhost:4000/graphql',
       method: 'post',
       data: {
-        query: `ReadPhoto(type: {
+        query: `
+        query ReadPhoto(type: {
         }) {
          title, latitude, longitude, comment
-        }`
         }
-    }).then(data => console.log("============handle======", data))
+        `
+      }
+    }).then(result => console.log("============handle======", result.data))
   }
 
 
