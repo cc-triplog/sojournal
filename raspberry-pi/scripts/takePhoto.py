@@ -16,11 +16,11 @@ def take_photo(filename, gps_info):
         camera.start_preview()
         camera.led = False
         if gps_info is not None:
-            camera.exif_tags['GPS.GPSLatitude'] = gps_info['lat']
-            camera.exif_tags['GPS.GPSLongitude'] = gps_info['lon']
-            camera.exif_tags['GPS.GPSTimeStamp'] = gps_info['time']
-            camera.exif_tags['GPS.GPSAltitude'] = gps_info['alt']
-            camera.exif_tags['GPS.GPSTrack'] = gps_info['track']
+            camera.exif_tags['GPS.GPSLatitude'] = str(gps_info['lat'])
+            camera.exif_tags['GPS.GPSLongitude'] = str(gps_info['lon'])
+            camera.exif_tags['GPS.GPSTimeStamp'] = str(gps_info['time'])
+            camera.exif_tags['GPS.GPSAltitude'] = str(gps_info['alt'])
+            camera.exif_tags['GPS.GPSTrack'] = str(gps_info['track'])
         # camera warm-up time
         time.sleep(2)
         camera.capture('./photos/' + filename)
@@ -57,16 +57,17 @@ def upload_server(filename, gps_info):
         data = f.read()
         base64 = data.encode('base64')
 
-        client = GraphQLClient('http://192.168.10.99:4000/graphql')
+        client = GraphQLClient('http://169.254.236.41:4000/graphql')
         print type(base64) is str
 
         if gps_info is not None:
             result = client.execute(
                 "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
                 base64 + "\"\"\", longitude: " +
-                gps_info['lon'] + ", latitude: " +
-                gps_info['lat'] + ", deviceId: 2, altitude: " +
-                gps_info['alt'] + ", bearing: " + gps_info['track'] + "})}"
+                str(gps_info['lon']) + ", latitude: " +
+                str(gps_info['lat']) + ", deviceId: 2, altitude: " +
+                str(gps_info['alt']) + ", bearing: " +
+                str(gps_info['track']) + "})}"
             )
             print(result)
         else:
