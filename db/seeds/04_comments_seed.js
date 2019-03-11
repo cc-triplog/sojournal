@@ -6,7 +6,7 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex("comments").insert([
         {
-          title: "Look at this guy (comment)",
+          title: "No photo. (comment)",
           user_id: "4",
           latitude: "35.658124669454075",
           longitude: "139.72756780246945"
