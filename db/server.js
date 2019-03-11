@@ -30,7 +30,7 @@ let schema = buildSchema(`
         deviceId: Int
         groupId: Int
         orderInGroup: Int
-        commentId: Int
+        comment: String
         documentLocation: String
         createdAt: Int
         updatedAt: Int
@@ -77,7 +77,7 @@ let schema = buildSchema(`
       deviceId: Int
       groupId: Int
       orderInGroup: Int
-      commentId: Int
+      comment: String
       documentLocation: String
       createdAt: Int
       updatedAt: Int
@@ -125,7 +125,7 @@ let schema = buildSchema(`
       deviceId: Int
       groupId: Int
       orderInGroup: Int
-      commentId: Int
+      comment: String
       documentLocation: String
       createdAt: Int
       updatedAt: Int
@@ -234,7 +234,7 @@ let root = {
         "device_id as deviceId",
         "group_id as groupId",
         "user_id as userId",
-        "comment_id as commentId",
+        "comment",
         "document_location as documentLocation",
         "created_at as createdAt",
         "updated_at as updatedAt"
@@ -302,7 +302,7 @@ let root = {
       group_id: req.input.groupId,
       order_in_group: req.input.orderInGroup,
       user_id: currentUser,
-      comment_id: req.input.commentId,
+      comment: req.input.comment,
       document_location: req.input.documentLocation
     });
     return true;
@@ -357,7 +357,7 @@ let root = {
         group_id: req.input.groupId,
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
-        comment_id: req.input.commentId,
+        comment: req.input.comment,
         document_location: "fake"
       })
       .then(function(result) {

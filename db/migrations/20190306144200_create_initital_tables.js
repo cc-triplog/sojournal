@@ -40,10 +40,7 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("users")
         .notNullable();
-      table
-        .integer("comment_id")
-        .references("id")
-        .inTable("comments");
+      table.text("comment");
       table.text("document_location");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
