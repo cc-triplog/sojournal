@@ -1,5 +1,9 @@
 # Trip Log
 
+## Drop the database if there is a problem
+
+\$ dropdb triplog
+
 ## How to Setup the Database
 
 \$ createdb triplog
@@ -12,7 +16,7 @@
 
 ## How to Run the Database for testing
 
-\$ yarn nodemon ./db/server.js
+\$ yarn nodemon --watch ./db ./db/server.js
 
 {
 ReadUser(type: {
