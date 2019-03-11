@@ -12,8 +12,6 @@ const currentUser = 4;
 // GraphQL schema
 let schema = buildSchema(schemas);
 
-let result;
-
 // Root resolver
 let root = {
   // READ
@@ -261,6 +259,7 @@ let root = {
 // Create an express server and a GraphQL endpoint
 let app = express();
 app.use(morgan("tiny"));
+app.use(express.json({ extended: true, limit: "100mb" }));
 app.use(
   "/graphql",
   graphqlHTTP({
