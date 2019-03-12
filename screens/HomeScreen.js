@@ -22,6 +22,8 @@ import axios from 'axios'
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
+const theme = getTheme();
+
 let modalContent;
 
 
@@ -128,10 +130,10 @@ export default class HomeScreen extends React.Component {
     const theme = getTheme();    
     console.log("============marker index",this.state.markers[index].index)
       this.modalContent = (
-      <View>
-          <Image source={this.state.markers[index].image} style={styles.enlargedPhoto} />
-          <TextInput style={styles.textInputPopup} value={this.state.markers[index].title} />
-          <TextInput style={styles.textInputPopup} value={this.state.markers[index].description} />
+      <View style={theme.cardStyle}>
+          <Image source={this.state.markers[index].image} style={theme.cardImageStyle} />
+          <TextInput style={theme.cardContentStyle} value={this.state.markers[index].title} />
+          <TextInput style={theme.cardContentStyle} value={this.state.markers[index].description} />
       </View>)
     this.setState({ visible: true })
   }
@@ -196,7 +198,7 @@ export default class HomeScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          <Modal style={styles.popUpModal} visible={this.state.visible} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
+          <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
             {this.modalContent}
           </Modal>
         {this.state.markers.map((marker, index) => (
@@ -293,8 +295,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOpacity: 0.3,
     shadowOffset: { x: 2, y: -2 },
-    height: "50%",
-    width: "50%",
+    height: Dimensions.get('window').height * 0.5,
+    width: Dimensions.get('window').width * 0.5,
     overflow: "visible",
   },
   textInputPopup: {
