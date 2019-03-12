@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { View, Text, TouchableHighlight, Alert, Modal } from "react-native";
 import { Camera, Permissions, Location } from "expo";
 
@@ -38,7 +39,6 @@ export default class CameraPage extends React.Component {
       longitude: location.coords.longitude
     };
     photoData.timestamp = location.timestamp;
-
     this.setState({
       capturing: false,
       capture: photoData,
@@ -50,8 +50,25 @@ export default class CameraPage extends React.Component {
     this.setState({ imageView: false, capture: {} });
   };
 
-  uploadPicture = () => {
-    console.log(this.state.capture);
+  uploadPicture = async () => {
+    const { capture } = this.state;
+    console.log(JSON.stringify(capture.timestamp));
+
+    axios({
+      url: "http://192.168.10.95:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation
+          {CreatePhoto(
+            input:{
+              imageFile:${JSON.stringify(capture.base64)}
+              longitude:${capture.geolocation.longitude}
+              latitude: ${capture.geolocation.latitude}
+              createdAt: "${capture.timestamp}"
+              comment: "${capture.comment}"
+          })}`
+      }
+    });
   };
 
   addStory = () => {
