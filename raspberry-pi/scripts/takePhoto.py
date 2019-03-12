@@ -1,3 +1,4 @@
+import os
 import picamera
 import time
 from datetime import datetime
@@ -11,29 +12,33 @@ import json
 import pyexif
 from fractions import Fraction
 
+GRAPHQL_URL = os.environ['URL_PROD']
 
 def take_photo(filename, gps_info):
     with picamera.PiCamera() as camera:
         camera.resolution = (1024, 768)
         camera.start_preview()
         camera.led = False
+        camera.exif_tags['GPS.GPSAltitude'] = "18.638"
+        camera.exif_tags['GPS.GPSLatitude'] = "5/1,10/1,15/1"
         if gps_info is not None:
             lat_deg = to_deg(gps_info['lat'], ["S", "N"])
             lng_deg = to_deg(gps_info['lon'], ["W", "E"])
 
-            exiv_lat = (change_to_rational(lat_deg[0]), change_to_rational(
-                lat_deg[1]), change_to_rational(lat_deg[2]))
-            exiv_lng = (change_to_rational(lng_deg[0]), change_to_rational(
-                lng_deg[1]), change_to_rational(lng_deg[2]))
-            camera.exif_tags['GPS.GPSLatitudeRef'] = lat_deg[3]
+            exiv_lat = change_to_rational(lat_deg[0]) + "," + change_to_rational(
+                lat_deg[1]) + "," + change_to_rational(lat_deg[2])
+            exiv_lng = change_to_rational(lng_deg[0]) + "," + change_to_rational(
+                lng_deg[1]) + "," + change_to_rational(lng_deg[2])
             camera.exif_tags['GPS.GPSLatitude'] = exiv_lat
-            camera.exif_tags['GPS.GPSLongitudeRef'] = lng_deg[3]
+            # camera.exif_tags['GPS.GPSLatitudeRef'] = str(lat_deg[3])
+            # camera.exif_tags['GPS.GPSLongitudeRef'] = str(lng_deg[3])
             camera.exif_tags['GPS.GPSLongitude'] = exiv_lng
-            camera.exif_tags['GPS.GPSTimeStamp'] = gps_info['time']
-            camera.exif_tags['GPS.GPSAltitudeRef'] = 1
-            camera.exif_tags['GPS.GPSAltitude'] = change_to_rational(
-                round(gps_info['alt']))
-            camera.exif_tags['GPS.GPSTrack'] = gps_info['track']
+            camera.exif_tags['GPS.GPSTimeStamp'] = str(gps_info['time'])
+            # camera.exif_tags['GPS.GPSAltitudeRef'] = str(1)
+            camera.exif_tags['GPS.GPSAltitude'] = str(gps_info['alt'])
+            camera.exif_tags['GPS.GPSTrack'] = str(gps_info['track'])
+            print "lattitude is " + exiv_lat
+            print "longitude is " + exiv_lng
         # camera warm-up time
         time.sleep(2)
         camera.capture('./photos/' + filename)
@@ -90,7 +95,7 @@ def change_to_rational(number):
     return: tuple like (1, 2), (numerator, denominator)
     """
     f = Fraction(str(number))
-    return (f.numerator, f.denominator)
+    return str(f.numerator) + "/" + str(f.denominator)
 
 
 def upload_server(filename, gps_info):
@@ -98,7 +103,7 @@ def upload_server(filename, gps_info):
         data = f.read()
         base64 = data.encode('base64')
 
-        client = GraphQLClient('http://169.254.164.227:4000/graphql')
+        client = GraphQLClient(GRAPHQL_URL)
         print type(base64) is str
 
         if gps_info is not None:
