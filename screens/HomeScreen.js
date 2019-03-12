@@ -11,16 +11,10 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { WebBrowser } from "expo";
+import { WebBrowser, Component } from "expo";
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
-
-const Images = [
-  { uri: "https://i.imgur.com/sNam9iJ.jpg" },
-  { uri: "https://i.imgur.com/N7rlQYt.jpg" },
-  { uri: "https://i.imgur.com/UDrH0wm.jpg" },
-  { uri: "https://i.imgur.com/Ka8kNST.jpg" }
-]
+import axios from 'axios'
 
 const { width, height } = Dimensions.get("window");
 
@@ -34,51 +28,22 @@ export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      markers: [
-        {
-          coordinate: {
-            latitude: 45.524548,
-            longitude: -122.6749817,
-          },
-          title: "Best Place",
-          description: "This is the best place in Portland",
-          image: Images[0],
-        },
-        {
-          coordinate: {
-            latitude: 45.524698,
-            longitude: -122.6655507,
-          },
-          title: "Second Best Place",
-          description: "This is the second best place in Portland",
-          image: Images[1],
-        },
-        {
-          coordinate: {
-            latitude: 45.5230786,
-            longitude: -122.6701034,
-          },
-          title: "Third Best Place",
-          description: "This is the third best place in Portland",
-          image: Images[2],
-        },
-        {
-          coordinate: {
-            latitude: 45.521016,
-            longitude: -122.6561917,
-          },
-          title: "Fourth Best Place",
-          description: "This is the fourth best place in Portland",
-          image: Images[3],
-        },
-      ],
+      markers: [],
       region: {
-        latitude: 45.52220671242907,
-        longitude: -122.6653281029795,
+        latitude: 35.6591246694541,
+        longitude: 139.728567802469,
         latitudeDelta: 0.04864195044303443,
         longitudeDelta: 0.040142817690068,
       },
     };
+  }
+
+
+    componentWillMount() {
+    this.index = 0;
+    this.animation = new Animated.Value(0);
+    this.callDatabase()
+
   }
 
   componentDidMount() {
@@ -109,12 +74,47 @@ export default class HomeScreen extends React.Component {
         }
       }, 10);
     });
+
   }
 
-  componentWillMount() {
-    this.index = 0;
-    this.animation = new Animated.Value(0);
+  callDatabase() {
+    axios({
+      url: 'http://192.168.10.98:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        query {ReadPhoto(type: {
+        }) {
+         title, latitude, longitude, comment, imageFile
+        }
+      }
+        `
+      }
+    }).then(result => {
+      const mapResult = result.data.data.ReadPhoto.map(object => (
+      {
+        coordinate: {
+          latitude: Number(object.latitude),
+          longitude: Number(object.longitude),
+        },
+        title: `${object.comment}`,
+        description: `${object.comment}`,
+        image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
+      }
+    ));
+
+    mapResult.forEach(eachObject => {
+      this.setState(
+        {
+          markers: [...this.state.markers, eachObject]
+        }
+      )
+    })
+
+    })
   }
+
+
 
   render() {
     const interpolations = this.state.markers.map((marker, index) => {
@@ -173,7 +173,7 @@ export default class HomeScreen extends React.Component {
           )}
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
-        >
+        > 
           {this.state.markers.map((marker, index) => (
             <View style={styles.card} key={index}>
               <Image
@@ -193,41 +193,6 @@ export default class HomeScreen extends React.Component {
       </View>
     );
   }
-
-  _maybeRenderDevelopmentModeWarning() {
-    if (__DEV__) {
-      const learnMoreButton = (
-        <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-          Learn more
-        </Text>
-      );
-
-      return (
-        <Text style={styles.developmentModeText}>
-          Development mode is enabled, your app will be slower but you can use
-          useful development tools. {learnMoreButton}
-        </Text>
-      );
-    } else {
-      return (
-        <Text style={styles.developmentModeText}>
-          You are not in development mode, your app will run at full speed.
-        </Text>
-      );
-    }
-  }
-
-  _handleLearnMorePress = () => {
-    WebBrowser.openBrowserAsync(
-      "https://docs.expo.io/versions/latest/guides/development-mode"
-    );
-  };
-
-  _handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      "https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes"
-    );
-  };
 }
 
 const styles = StyleSheet.create({
