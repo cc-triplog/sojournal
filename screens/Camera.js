@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { View, Text, TouchableHighlight, Alert, Modal } from "react-native";
 import { Camera, Permissions, Location } from "expo";
 
@@ -6,6 +7,7 @@ import styles from "../components/styles";
 import Toolbar from "../components/CameraToolbar";
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
+import CommentModal from "../components/CommentModal";
 
 export default class CameraPage extends React.Component {
   camera = null;
@@ -19,7 +21,8 @@ export default class CameraPage extends React.Component {
     hasCameraPermission: null,
     hasLocationPermission: null,
     capture: {},
-    imageView: false
+    imageView: false,
+    modalVisible: false
   };
 
   setFlashMode = flashMode => this.setState({ flashMode });
@@ -36,7 +39,6 @@ export default class CameraPage extends React.Component {
       longitude: location.coords.longitude
     };
     photoData.timestamp = location.timestamp;
-
     this.setState({
       capturing: false,
       capture: photoData,
@@ -48,8 +50,38 @@ export default class CameraPage extends React.Component {
     this.setState({ imageView: false, capture: {} });
   };
 
-  uploadPicture = () => {
-    console.log(this.state.capture);
+  uploadPicture = async () => {
+    const { capture } = this.state;
+    console.log(JSON.stringify(capture.timestamp));
+
+    axios({
+      url: "http://192.168.10.95:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation
+          {CreatePhoto(
+            input:{
+              imageFile:${JSON.stringify(capture.base64)}
+              longitude:${capture.geolocation.longitude}
+              latitude: ${capture.geolocation.latitude}
+              createdAt: "${capture.timestamp}"
+              comment: "${capture.comment}"
+          })}`
+      }
+    });
+  };
+
+  addStory = () => {
+    this.setModalVisible();
+  };
+  setModalVisible = () => {
+    this.setState({ modalVisible: !this.state.modalVisible });
+  };
+  setComment = comment => {
+    const current = this.state.capture;
+    current.comment = comment;
+    this.setState({ capture: current });
+    this.setModalVisible();
   };
 
   async componentDidMount() {
@@ -71,7 +103,8 @@ export default class CameraPage extends React.Component {
       capturing,
       capture,
       autofocus,
-      imageView
+      imageView,
+      modalVisible
     } = this.state;
 
     if (hasCameraPermission === null) {
@@ -88,12 +121,6 @@ export default class CameraPage extends React.Component {
 
     return imageView ? (
       <React.Fragment>
-        <Modal style={{ height: 100, width: 100 }} isVisible={true}>
-          <View>
-            <Text>I am the modal content!</Text>
-          </View>
-        </Modal>
-
         <CaptureView capture={capture} />
 
         <CaptureToolbar
@@ -101,6 +128,16 @@ export default class CameraPage extends React.Component {
           uploadPicture={this.uploadPicture}
           addStory={this.addStory}
         />
+        {modalVisible ? (
+          <CommentModal
+            modalVisible={modalVisible}
+            setModalVisible={this.setModalVisible}
+            setComment={this.setComment}
+            saved={this.state.capture.comment}
+          />
+        ) : (
+          <Text />
+        )}
       </React.Fragment>
     ) : (
       <React.Fragment>

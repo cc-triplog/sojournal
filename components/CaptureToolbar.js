@@ -11,27 +11,17 @@ export default ({ trashPicture, uploadPicture, addStory }) => (
     <Row>
       <Col style={styles.alignCenter}>
         <TouchableOpacity onPress={() => uploadPicture()}>
-          <Ionicons
-            name={
-              Platform.OS === "ios" ? "ios-cloud-upload" : "md-cloud_upload"
-            }
-            color="white"
-            size={40}
-          />
+          <Octicons name="cloud-upload" color="white" size={40} />
         </TouchableOpacity>
       </Col>
       <Col style={styles.alignCenter}>
         <TouchableOpacity onPress={() => addStory()}>
-          <Octicons name="pencil" color="white" size={50} />
+          <Octicons name="pencil" color="white" size={40} />
         </TouchableOpacity>
       </Col>
       <Col style={styles.alignCenter}>
         <TouchableOpacity onPress={() => trashPicture()}>
-          <Ionicons
-            name={Platform.OS === "ios" ? "ios-trash" : "md-delete"}
-            color="white"
-            size={40}
-          />
+          <Octicons name="trashcan" color="white" size={40} />
         </TouchableOpacity>
       </Col>
     </Row>
