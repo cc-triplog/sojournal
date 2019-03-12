@@ -6,8 +6,13 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex("devices").insert([
         {
-          title: "Chazzy",
+          title: "Not a Device",
           device_serial: "fake_serial",
+          user_id: "4"
+        },
+        {
+          title: "Keisuke's Raspberry Pi",
+          device_serial: "0000000076a55e56",
           user_id: "4"
         }
       ]);

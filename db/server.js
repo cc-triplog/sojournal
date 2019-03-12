@@ -1,8 +1,8 @@
-try {
-  const result = require("dotenv").config();
-} catch (err) {
-  console.log("have you thought about using an env file?");
-}
+// try {
+//   const result = require("dotenv").config();
+// } catch (err) {
+//   console.log("have you thought about using an env file?");
+// }
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
