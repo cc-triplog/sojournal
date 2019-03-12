@@ -5,21 +5,25 @@ import {
   Dimensions,
   Image,
   Platform,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
 import { WebBrowser, Component } from "expo";
+import { getTheme } from 'react-native-material-kit'
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios'
 
 const { width, height } = Dimensions.get("window");
-
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
+let modalContent;
+
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -35,6 +39,7 @@ export default class HomeScreen extends React.Component {
         latitudeDelta: 0.04864195044303443,
         longitudeDelta: 0.040142817690068,
       },
+      visible: false,
     };
   }
 
@@ -79,7 +84,7 @@ export default class HomeScreen extends React.Component {
 
   callDatabase() {
     axios({
-      url: 'http://192.168.10.98:4000/graphql',
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
       data: {
         query: `
@@ -97,12 +102,15 @@ export default class HomeScreen extends React.Component {
           latitude: Number(object.latitude),
           longitude: Number(object.longitude),
         },
-        title: `${object.comment}`,
+        title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
       }
     ));
 
+    for(let i = 0; i < mapResult.length; i++) {
+      mapResult[i].index = i;
+    }
     mapResult.forEach(eachObject => {
       this.setState(
         {
@@ -112,6 +120,20 @@ export default class HomeScreen extends React.Component {
     })
 
     })
+  }
+
+  searchStateForClickedImage (){}
+
+  onPressImageCard (index) {
+    const theme = getTheme();    
+    console.log("============marker index",this.state.markers[index].index)
+      this.modalContent = (
+      <View>
+          <Image source={this.state.markers[index].image} style={styles.enlargedPhoto} />
+          <TextInput style={styles.textInputPopup} value={this.state.markers[index].title} />
+          <TextInput style={styles.textInputPopup} value={this.state.markers[index].description} />
+      </View>)
+    this.setState({ visible: true })
   }
 
 
@@ -173,10 +195,15 @@ export default class HomeScreen extends React.Component {
           )}
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
-        > 
-          {this.state.markers.map((marker, index) => (
-            <View style={styles.card} key={index}>
+        >
+          <Modal style={styles.popUpModal} visible={this.state.visible} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
+            {this.modalContent}
+          </Modal>
+        {this.state.markers.map((marker, index) => (
+          <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
+            <View style={styles.card} key={index} >
               <Image
+                // onPress={this.onPressImageCard(index)}
                 source={marker.image}
                 style={styles.cardImage}
                 resizeMode="cover"
@@ -186,9 +213,11 @@ export default class HomeScreen extends React.Component {
                 <Text numberOfLines={1} style={styles.cardDescription}>
                   {marker.description}
                 </Text>
-              </View>
+              </View>              
             </View>
-          ))}
+          </TouchableOpacity>
+        ))}
+          
         </Animated.ScrollView>
       </View>
     );
@@ -255,6 +284,23 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "rgba(130,4,150, 0.9)",
   },
+  popUpModal: {
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#FFF",
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    height: "50%",
+    width: "50%",
+    overflow: "visible",
+  },
+  textInputPopup: {
+    width: "100%",
+    height: "50%"
+  },
   ring: {
     width: 24,
     height: 24,
@@ -263,5 +309,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderWidth: 1,
     borderColor: "rgba(130,4,150, 0.5)",
+  },
+  enlargedPhoto: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    justifyContent: "center",
+    alignItems: 'center',
+    height: Dimensions.get('window').height * 0.8,
+    width: Dimensions.get('window').width * 0.8,
   },
 });
