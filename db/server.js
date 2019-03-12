@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
 const { buildSchema } = require("graphql");
@@ -120,6 +121,9 @@ let root = {
         email: req.input.email,
         password: "fake"
       })
+      .then(res => {
+        //console.log(res);
+      })
       .catch(err => {
         console.log(err);
       });
@@ -131,6 +135,9 @@ let root = {
         title: req.input.title,
         device_serial: req.input.deviceSerial,
         user_id: currentUser
+      })
+      .then(res => {
+        //console.log(res);
       })
       .catch(err => {
         console.log(err);
@@ -153,7 +160,7 @@ let root = {
         bearing: req.input.bearing
       })
       .then(res => {
-        console.log(res);
+        //console.log(res);
       })
       .catch(err => {
         console.log(err);
@@ -172,7 +179,7 @@ let root = {
         user_id: currentUser
       })
       .then(res => {
-        console.log(res);
+        //console.log(res);
       })
       .catch(err => {
         console.log(err);
@@ -188,8 +195,11 @@ let root = {
         email: req.input.email,
         password: "fake"
       })
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return updatedUser;
   },
@@ -201,8 +211,11 @@ let root = {
         device_serial: req.input.deviceSerial,
         user_id: currentUser
       })
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return updatedDevice;
   },
@@ -221,8 +234,11 @@ let root = {
         altitude: req.input.altitude,
         bearing: req.input.bearing
       })
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return updatedPhoto;
   },
@@ -238,8 +254,11 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser
       })
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return updatedGroup;
   },
@@ -248,8 +267,11 @@ let root = {
     db("users")
       .where({ id: req.input.id })
       .del()
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return true;
   },
@@ -257,8 +279,11 @@ let root = {
     db("devices")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return true;
   },
@@ -266,8 +291,11 @@ let root = {
     db("photos")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return true;
   },
@@ -275,8 +303,11 @@ let root = {
     db("groups")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
-      .then(function(result) {
-        console.log(result);
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
       });
     return true;
   }
@@ -284,7 +315,7 @@ let root = {
 
 // Create an express server and a GraphQL endpoint
 let app = express();
-app.use(morgan("tiny"));
+app.use(morgan("common"));
 app.use(express.json({ extended: true, limit: "100mb" }));
 app.use(
   "/graphql",
