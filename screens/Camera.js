@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
 import { AntDesign } from "react-native-vector-icons";
 
@@ -34,7 +34,7 @@ export default class CameraPage extends React.Component {
     );
   };
 
-  getDateFromAndroidCamera = input => {
+  getDateFromCamera = input => {
     const separators = new RegExp("[: ]", "g");
     return new Date(...input.split(separators)).getTime();
   };
@@ -44,15 +44,27 @@ export default class CameraPage extends React.Component {
       await ImagePicker.launchCameraAsync({
         base64: true,
         exif: true
-      }).then(res => {
+      }).then(async res => {
+        let capture;
         if (!res.cancelled) {
-          let capture = {
-            latitude: res.exif.GPSLatitude,
-            longitude: res.exif.GPSLongitude,
-            base64: res.base64,
-            timestamp: this.getDateFromAndroidCamera(res.exif.DateTime),
-            uri: res.uri
-          };
+          if (Platform.OS === "ios") {
+            const location = await Location.getCurrentPositionAsync({});
+            capture = {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              base64: res.base64,
+              timestamp: this.getDateFromCamera(res.exif.DateTimeDigitized),
+              uri: res.uri
+            };
+          } else {
+            capture = {
+              latitude: res.exif.GPSLatitude,
+              longitude: res.exif.GPSLongitude,
+              base64: res.base64,
+              timestamp: this.getDateFromCamera(res.exif.DateTime),
+              uri: res.uri
+            };
+          }
           this.setState({ capture, imageView: true });
         }
       });
@@ -65,15 +77,27 @@ export default class CameraPage extends React.Component {
         type: "Images",
         base64: true,
         exif: true
-      }).then(res => {
+      }).then(async res => {
+        let capture;
         if (!res.cancelled) {
-          let capture = {
-            latitude: res.exif.GPSLatitude,
-            longitude: res.exif.GPSLongitude,
-            base64: res.base64,
-            timestamp: this.getDateFromAndroidCamera(res.exif.DateTime),
-            uri: res.uri
-          };
+          if (Platform.OS === "ios") {
+            const location = await Location.getCurrentPositionAsync({});
+            capture = {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              base64: res.base64,
+              timestamp: this.getDateFromCamera(res.exif.DateTimeDigitized),
+              uri: res.uri
+            };
+          } else {
+            capture = {
+              latitude: res.exif.GPSLatitude,
+              longitude: res.exif.GPSLongitude,
+              base64: res.base64,
+              timestamp: this.getDateFromCamera(res.exif.DateTime),
+              uri: res.uri
+            };
+          }
           this.setState({ capture, imageView: true });
         }
       });
@@ -88,7 +112,8 @@ export default class CameraPage extends React.Component {
     const { capture } = this.state;
 
     axios({
-      url: "http://192.168.10.95:4000/graphql",
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
       method: "post",
       data: {
         query: `mutation
