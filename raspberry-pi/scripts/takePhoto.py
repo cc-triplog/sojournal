@@ -8,6 +8,8 @@ import urllib2
 import boto3
 from graphqlclient import GraphQLClient
 import json
+import pyexif
+from fractions import Fraction
 
 
 def take_photo(filename, gps_info):
@@ -16,11 +18,22 @@ def take_photo(filename, gps_info):
         camera.start_preview()
         camera.led = False
         if gps_info is not None:
-            camera.exif_tags['GPS.GPSLatitude'] = str(gps_info['lat'])
-            camera.exif_tags['GPS.GPSLongitude'] = str(gps_info['lon'])
-            camera.exif_tags['GPS.GPSTimeStamp'] = str(gps_info['time'])
-            camera.exif_tags['GPS.GPSAltitude'] = str(gps_info['alt'])
-            camera.exif_tags['GPS.GPSTrack'] = str(gps_info['track'])
+            lat_deg = to_deg(gps_info['lat'], ["S", "N"])
+            lng_deg = to_deg(gps_info['lon'], ["W", "E"])
+
+            exiv_lat = (change_to_rational(lat_deg[0]), change_to_rational(
+                lat_deg[1]), change_to_rational(lat_deg[2]))
+            exiv_lng = (change_to_rational(lng_deg[0]), change_to_rational(
+                lng_deg[1]), change_to_rational(lng_deg[2]))
+            camera.exif_tags['GPS.GPSLatitudeRef'] = lat_deg[3]
+            camera.exif_tags['GPS.GPSLatitude'] = exiv_lat
+            camera.exif_tags['GPS.GPSLongitudeRef'] = lng_deg[3]
+            camera.exif_tags['GPS.GPSLongitude'] = exiv_lng
+            camera.exif_tags['GPS.GPSTimeStamp'] = gps_info['time']
+            camera.exif_tags['GPS.GPSAltitudeRef'] = 1
+            camera.exif_tags['GPS.GPSAltitude'] = change_to_rational(
+                round(gps_info['alt']))
+            camera.exif_tags['GPS.GPSTrack'] = gps_info['track']
         # camera warm-up time
         time.sleep(2)
         camera.capture('./photos/' + filename)
@@ -50,6 +63,34 @@ def get_gps(data_stream, gps_socket):
             break
         break
     return gps_info
+
+
+def to_deg(value, loc):
+    """convert decimal coordinates into degrees, munutes and seconds tuple
+    Keyword arguments: value is float gps-value, loc is direction list ["S", "N"] or ["W", "E"]
+    return: tuple like (25, 13, 48.343 ,'N')
+    """
+    if value < 0:
+        loc_value = loc[0]
+    elif value > 0:
+        loc_value = loc[1]
+    else:
+        loc_value = ""
+    abs_value = abs(value)
+    deg = int(abs_value)
+    t1 = (abs_value-deg)*60
+    min = int(t1)
+    sec = round((t1 - min) * 60, 5)
+    return (deg, min, sec, loc_value)
+
+
+def change_to_rational(number):
+    """convert a number to rantional
+    Keyword arguments: number
+    return: tuple like (1, 2), (numerator, denominator)
+    """
+    f = Fraction(str(number))
+    return (f.numerator, f.denominator)
 
 
 def upload_server(filename, gps_info):
