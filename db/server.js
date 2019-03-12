@@ -1,6 +1,6 @@
 try {
   const result = require("dotenv").config();
-} catch {
+} catch (err) {
   console.log("have you thought about using an env file?");
 }
 
