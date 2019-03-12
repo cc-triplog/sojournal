@@ -225,20 +225,34 @@ let root = {
     return updatedDevice;
   },
   UpdatePhoto: (req, res) => {
-    const updatedPhoto = req.input;
+    let updateObject = { user_id: currentUser };
+    if (req.input.title) {
+      updateObject.title = req.input.title;
+    }
+    if (req.input.longitude) {
+      updateObject.longitude = req.input.longitude;
+    }
+    if (req.input.latitude) {
+      updateObject.latitude = req.input.latitude;
+    }
+    if (req.input.groupId) {
+      updateObject.group_id = req.input.groupId;
+    }
+    if (req.input.orderInGroup) {
+      updateObject.order_in_group = req.input.orderInGroup;
+    }
+    if (req.input.comment) {
+      updateObject.comment = req.input.comment;
+    }
+    if (req.input.altitude) {
+      updateObject.altitude = req.input.altitude;
+    }
+    if (req.input.bearing) {
+      updateObject.bearing = req.input.bearing;
+    }
     db("photos")
-      .update({
-        title: req.input.title,
-        longitude: req.input.longitude,
-        latitude: req.input.latitude,
-        device_id: "1",
-        group_id: req.input.groupId,
-        order_in_group: req.input.orderInGroup,
-        user_id: currentUser,
-        comment: req.input.comment,
-        altitude: req.input.altitude,
-        bearing: req.input.bearing
-      })
+      .where({ id: req.input.id })
+      .update(updateObject)
       .then(res => {
         //console.log(res);
       })
