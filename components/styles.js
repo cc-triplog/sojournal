@@ -23,6 +23,15 @@ export default StyleSheet.create({
     height: 100,
     bottom: 0
   },
+  commentToolbar: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    width: "100%",
+    position: "absolute",
+    height: 100,
+    bottom: 0
+  },
   captureBtn: {
     width: 60,
     height: 60,
@@ -53,5 +62,29 @@ export default StyleSheet.create({
   galleryImage: {
     width: 75,
     height: 75
+  },
+  commentBox: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: winHeight * 0.6,
+    minHeight: winHeight * 0.4,
+    width: winWidth * 0.75,
+    marginLeft: winWidth * 0.125,
+    marginRight: winWidth * 0.125,
+    marginTop: winHeight * 0.125,
+    marginBottom: winHeight * 0.275,
+    borderColor: "white",
+    borderWidth: 1,
+    backgroundColor: "#ffffff",
+    borderRadius: 25
+  },
+  commentInput: {
+    alignItems: "center",
+    fontSize: 30,
+    width: 250,
+    margin: 40,
+    marginBottom: 80
   }
 });
