@@ -1,10 +1,11 @@
 import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Permissions, Location, ImagePicker } from "expo";
+import { AntDesign } from "react-native-vector-icons";
+
 import axios from "axios";
-import { View, Text, TouchableHighlight, Alert, Modal } from "react-native";
-import { Camera, Permissions, Location } from "expo";
 
 import styles from "../components/styles";
-import Toolbar from "../components/CameraToolbar";
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
 import CommentModal from "../components/CommentModal";
@@ -13,37 +14,70 @@ export default class CameraPage extends React.Component {
   camera = null;
 
   state = {
-    captures: [],
-    flashMode: Camera.Constants.FlashMode.off,
-    autofocus: Camera.Constants.AutoFocus.on,
-    capturing: null,
-    cameraType: Camera.Constants.Type.back,
-    hasCameraPermission: null,
-    hasLocationPermission: null,
-    capture: {},
+    capture: null,
     imageView: false,
     modalVisible: false
   };
 
-  setFlashMode = flashMode => this.setState({ flashMode });
-  setCameraType = cameraType => this.setState({ cameraType });
-  handleCaptureIn = () => this.setState({ capturing: true });
-  handleShortCapture = async () => {
-    const photoData = await this.camera.takePictureAsync({
-      base64: true
-    });
-    const location = await Location.getCurrentPositionAsync({});
+  checkPermissions = async () => {
+    const camera = await Permissions.askAsync(Permissions.CAMERA);
+    const hasCameraPermission = camera.status === "granted";
 
-    photoData.geolocation = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude
-    };
-    photoData.timestamp = location.timestamp;
-    this.setState({
-      capturing: false,
-      capture: photoData,
-      imageView: true
-    });
+    const cameraRoll = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    const hasCameraRollPermission = cameraRoll.status === "granted";
+
+    const location = await Permissions.askAsync(Permissions.LOCATION);
+    const hasLocationPermission = location.status === "granted";
+
+    return (
+      hasCameraPermission && hasCameraRollPermission && hasLocationPermission
+    );
+  };
+
+  getDateFromAndroidCamera = input => {
+    const separators = new RegExp("[: ]", "g");
+    return new Date(...input.split(separators)).getTime();
+  };
+
+  launchCamera = async () => {
+    if (this.checkPermissions) {
+      await ImagePicker.launchCameraAsync({
+        base64: true,
+        exif: true
+      }).then(res => {
+        if (!res.cancelled) {
+          let capture = {
+            latitude: res.exif.GPSLatitude,
+            longitude: res.exif.GPSLongitude,
+            base64: res.base64,
+            timestamp: this.getDateFromAndroidCamera(res.exif.DateTime),
+            uri: res.uri
+          };
+          this.setState({ capture, imageView: true });
+        }
+      });
+    }
+  };
+
+  launchLibrary = async () => {
+    if (this.checkPermissions) {
+      await ImagePicker.launchImageLibraryAsync({
+        type: "Images",
+        base64: true,
+        exif: true
+      }).then(res => {
+        if (!res.cancelled) {
+          let capture = {
+            latitude: res.exif.GPSLatitude,
+            longitude: res.exif.GPSLongitude,
+            base64: res.base64,
+            timestamp: this.getDateFromAndroidCamera(res.exif.DateTime),
+            uri: res.uri
+          };
+          this.setState({ capture, imageView: true });
+        }
+      });
+    }
   };
 
   trashPicture = () => {
@@ -52,7 +86,6 @@ export default class CameraPage extends React.Component {
 
   uploadPicture = async () => {
     const { capture } = this.state;
-    console.log(JSON.stringify(capture.timestamp));
 
     axios({
       url: "http://192.168.10.95:4000/graphql",
@@ -62,13 +95,13 @@ export default class CameraPage extends React.Component {
           {CreatePhoto(
             input:{
               imageFile:${JSON.stringify(capture.base64)}
-              longitude:${capture.geolocation.longitude}
-              latitude: ${capture.geolocation.latitude}
+              longitude:${capture.longitude}
+              latitude: ${capture.latitude}
               createdAt: "${capture.timestamp}"
               comment: "${capture.comment}"
           })}`
       }
-    });
+    }).then(() => this.setState({ imageView: false }));
   };
 
   addStory = () => {
@@ -84,42 +117,11 @@ export default class CameraPage extends React.Component {
     this.setModalVisible();
   };
 
-  async componentDidMount() {
-    const camera = await Permissions.askAsync(Permissions.CAMERA);
-    const hasCameraPermission = camera.status === "granted";
-
-    const location = await Permissions.askAsync(Permissions.LOCATION);
-    const hasLocationPermission = location.status === "granted";
-
-    this.setState({ hasCameraPermission, hasLocationPermission });
-  }
+  async componentDidMount() {}
 
   render() {
-    const {
-      hasCameraPermission,
-      hasLocationPermission,
-      flashMode,
-      cameraType,
-      capturing,
-      capture,
-      autofocus,
-      imageView,
-      modalVisible
-    } = this.state;
-
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      return <Text>Access to camera has been denied.</Text>;
-    }
-
-    if (hasLocationPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      return <Text>Access to location has been denied.</Text>;
-    }
-
-    return imageView ? (
+    const { capture, imageView, modalVisible } = this.state;
+    return imageView === true ? (
       <React.Fragment>
         <CaptureView capture={capture} />
 
@@ -135,79 +137,26 @@ export default class CameraPage extends React.Component {
             setComment={this.setComment}
             saved={this.state.capture.comment}
           />
-        ) : (
-          <Text />
-        )}
+        ) : null}
       </React.Fragment>
     ) : (
-      <React.Fragment>
-        <View>
-          <Camera
-            type={cameraType}
-            flashMode={flashMode}
-            autoFocus={autofocus}
-            style={styles.preview}
-            ref={camera => (this.camera = camera)}
-          />
-        </View>
-        {/* {captures.length > 0 && <Gallery captures={captures} />} */}
-        <Toolbar
-          capturing={capturing}
-          flashMode={flashMode}
-          cameraType={cameraType}
-          setFlashMode={this.setFlashMode}
-          setCameraType={this.setCameraType}
-          onCaptureIn={this.handleCaptureIn}
-          onCaptureOut={this.handleCaptureOut}
-          onLongCapture={this.handleLongCapture}
-          onShortCapture={this.handleShortCapture}
-        />
-      </React.Fragment>
+      <View style={styles.choicePage}>
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={this.launchCamera}
+        >
+          <AntDesign name="camera" color="white" size={100} />
+          <Text>Take Photo</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={this.launchLibrary}
+        >
+          <AntDesign name="picture" color="white" size={100} />
+          <Text>Pick Photo</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 }
-
-// import React from "react";
-// import { Button, Image, View } from "react-native";
-// import { ImagePicker, Permissions } from "expo";
-// import { requestPermissionsAsync } from "expo-location";
-
-// export default class ImagePickerExample extends React.Component {
-//   state = {
-//     image: null
-//   };
-
-//   render() {
-//     let { image } = this.state;
-
-//     return (
-//       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-//         <Button
-//           title="Pick an image from camera roll"
-//           onPress={this._pickImage}
-//         />
-//         {image && (
-//           <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-//         )}
-//       </View>
-//     );
-//   }
-
-//   _pickImage = async () => {
-//     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-//     if (status === "granted") {
-//       ImagePicker.launchImageLibraryAsync({
-//         allowsEditing: true,
-//         aspect: [1, 1],
-//         exif: true,
-//         base64: true
-//       })
-//         .then(selectedImage => {
-//           if (!selectedImage.cancelled) {
-//             console.log(JSON.stringify(selectedImage.exif));
-//           }
-//         })
-//         .catch(err => console.log(err));
-//     }
-//   };
-// }

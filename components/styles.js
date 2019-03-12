@@ -3,6 +3,22 @@ import { StyleSheet, Dimensions } from "react-native";
 const { width: winWidth, height: winHeight } = Dimensions.get("window");
 
 export default StyleSheet.create({
+  choicePage: {
+    backgroundColor: "purple",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-around",
+    flexDirection: "column"
+  },
+  choiceButtons: {
+    justifyContent: "center",
+    backgroundColor: "white",
+    width: 150,
+    height: 150,
+    opacity: 0.5,
+    alignItems: "center",
+    borderRadius: 50
+  },
   alignCenter: {
     flex: 1,
     alignItems: "center",

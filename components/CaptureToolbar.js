@@ -1,7 +1,6 @@
 import React from "react";
-import { Ionicons } from "@expo/vector-icons";
 import { Col, Row, Grid } from "react-native-easy-grid";
-import { Platform, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 
 import styles from "./styles";
 import { Octicons } from "react-native-vector-icons";
