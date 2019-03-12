@@ -315,7 +315,7 @@ let root = {
 
 // Create an express server and a GraphQL endpoint
 let app = express();
-app.use(morgan("tiny"));
+app.use(morgan("common"));
 app.use(express.json({ extended: true, limit: "100mb" }));
 app.use(
   "/graphql",
