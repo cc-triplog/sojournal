@@ -98,7 +98,7 @@ def upload_server(filename, gps_info):
         data = f.read()
         base64 = data.encode('base64')
 
-        client = GraphQLClient('http://169.254.236.41:4000/graphql')
+        client = GraphQLClient('http://169.254.164.227:4000/graphql')
         print type(base64) is str
 
         if gps_info is not None:
