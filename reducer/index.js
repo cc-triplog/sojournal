@@ -12,10 +12,17 @@ const initialState = {
 const reducer = (state = initiaState, action) => {
     switch (action.type) {
         case "RENDER_PHOTOS": {
-            const stateChanges = { photos: actions.photos };
+            const stateChanges = { markers: actions.photos };
         return {
             ...state,
             ...stateChanges
+            };
+        }
+        case "SELECT_IMAGECARD": {
+            const stateChanges = { visible: !visible };
+            return {
+                ...state,
+                ...stateChanges
             }
         }
         default: {
