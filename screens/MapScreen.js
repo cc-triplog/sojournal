@@ -19,6 +19,7 @@ import { getTheme } from 'react-native-material-kit'
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios'
+import connect from 'react-redux';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -28,7 +29,7 @@ const CARD_WIDTH = CARD_HEIGHT - 50;
 let modalContent;
 
 
-export default class HomeScreen extends React.Component {
+class MapScreen extends React.Component {
   static navigationOptions = {
     header: null
   };
@@ -137,7 +138,7 @@ export default class HomeScreen extends React.Component {
           </View>
           <TextInput style={theme.cardContentStyle} value={this.state.markers[index].title} />
           <TextInput style={theme.cardContentStyle} value={this.state.markers[index].description} />
-          {/* <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" /> */}
+          <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" />
       </View>)
 
     this.setState({ visible: true })
@@ -203,20 +204,15 @@ export default class HomeScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
+          {/* <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
             {this.modalContent}
-          </Modal>
-          {/* {
-            this.state.visible
-            ? this.modalContent
-            : <View></View>
-          } */}
+          </Modal> */}
+          {this.state.visible && this.modalContent}
 
         {this.state.markers.map((marker, index) => (
           <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
             <View style={styles.card} key={index} >
               <Image
-                // onPress={this.onPressImageCard(index)}
                 source={marker.image}
                 style={styles.cardImage}
                 resizeMode="cover"
@@ -340,3 +336,10 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width * 0.8,
   },
 });
+
+const mapStateToProps = (state) => {
+  const { map } = state
+  return { map }
+}
+
+export default connect(mapStateToProps)(MapScreen)
