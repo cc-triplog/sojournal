@@ -2,6 +2,7 @@ import React from "react";
 import {
   AppRegistry,
   Animated,
+  Button,
   Dimensions,
   Image,
   Platform,
@@ -22,7 +23,7 @@ import axios from 'axios'
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
-const theme = getTheme();
+
 
 let modalContent;
 
@@ -124,17 +125,21 @@ export default class HomeScreen extends React.Component {
     })
   }
 
-  searchStateForClickedImage (){}
-
+  onPressPopUpButton () {
+    this.setState({ visible: false })
+  }
   onPressImageCard (index) {
     const theme = getTheme();    
-    console.log("============marker index",this.state.markers[index].index)
       this.modalContent = (
-      <View style={theme.cardStyle}>
-          <Image source={this.state.markers[index].image} style={theme.cardImageStyle} />
+      <View style={[theme.cardStyle, styles.popUpCard]}>
+          <View style={theme.cardImageStyle}>
+            <Image source={this.state.markers[index].image} style={styles.popUpImage} />
+          </View>
           <TextInput style={theme.cardContentStyle} value={this.state.markers[index].title} />
           <TextInput style={theme.cardContentStyle} value={this.state.markers[index].description} />
+          {/* <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" /> */}
       </View>)
+
     this.setState({ visible: true })
   }
 
@@ -201,6 +206,12 @@ export default class HomeScreen extends React.Component {
           <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
             {this.modalContent}
           </Modal>
+          {/* {
+            this.state.visible
+            ? this.modalContent
+            : <View></View>
+          } */}
+
         {this.state.markers.map((marker, index) => (
           <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
             <View style={styles.card} key={index} >
@@ -225,6 +236,8 @@ export default class HomeScreen extends React.Component {
     );
   }
 }
+
+const theme = getTheme();
 
 const styles = StyleSheet.create({
   container: {
@@ -286,6 +299,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "rgba(130,4,150, 0.9)",
   },
+  popUpCard: {
+    marginTop: 30,
+  },
+  popUpImage: {
+    flex: 1,
+  },
   popUpModal: {
     padding: 10,
     elevation: 2,
@@ -295,8 +314,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOpacity: 0.3,
     shadowOffset: { x: 2, y: -2 },
-    height: Dimensions.get('window').height * 0.5,
-    width: Dimensions.get('window').width * 0.5,
+    width: CARD_HEIGHT * 2,
+    height: CARD_HEIGHT * 2,
     overflow: "visible",
   },
   textInputPopup: {
