@@ -20,7 +20,8 @@ import { getTheme } from 'react-native-material-kit';
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
-import connect from 'react-redux';
+import { connect } from 'react-redux';
+import { renderPhotos, changeCardVisibility } from '../action'
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -60,8 +61,8 @@ class MapScreen extends React.Component {
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.markers.length) {
-        index = this.state.markers.length - 1;
+      if (index >= this.props.markers.length) {
+        index = this.props.markers.length - 1;
       }
       if (index <= 0) {
         index = 0;
@@ -71,12 +72,12 @@ class MapScreen extends React.Component {
       this.regionTimeout = setTimeout(() => {
         if (this.index !== index) {
           this.index = index;
-          const { coordinate } = this.state.markers[index];
+          const { coordinate } = this.props.markers[index];
           this.map.animateToRegion(
             {
               ...coordinate,
-              latitudeDelta: this.state.region.latitudeDelta,
-              longitudeDelta: this.state.region.longitudeDelta,
+              latitudeDelta: this.props.region.latitudeDelta,
+              longitudeDelta: this.props.region.longitudeDelta,
             },
             350
           );
@@ -112,39 +113,30 @@ class MapScreen extends React.Component {
       }
     ));
 
-    for(let i = 0; i < mapResult.length; i++) {
-      mapResult[i].index = i;
-    }
-    mapResult.forEach(eachObject => {
-      this.setState(
-        {
-          markers: [...this.state.markers, eachObject]
-        }
-      )
-    })
-
+      for(let i = 0; i < mapResult.length; i++) {
+        mapResult[i].index = i;
+        this.props.renderPhotos(mapResult[i])
+      }
     })
   }
 
   onPressPopUpButton () {
-    this.setState({ visible: false })
+    this.props.changeCardVisibility(false)
   }
   onPressImageCard (index) {
     const theme = getTheme();    
       this.modalContent = (
       <View style={[theme.cardStyle, styles.popUpCard]}>
           <View style={theme.cardImageStyle}>
-            <Image source={this.state.markers[index].image} style={styles.popUpImage} />
+            <Image source={this.props.markers[index].image} style={styles.popUpImage} />
           </View>
-          <TextInput style={theme.cardContentStyle} value={this.state.markers[index].title} />
-          <TextInput style={theme.cardContentStyle} value={this.state.markers[index].description} />
+          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].title} />
+          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].description} />
           <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" />
       </View>)
 
-    this.setState({ visible: true })
+    this.props.changeCardVisibility(true)
   }
-
-
 
   render() {
     const interpolations = this.state.markers.map((marker, index) => {
@@ -173,7 +165,7 @@ class MapScreen extends React.Component {
           initialRegion={this.state.region}
           style={styles.container}
         >
-          {this.state.markers.map((marker, index) => {
+          {this.props.markers.map((marker, index) => {
             return (
               <MapView.Marker key={index} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
@@ -207,9 +199,9 @@ class MapScreen extends React.Component {
           {/* <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
             {this.modalContent}
           </Modal> */}
-          {this.state.visible && this.modalContent}
+          {this.props.visible && this.modalContent}
 
-        {this.state.markers.map((marker, index) => (
+        {this.props.markers.map((marker, index) => (
           <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
             <View style={styles.card} key={index} >
               <Image
@@ -235,13 +227,124 @@ class MapScreen extends React.Component {
 
 const theme = getTheme();
 
-const mapStateToProps = state => ({
-  markers: state.markers;
-  
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff"
+  },
+  map: {
+    height: 100,
+    flex: 1
+  },
+  scrollView: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0,
+    paddingVertical: 10,
+  },
+  endPadding: {
+    paddingRight: width - CARD_WIDTH,
+  },
+  card: {
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#FFF",
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
+    overflow: "visible",
+  },
+  cardImage: {
+    flex: 3,
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
+  },
+  textContent: {
+    flex: 1,
+  },
+  cardtitle: {
+    fontSize: 12,
+    marginTop: 5,
+    fontWeight: "bold",
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: "#444",
+  },
+  markerWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  marker: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(130,4,150, 0.9)",
+  },
+  popUpCard: {
+    marginTop: 30,
+  },
+  popUpImage: {
+    flex: 1,
+  },
+  popUpModal: {
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#FFF",
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    width: CARD_HEIGHT * 2,
+    height: CARD_HEIGHT * 2,
+    overflow: "visible",
+  },
+  textInputPopup: {
+    width: "100%",
+    height: "50%"
+  },
+  ring: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(130,4,150, 0.3)",
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "rgba(130,4,150, 0.5)",
+  },
+  enlargedPhoto: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "80%",
+    width: "80%",
+  },
 })
 
-const mapDispatchToProps = dispatch => {
-  const renderPhotos = 
-}
+const mapStateToProps = state => ({
+  markers: state.markers,
+  region: state.region,
+  visible: state.visible,
+
+})
+
+const mapDispatchToProps = dispatch => ({
+  renderPhotos: photos => {
+    const action = renderPhotos(photos);
+    dispatch(action)
+  },
+  changeCardVisibility: visibility => {
+    const action = changeCardVisibility(visibility)
+    dispatch(action)
+  }
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(MapScreen)

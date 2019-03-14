@@ -4,7 +4,14 @@ const renderPhotos = (photos) => {
         photos
     }
 }
+const changeCardVisibility = (visibility) => {
+    return {
+        type: "CHANGE_CARDVISIBILITY",
+        visibility
+    }
+}
 
 module.exports ={
-    renderPhotos
+    renderPhotos,
+    changeCardVisibility
 }

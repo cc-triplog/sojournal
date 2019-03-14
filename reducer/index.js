@@ -9,17 +9,17 @@ const initialState = {
       visible: false,
 }
 
-const reducer = (state = initiaState, action) => {
+const reducer = (state = initialState, action) => {
     switch (action.type) {
         case "RENDER_PHOTOS": {
-            const stateChanges = { markers: actions.photos };
+            const stateChanges = { markers: action.photos };
         return {
             ...state,
-            ...stateChanges
+            markers: [...state.markers, action.photos]
             };
         }
-        case "SELECT_IMAGECARD": {
-            const stateChanges = { visible: !visible };
+        case "CHANGE_CARDVISIBILITY": {
+            const stateChanges = { visible: action.visibility };
             return {
                 ...state,
                 ...stateChanges
@@ -30,3 +30,5 @@ const reducer = (state = initiaState, action) => {
         }
     }
 }
+
+export default reducer;
