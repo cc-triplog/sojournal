@@ -110,7 +110,7 @@ exports.up = function(knex, Promise) {
         .integer("user_id")
         .references("id")
         .inTable("users");
-      table.integer("selected_interval_config");
+      table.integer("selected_interval");
       table.integer("gps_interval");
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
