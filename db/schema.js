@@ -47,19 +47,19 @@ module.exports = `
         createdAt: String
         updatedAt: String
     }
-    type LogCamConfig {
+    type IntervalConfig {
         id: Int
         title: String
         deviceId: Int
-        intervalStartMethod: String
-        intervalStartTimeOfDay: Int
-        intervalStartEpoch: Int
-        intervalStartCountdown: Int
-        intervalStopMethod: String
-        intervalStopTimeOfDay: Int
-        intervalStopEpoch: Int
-        intervalStopCountdown: Int
-        intervalInterval: Int
+        startMethod: String
+        startTimeOfDay: Int
+        startEpoch: Int
+        startCountdown: Int
+        stopMethod: String
+        stopTimeOfDay: Int
+        stopEpoch: Int
+        stopCountdown: Int
+        interval: Int
         createdAt: String
         updatedAt: String
     }
@@ -113,19 +113,19 @@ module.exports = `
       createdAt: String
       updatedAt: String
     }
-    input InputLogCamConfig {
+    input InputIntervalConfig {
       id: Int
       title: String
       deviceId: Int
-      intervalStartMethod: String
-      intervalStartTimeOfDay: Int
-      intervalStartEpoch: Int
-      intervalStartCountdown: Int
-      intervalStopMethod: String
-      intervalStopTimeOfDay: Int
-      intervalStopEpoch: Int
-      intervalStopCountdown: Int
-      intervalInterval: Int
+      startMethod: String
+      startTimeOfDay: Int
+      startEpoch: Int
+      startCountdown: Int
+      stopMethod: String
+      stopTimeOfDay: Int
+      stopEpoch: Int
+      stopCountdown: Int
+      interval: Int
       createdAt: String
       updatedAt: String
     }
@@ -179,19 +179,18 @@ module.exports = `
       createdAt: String
       updatedAt: String
     }
-    input UpdateLogCamConfig {
+    input UpdateIntervalConfig {
       id: Int!
       title: String
-      deviceId: Int
-      intervalStartMethod: String
-      intervalStartTimeOfDay: Int
-      intervalStartEpoch: Int
-      intervalStartCountdown: Int
-      intervalStopMethod: String
-      intervalStopTimeOfDay: Int
-      intervalStopEpoch: Int
-      intervalStopCountdown: Int
-      intervalInterval: Int
+      startMethod: String
+      startTimeOfDay: Int
+      startEpoch: Int
+      startCountdown: Int
+      stopMethod: String
+      stopTimeOfDay: Int
+      stopEpoch: Int
+      stopCountdown: Int
+      interval: Int
       createdAt: String
       updatedAt: String
     }
@@ -211,7 +210,7 @@ module.exports = `
     input DestroyGroup {
       id: Int!
     }
-    input DestroyLogCamConfig {
+    input DestroyIntervalConfig {
       id: Int!
     }
 
@@ -221,7 +220,7 @@ module.exports = `
         ReadPhoto(type: InputPhoto): [Photo]
         ReadComment(type: InputComment): [Comment]
         ReadGroup(type: InputGroup): [Group]
-        ReadLogCamConfig(type: InputLogCamConfig): [LogCamConfig]
+        ReadIntervalConfig(type: InputIntervalConfig): [IntervalConfig]
     }
 
     type Mutation {
@@ -230,20 +229,20 @@ module.exports = `
         CreatePhoto(input: InputPhoto): Boolean
         CreateComment(input: InputComment): Boolean
         CreateGroup(input: InputGroup): Boolean
-        CreateLogCamConfig(input: InputLogCamConfig): Boolean
+        CreateIntervalConfig(input: InputIntervalConfig): Boolean
 
         UpdateUser(input: UpdateUser): User
         UpdateDevice(input: UpdateDevice): Device
         UpdatePhoto(input: UpdatePhoto): Photo
         UpdateComment(input: UpdateComment): Comment
         UpdateGroup(input: UpdateGroup): Group
-        UpdateLogCamConfig(input: UpdateLogCamConfig): LogCamConfig
+        UpdateIntervalConfig(input: UpdateIntervalConfig): IntervalConfig
 
         DestroyUser(input: DestroyUser): Boolean
         DestroyDevice(input: DestroyDevice): Boolean
         DestroyPhoto(input: DestroyPhoto): Boolean
         DestroyComment(input: DestroyComment): Boolean
         DestroyGroup(input: DestroyGroup): Boolean
-        DestroyLogCamConfig(input: DestroyLogCamConfig): Boolean
+        DestroyIntervalConfig(input: DestroyIntervalConfig): Boolean
     }
-`
+`;

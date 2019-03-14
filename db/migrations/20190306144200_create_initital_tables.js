@@ -82,7 +82,7 @@ exports.up = function(knex, Promise) {
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
     }),
-    knex.schema.createTable("log_cam_configs", function(table) {
+    knex.schema.createTable("interval_configs", function(table) {
       table.increments();
       table.string("title");
       table
@@ -90,15 +90,15 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("users");
       table.integer("device_id");
-      table.string("interval_start_method");
-      table.integer("interval_start_time_of_day");
-      table.bigInteger("interval_start_epoch");
-      table.integer("interval_start_countdown");
-      table.string("interval_stop_method");
-      table.integer("interval_stop_time_of_day");
-      table.bigInteger("interval_stop_epoch");
-      table.integer("interval_stop_countdown");
-      table.integer("interval_interval");
+      table.string("start_method");
+      table.integer("start_time_of_day");
+      table.bigInteger("start_epoch");
+      table.integer("start_countdown");
+      table.string("stop_method");
+      table.integer("stop_time_of_day");
+      table.bigInteger("stop_epoch");
+      table.integer("stop_countdown");
+      table.integer("interval");
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
     })
@@ -109,7 +109,7 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable("photos"),
     knex.schema.dropTable("comments"),
-    knex.schema.dropTable("log_cam_configs"),
+    knex.schema.dropTable("interval_configs"),
     knex.schema.dropTable("devices"),
     knex.schema.dropTable("groups"),
     knex.schema.dropTable("users")
