@@ -78,18 +78,20 @@ let root = {
         return data;
       });
   },
-  ReadComment: (req, res) => {
+  ReadGpsPoint: (req, res) => {
     let whereObject = { user_id: currentUser };
     if (req.type.id) {
       whereObject.id = req.type.id;
     }
-    return db("comments")
+    return db("gps_points")
       .select(
         "id",
         "title",
         "longitude",
         "latitude",
         "group_id as groupId",
+        "comment",
+        "altitude",
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
@@ -106,6 +108,7 @@ let root = {
         "longitude",
         "latitude",
         "group_id as groupId",
+        "altitude",
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
@@ -191,12 +194,23 @@ let root = {
       });
     return true;
   },
+  CreateGpsPoint: (req, res) => {
+    db("gps_points").insert({
+      title: req.input.title,
+      longitude: req.input.longitude,
+      latitude: req.input.latitude,
+      group_id: req.input.groupId,
+      order_in_group: req.input.orderInGroup,
+      comment: req.input.comment
+    });
+  },
   CreateGroup: (req, res) => {
     db("groups")
       .insert({
         title: req.input.title,
         longitude: req.input.longitude,
         latitude: req.input.latitude,
+        altitude: req.input.altitude,
         user_id: currentUser,
         group_id: req.input.groupId,
         order_in_group: req.input.orderInGroup
@@ -307,6 +321,30 @@ let root = {
         console.log(err);
       });
     return true;
+  },
+  UpdateGpsPoint: (req, res) => {
+    let updateObject = { user_id: currentUser };
+    if (req.input.title) {
+      updateObject.title = req.input.title;
+    }
+    if (req.input.longitude) {
+      updateObject.longitude = req.input.longitude;
+    }
+    if (req.input.latitude) {
+      updateObject.latitude = req.input.latitude;
+    }
+    if (req.input.groupId) {
+      updateObject.group_id = req.input.groupId;
+    }
+    if (req.input.orderInGroup) {
+      updateObject.order_in_group = req.input.orderInGroup;
+    }
+    if (req.input.comment) {
+      updateObject.comment = req.input.comment;
+    }
+    if (req.input.altitude) {
+      updateObject.altitude = req.input.altitude;
+    }
   },
   UpdateGroup: (req, res) => {
     let updateObject = { user_id: currentUser };
@@ -422,8 +460,8 @@ let root = {
       });
     return true;
   },
-  DestroyComment: (req, res) => {
-    db("comments")
+  DestroyGpsPoint: (req, res) => {
+    db("gps_points")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
       .then(res => {
@@ -447,7 +485,7 @@ let root = {
     return true;
   },
   DestroyIntervalConfig: (req, res) => {
-    db("log_cam_configs")
+    db("log_interval_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
       .then(res => {

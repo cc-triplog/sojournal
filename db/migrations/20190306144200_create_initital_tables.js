@@ -46,7 +46,7 @@ exports.up = function(knex, Promise) {
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
     }),
-    knex.schema.createTable("comments", function(table) {
+    knex.schema.createTable("gps_points", function(table) {
       table.increments();
       table.string("title");
       table.double("longitude");
@@ -62,6 +62,7 @@ exports.up = function(knex, Promise) {
         .inTable("users")
         .notNullable();
       table.text("comment");
+      table.double("altitude");
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
     }),
@@ -79,6 +80,7 @@ exports.up = function(knex, Promise) {
         .integer("user_id")
         .references("id")
         .inTable("users");
+      table.double("altitude");
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
     }),
@@ -101,6 +103,17 @@ exports.up = function(knex, Promise) {
       table.integer("interval");
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
+    }),
+    knex.schema.createTable("rasppi_configs", function(table) {
+      table.increments();
+      table
+        .integer("user_id")
+        .references("id")
+        .inTable("users");
+      table.integer("selected_interval_config");
+      table.integer("gps_interval");
+      table.string("created_at").defaultTo(knex.fn.now());
+      table.string("updated_at").defaultTo(knex.fn.now());
     })
   ]);
 };
@@ -108,7 +121,7 @@ exports.up = function(knex, Promise) {
 exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable("photos"),
-    knex.schema.dropTable("comments"),
+    knex.schema.dropTable("gps_points"),
     knex.schema.dropTable("interval_configs"),
     knex.schema.dropTable("devices"),
     knex.schema.dropTable("groups"),
