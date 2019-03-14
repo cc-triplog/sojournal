@@ -131,7 +131,7 @@ let root = {
         "stop_method as stopMethod",
         "stop_time_of_day as stopTimeOfDay",
         "stop_epoch as stopEpoch",
-        "stop_count_down as stopCountDown",
+        "stop_countdown as stopCountDown",
         "interval",
         "created_at as createdAt",
         "updated_at as updatedAt"
