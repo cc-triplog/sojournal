@@ -12,7 +12,7 @@ const changeCardVisibility = (visibility) => {
 }
 const selectImageCard = (index) => {
     return {
-        tupe: "SELECT_IMAGECARD",
+        type: "SELECT_IMAGECARD",
         index
     }
 }

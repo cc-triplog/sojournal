@@ -152,6 +152,9 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
+        {this.props.visible 
+          ? <PopupCard /> 
+          : <View />}
         <MapView
           ref={map => this.map = map}
           initialRegion={this.props.region}
@@ -167,6 +170,7 @@ class MapScreen extends React.Component {
               </MapView.Marker>
             );
           })}
+
         </MapView>
         <Animated.ScrollView
           horizontal
@@ -188,14 +192,11 @@ class MapScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          {/* <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
-            {this.modalContent}
-          </Modal> */}
-          {this.props.visible && this.modalContent}
+
 
         {this.props.markers.map((marker, index) => (
-          <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
-            <View style={styles.card} key={index} >
+          <TouchableOpacity key={marker.index} onPress={() =>this.onPressImageCard(marker.index)}>
+            <View style={styles.card} >
               <Image
                 source={marker.image}
                 style={styles.cardImage}
@@ -209,8 +210,7 @@ class MapScreen extends React.Component {
               </View>              
             </View>
           </TouchableOpacity>
-        ))}
-          
+        ))}     
         </Animated.ScrollView>
       </View>
     );
@@ -279,29 +279,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "rgba(130,4,150, 0.9)",
   },
-  popUpCard: {
-    marginTop: 30,
-  },
-  popUpImage: {
-    flex: 1,
-  },
-  popUpModal: {
-    padding: 10,
-    elevation: 2,
-    backgroundColor: "#FFF",
-    marginHorizontal: 10,
-    shadowColor: "#000",
-    shadowRadius: 5,
-    shadowOpacity: 0.3,
-    shadowOffset: { x: 2, y: -2 },
-    width: CARD_HEIGHT * 2,
-    height: CARD_HEIGHT * 2,
-    overflow: "visible",
-  },
-  textInputPopup: {
-    width: "100%",
-    height: "50%"
-  },
   ring: {
     width: 24,
     height: 24,
@@ -310,14 +287,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderWidth: 1,
     borderColor: "rgba(130,4,150, 0.5)",
-  },
-  enlargedPhoto: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    justifyContent: "center",
-    alignItems: 'center',
-    height: "80%",
-    width: "80%",
   },
 })
 
