@@ -21,7 +21,8 @@ import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { renderPhotos, changeCardVisibility } from '../action'
+import PopupCard from './PopupCard';
+import { renderPhotos, changeCardVisibility, selectImageCard } from '../action';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -36,16 +37,6 @@ class MapScreen extends React.Component {
   };
   constructor(props) {
     super(props);
-    this.state = {
-      markers: [],
-      region: {
-        latitude: 35.6591246694541,
-        longitude: 139.728567802469,
-        latitudeDelta: 0.04864195044303443,
-        longitudeDelta: 0.040142817690068,
-      },
-      visible: false,
-    };
   }
 
 
@@ -136,10 +127,11 @@ class MapScreen extends React.Component {
       </View>)
 
     this.props.changeCardVisibility(true)
+    this.props.selectImageCard(index)
   }
 
   render() {
-    const interpolations = this.state.markers.map((marker, index) => {
+    const interpolations = this.props.markers.map((marker, index) => {
       const inputRange = [
         (index - 1) * CARD_WIDTH,
         index * CARD_WIDTH,
@@ -160,9 +152,12 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
+        {this.props.visible 
+          ? <PopupCard /> 
+          : <View />}
         <MapView
           ref={map => this.map = map}
-          initialRegion={this.state.region}
+          initialRegion={this.props.region}
           style={styles.container}
         >
           {this.props.markers.map((marker, index) => {
@@ -175,6 +170,7 @@ class MapScreen extends React.Component {
               </MapView.Marker>
             );
           })}
+
         </MapView>
         <Animated.ScrollView
           horizontal
@@ -196,14 +192,11 @@ class MapScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          {/* <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
-            {this.modalContent}
-          </Modal> */}
-          {this.props.visible && this.modalContent}
+
 
         {this.props.markers.map((marker, index) => (
-          <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
-            <View style={styles.card} key={index} >
+          <TouchableOpacity key={marker.index} onPress={() =>this.onPressImageCard(marker.index)}>
+            <View style={styles.card} >
               <Image
                 source={marker.image}
                 style={styles.cardImage}
@@ -217,8 +210,7 @@ class MapScreen extends React.Component {
               </View>              
             </View>
           </TouchableOpacity>
-        ))}
-          
+        ))}     
         </Animated.ScrollView>
       </View>
     );
@@ -287,29 +279,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "rgba(130,4,150, 0.9)",
   },
-  popUpCard: {
-    marginTop: 30,
-  },
-  popUpImage: {
-    flex: 1,
-  },
-  popUpModal: {
-    padding: 10,
-    elevation: 2,
-    backgroundColor: "#FFF",
-    marginHorizontal: 10,
-    shadowColor: "#000",
-    shadowRadius: 5,
-    shadowOpacity: 0.3,
-    shadowOffset: { x: 2, y: -2 },
-    width: CARD_HEIGHT * 2,
-    height: CARD_HEIGHT * 2,
-    overflow: "visible",
-  },
-  textInputPopup: {
-    width: "100%",
-    height: "50%"
-  },
   ring: {
     width: 24,
     height: 24,
@@ -319,21 +288,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(130,4,150, 0.5)",
   },
-  enlargedPhoto: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    justifyContent: "center",
-    alignItems: 'center',
-    height: "80%",
-    width: "80%",
-  },
 })
 
 const mapStateToProps = state => ({
   markers: state.markers,
   region: state.region,
   visible: state.visible,
-
+  selectedImage: state.selectedImage
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -343,6 +304,10 @@ const mapDispatchToProps = dispatch => ({
   },
   changeCardVisibility: visibility => {
     const action = changeCardVisibility(visibility)
+    dispatch(action)
+  },
+  selectImageCard: index => {
+    const action = selectImageCard(index)
     dispatch(action)
   }
 })
