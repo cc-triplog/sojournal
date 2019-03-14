@@ -21,7 +21,8 @@ import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { renderPhotos, changeCardVisibility } from '../action'
+import PopupCard from './PopupCard';
+import { renderPhotos, changeCardVisibility, selectImageCard } from '../action';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -36,16 +37,6 @@ class MapScreen extends React.Component {
   };
   constructor(props) {
     super(props);
-    this.state = {
-      markers: [],
-      region: {
-        latitude: 35.6591246694541,
-        longitude: 139.728567802469,
-        latitudeDelta: 0.04864195044303443,
-        longitudeDelta: 0.040142817690068,
-      },
-      visible: false,
-    };
   }
 
 
@@ -136,10 +127,11 @@ class MapScreen extends React.Component {
       </View>)
 
     this.props.changeCardVisibility(true)
+    this.props.selectImageCard(index)
   }
 
   render() {
-    const interpolations = this.state.markers.map((marker, index) => {
+    const interpolations = this.props.markers.map((marker, index) => {
       const inputRange = [
         (index - 1) * CARD_WIDTH,
         index * CARD_WIDTH,
@@ -162,7 +154,7 @@ class MapScreen extends React.Component {
       <View style={styles.container}>
         <MapView
           ref={map => this.map = map}
-          initialRegion={this.state.region}
+          initialRegion={this.props.region}
           style={styles.container}
         >
           {this.props.markers.map((marker, index) => {
@@ -333,7 +325,7 @@ const mapStateToProps = state => ({
   markers: state.markers,
   region: state.region,
   visible: state.visible,
-
+  selectedImage: state.selectedImage
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -343,6 +335,10 @@ const mapDispatchToProps = dispatch => ({
   },
   changeCardVisibility: visibility => {
     const action = changeCardVisibility(visibility)
+    dispatch(action)
+  },
+  selectImageCard: index => {
+    const action = selectImageCard(index)
     dispatch(action)
   }
 })

@@ -10,8 +10,15 @@ const changeCardVisibility = (visibility) => {
         visibility
     }
 }
+const selectImageCard = (index) => {
+    return {
+        tupe: "SELECT_IMAGECARD",
+        index
+    }
+}
 
 module.exports ={
     renderPhotos,
-    changeCardVisibility
+    changeCardVisibility,
+    selectImageCard
 }

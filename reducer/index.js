@@ -7,6 +7,7 @@ const initialState = {
         longitudeDelta: 0.040142817690068,
       },
       visible: false,
+      selectedImage: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -20,6 +21,13 @@ const reducer = (state = initialState, action) => {
         }
         case "CHANGE_CARDVISIBILITY": {
             const stateChanges = { visible: action.visibility };
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "SELECT_IMAGECARD": {
+            const stateChanges = { selectedImage: action.index }
             return {
                 ...state,
                 ...stateChanges
