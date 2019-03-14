@@ -101,6 +101,10 @@ let root = {
       });
   },
   ReadGroup: (req, res) => {
+    let whereObject = { user_id: currentUser };
+    if (req.type.id) {
+      whereObject.id = req.type.id;
+    }
     return db("groups")
       .select(
         "id",
@@ -113,12 +117,16 @@ let root = {
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
-      .where({ user_id: currentUser })
+      .where(whereObject)
       .then(data => {
         return data;
       });
   },
   ReadIntervalConfig: (req, res) => {
+    let whereObject = { user_id: currentUser };
+    if (req.type.id) {
+      whereObject.id = req.type.id;
+    }
     return db("interval_configs")
       .select(
         "id",
@@ -136,17 +144,26 @@ let root = {
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
-      .where({ user_id: currentUser })
+      .where(whereObject)
       .then(data => {
         return data;
       });
   },
   ReadRasppiConfig: (req, res) => {
-    return db("rasppi_configs").select(
-      "id",
-      "selected_interval as selectedInterval",
-      "gps_interval as gpsInterval"
-    );
+    let whereObject = { user_id: currentUser };
+    if (req.type.id) {
+      whereObject.id = req.type.id;
+    }
+    return db("rasppi_configs")
+      .select(
+        "id",
+        "selected_interval as selectedInterval",
+        "gps_interval as gpsInterval"
+      )
+      .where(whereObject)
+      .then(data => {
+        return data;
+      });
   },
   // CREATE
   CreateUser: (req, res) => {
