@@ -18,12 +18,12 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       deviceId: Int
       groupId: Int
       orderInGroup: Int
       comment: String
       imageFile: String
-      altitude: Float
       bearing: Float
       createdAt: String
       updatedAt: String
@@ -33,10 +33,10 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       groupId: Int
       orderInGroup: Int
       comment: String
-      altitude: Float
       createdAt: String
       updatedAt: String
     }
@@ -45,6 +45,7 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       groupId: Int
       createdAt: String
       updatedAt: String
@@ -86,12 +87,12 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       deviceId: Int
       groupId: Int
       orderInGroup: Int
       comment: String
       imageFile: String
-      altitude: Float
       bearing: Float
       createdAt: String
       updatedAt: String
@@ -101,6 +102,7 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       groupId: Int
       orderInGroup: Int
       comment: String
@@ -112,6 +114,7 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       groupId: Int
       createdAt: String
       updatedAt: String
@@ -153,12 +156,12 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       deviceId: Int
       groupId: Int
       orderInGroup: Int
       comment: String
       imageFile: String
-      altitude: Float
       bearing: Float
       createdAt: String
       updatedAt: String
@@ -168,6 +171,7 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       groupId: Int
       orderInGroup: Int
       comment: String
@@ -179,6 +183,7 @@ module.exports = `
       title: String
       longitude: Float
       latitude: Float
+      altitude: Float
       groupId: Int
       createdAt: String
       updatedAt: String
