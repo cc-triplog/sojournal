@@ -14,21 +14,23 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import './styles'
 import { WebBrowser, Component } from "expo";
-import { getTheme } from 'react-native-material-kit'
+import { getTheme } from 'react-native-material-kit';
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
-import axios from 'axios'
+import axios from 'axios';
+import { connect } from 'react-redux';
+import { renderPhotos, changeCardVisibility } from '../action'
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
 
-
 let modalContent;
 
 
-export default class HomeScreen extends React.Component {
+class MapScreen extends React.Component {
   static navigationOptions = {
     header: null
   };
@@ -59,8 +61,8 @@ export default class HomeScreen extends React.Component {
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.markers.length) {
-        index = this.state.markers.length - 1;
+      if (index >= this.props.markers.length) {
+        index = this.props.markers.length - 1;
       }
       if (index <= 0) {
         index = 0;
@@ -70,12 +72,12 @@ export default class HomeScreen extends React.Component {
       this.regionTimeout = setTimeout(() => {
         if (this.index !== index) {
           this.index = index;
-          const { coordinate } = this.state.markers[index];
+          const { coordinate } = this.props.markers[index];
           this.map.animateToRegion(
             {
               ...coordinate,
-              latitudeDelta: this.state.region.latitudeDelta,
-              longitudeDelta: this.state.region.longitudeDelta,
+              latitudeDelta: this.props.region.latitudeDelta,
+              longitudeDelta: this.props.region.longitudeDelta,
             },
             350
           );
@@ -111,39 +113,30 @@ export default class HomeScreen extends React.Component {
       }
     ));
 
-    for(let i = 0; i < mapResult.length; i++) {
-      mapResult[i].index = i;
-    }
-    mapResult.forEach(eachObject => {
-      this.setState(
-        {
-          markers: [...this.state.markers, eachObject]
-        }
-      )
-    })
-
+      for(let i = 0; i < mapResult.length; i++) {
+        mapResult[i].index = i;
+        this.props.renderPhotos(mapResult[i])
+      }
     })
   }
 
   onPressPopUpButton () {
-    this.setState({ visible: false })
+    this.props.changeCardVisibility(false)
   }
   onPressImageCard (index) {
     const theme = getTheme();    
       this.modalContent = (
       <View style={[theme.cardStyle, styles.popUpCard]}>
           <View style={theme.cardImageStyle}>
-            <Image source={this.state.markers[index].image} style={styles.popUpImage} />
+            <Image source={this.props.markers[index].image} style={styles.popUpImage} />
           </View>
-          <TextInput style={theme.cardContentStyle} value={this.state.markers[index].title} />
-          <TextInput style={theme.cardContentStyle} value={this.state.markers[index].description} />
-          {/* <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" /> */}
+          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].title} />
+          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].description} />
+          <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" />
       </View>)
 
-    this.setState({ visible: true })
+    this.props.changeCardVisibility(true)
   }
-
-
 
   render() {
     const interpolations = this.state.markers.map((marker, index) => {
@@ -172,7 +165,7 @@ export default class HomeScreen extends React.Component {
           initialRegion={this.state.region}
           style={styles.container}
         >
-          {this.state.markers.map((marker, index) => {
+          {this.props.markers.map((marker, index) => {
             return (
               <MapView.Marker key={index} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
@@ -203,20 +196,15 @@ export default class HomeScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
+          {/* <Modal style={styles.popUpModal} visible={this.state.visible} transparent={true} animationType="slide" onRequestClose={() => this.setState({ visible:false })}>
             {this.modalContent}
-          </Modal>
-          {/* {
-            this.state.visible
-            ? this.modalContent
-            : <View></View>
-          } */}
+          </Modal> */}
+          {this.props.visible && this.modalContent}
 
-        {this.state.markers.map((marker, index) => (
+        {this.props.markers.map((marker, index) => (
           <TouchableOpacity key={index} onPress={() =>this.onPressImageCard(index)}>
             <View style={styles.card} key={index} >
               <Image
-                // onPress={this.onPressImageCard(index)}
                 source={marker.image}
                 style={styles.cardImage}
                 resizeMode="cover"
@@ -336,7 +324,27 @@ const styles = StyleSheet.create({
     marginRight: "auto",
     justifyContent: "center",
     alignItems: 'center',
-    height: Dimensions.get('window').height * 0.8,
-    width: Dimensions.get('window').width * 0.8,
+    height: "80%",
+    width: "80%",
   },
-});
+})
+
+const mapStateToProps = state => ({
+  markers: state.markers,
+  region: state.region,
+  visible: state.visible,
+
+})
+
+const mapDispatchToProps = dispatch => ({
+  renderPhotos: photos => {
+    const action = renderPhotos(photos);
+    dispatch(action)
+  },
+  changeCardVisibility: visibility => {
+    const action = changeCardVisibility(visibility)
+    dispatch(action)
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(MapScreen)
