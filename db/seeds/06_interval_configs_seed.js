@@ -30,8 +30,9 @@ exports.seed = function(knex, Promise) {
         {
           user_id: "4",
           start_method: "startButton",
-          stop_method: "stopButton",
-          interval: 4
+          stop_method: "stopCountDown",
+          stop_countdown: 30,
+          interval: 5
         }
       ]);
     });
