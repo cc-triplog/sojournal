@@ -108,6 +108,7 @@ let root = {
         "longitude",
         "latitude",
         "group_id as groupId",
+        "order_in_group as orderInGroup",
         "altitude",
         "created_at as createdAt",
         "updated_at as updatedAt"
@@ -139,6 +140,13 @@ let root = {
       .then(data => {
         return data;
       });
+  },
+  ReadRasppiConfig: (req, res) => {
+    return db("rasppi_configs").select(
+      "id",
+      "selected_interval as selectedInterval",
+      "gps_interval as gpsInterval"
+    );
   },
   // CREATE
   CreateUser: (req, res) => {
@@ -248,6 +256,12 @@ let root = {
         console.log(err);
       });
     return true;
+  },
+  CreateRasppiConfig: (req, res) => {
+    db("rasppi_configs").insert({
+      selected_interval: req.input.selectedInterval,
+      gps_interval: req.input.gpsInterval
+    });
   },
   // UPDATE - not working
   UpdateUser: (req, res) => {
@@ -423,6 +437,25 @@ let root = {
       });
     return true;
   },
+  UpdateRasppiConfig: (req, res) => {
+    let updateObject = { user_id: currentUser };
+    if (req.input.selectedInterval) {
+      updateObject.selected_interval = req.input.selectedInterval;
+    }
+    if (req.input.gpsInterval) {
+      updateObject.gps_interval = req.input.gpsInterval;
+    }
+    db("rasppi_configs")
+      .where({ id: req.input.id })
+      .update(updateObject)
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    return true;
+  },
   //DESTROY
   DestroyUser: (req, res) => {
     db("users")
@@ -486,6 +519,18 @@ let root = {
   },
   DestroyIntervalConfig: (req, res) => {
     db("log_interval_configs")
+      .where({ id: req.input.id, user_id: currentUser })
+      .del()
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    return true;
+  },
+  DestroyRasppiConfig: (req, res) => {
+    db("rasppi_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
       .then(res => {

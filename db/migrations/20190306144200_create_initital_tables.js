@@ -120,6 +120,7 @@ exports.up = function(knex, Promise) {
 
 exports.down = function(knex, Promise) {
   return Promise.all([
+    knex.schema.dropTable("rasppi_configs"),
     knex.schema.dropTable("photos"),
     knex.schema.dropTable("gps_points"),
     knex.schema.dropTable("interval_configs"),

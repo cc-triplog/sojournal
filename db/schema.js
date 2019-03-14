@@ -47,6 +47,7 @@ module.exports = `
       latitude: Float
       altitude: Float
       groupId: Int
+      orderInGroup: Int
       createdAt: String
       updatedAt: String
     }
@@ -65,6 +66,13 @@ module.exports = `
         interval: Int
         createdAt: String
         updatedAt: String
+    }
+    type RasppiConfig {
+      id: Int
+      selectedInterval: Int
+      gpsInterval: Int
+      createdAt: String
+      updatedAt: String
     }
 
     input InputUser {
@@ -116,6 +124,7 @@ module.exports = `
       latitude: Float
       altitude: Float
       groupId: Int
+      orderInGroup: Int
       createdAt: String
       updatedAt: String
     }
@@ -135,6 +144,14 @@ module.exports = `
       createdAt: String
       updatedAt: String
     }
+    input InputRasppiConfig {
+      id: Int
+      selectedInterval: Int
+      gpsInterval: Int
+      createdAt: String
+      updatedAt: String
+    }
+
 
     input UpdateUser {
       id: Int!
@@ -185,6 +202,7 @@ module.exports = `
       latitude: Float
       altitude: Float
       groupId: Int
+      orderInGroup: Int
       createdAt: String
       updatedAt: String
     }
@@ -203,6 +221,14 @@ module.exports = `
       createdAt: String
       updatedAt: String
     }
+    input UpdateRasppiConfig {
+      id: Int!
+      selectedInterval: Int
+      gpsInterval: Int
+      createdAt: String
+      updatedAt: String
+    }
+
 
     input DestroyUser {
       id: Int!
@@ -222,6 +248,9 @@ module.exports = `
     input DestroyIntervalConfig {
       id: Int!
     }
+    input DestroyRasppiConfig{
+      id: Int!
+    }
 
     type Query {
       ReadUser(type: InputUser): [User]
@@ -230,6 +259,7 @@ module.exports = `
       ReadGpsPoint(type: InputGpsPoint): [GpsPoint]
       ReadGroup(type: InputGroup): [Group]
       ReadIntervalConfig(type: InputIntervalConfig): [IntervalConfig]
+      ReadRasppiConfig(type: InputRasppiConfig): [RasppiConfig]
     }
 
     type Mutation {
@@ -239,6 +269,7 @@ module.exports = `
       CreateGpsPoint(input: InputGpsPoint): Boolean
       CreateGroup(input: InputGroup): Boolean
       CreateIntervalConfig(input: InputIntervalConfig): Boolean
+      CreateRasppiConfig(input: InputRasppiConfig): Boolean
 
       UpdateUser(input: UpdateUser): User
       UpdateDevice(input: UpdateDevice): Device
@@ -246,6 +277,7 @@ module.exports = `
       UpdateGpsPoint(input: UpdateGpsPoint): GpsPoint
       UpdateGroup(input: UpdateGroup): Group
       UpdateIntervalConfig(input: UpdateIntervalConfig): IntervalConfig
+      UpdateRasppiConfig(input: UpdateRasppiConfig): RasppiConfig
 
       DestroyUser(input: DestroyUser): Boolean
       DestroyDevice(input: DestroyDevice): Boolean
@@ -253,5 +285,6 @@ module.exports = `
       DestroyGpsPoint(input: DestroyGpsPoint): Boolean
       DestroyGroup(input: DestroyGroup): Boolean
       DestroyIntervalConfig(input: DestroyIntervalConfig): Boolean
+      DestroyRasppiConfig(input: DestroyRasppiConfig): Boolean
     }
 `;
