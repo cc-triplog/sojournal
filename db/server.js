@@ -10,13 +10,13 @@ const { buildSchema } = require("graphql");
 const morgan = require("morgan");
 const config = require("./knexfile");
 const db = require("knex")(config);
+const axios = require("axios");
 const schemas = require("./schema");
 
 // Current User Needs to be replaced with login
 const currentUser = 4;
 
 // Image Hosting Server
-
 const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
 
 // GraphQL schema
@@ -146,7 +146,7 @@ let root = {
         "stop_method as stopMethod",
         "stop_time_of_day as stopTimeOfDay",
         "stop_epoch as stopEpoch",
-        "stop_countdown as stopCountDown",
+        "stop_countdown as stopCountdown",
         "interval",
         "created_at as createdAt",
         "updated_at as updatedAt"
@@ -214,7 +214,7 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        image_file: req.input.imageFile,
+        //image_file: req.input.imageFile,
         altitude: req.input.altitude,
         bearing: req.input.bearing
       })
