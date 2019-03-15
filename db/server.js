@@ -15,6 +15,10 @@ const schemas = require("./schema");
 // Current User Needs to be replaced with login
 const currentUser = 4;
 
+// Image Hosting Server
+
+const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
+
 // GraphQL schema
 let schema = buildSchema(schemas);
 
@@ -75,6 +79,9 @@ let root = {
       )
       .where(whereObject)
       .then(data => {
+        for (let i in data) {
+          data[i].imageFile = imageLocation + data[i].imageFile;
+        }
         return data;
       });
   },
