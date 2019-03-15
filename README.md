@@ -35,6 +35,25 @@ id, name
 }
 }
 
+### Select a photo by id and the keys and new values you want to edit
+
+id and imageFile can't be changed. Only the keys and values you want to change are needed.
+
+mutation{
+UpdatePhoto(input: {
+id: 1
+title: "new title"
+}) {
+title
+}
+}
+
+mutation{
+DestroyPhoto(input: {
+id: 1
+})
+}
+
 <div height="400px" width="800px">
     <h1 align="center">
     <img src="./src/img/trip.jpg" alt="Trip Log Image" />

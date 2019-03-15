@@ -2,83 +2,49 @@ import React from "react";
 import {
   AppRegistry,
   Animated,
+  Button,
   Dimensions,
   Image,
   Platform,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
-import { WebBrowser } from "expo";
+import './styles'
+import { WebBrowser, Component } from "expo";
+import { getTheme } from 'react-native-material-kit';
 import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
-
-const Images = [
-  { uri: "https://i.imgur.com/sNam9iJ.jpg" },
-  { uri: "https://i.imgur.com/N7rlQYt.jpg" },
-  { uri: "https://i.imgur.com/UDrH0wm.jpg" },
-  { uri: "https://i.imgur.com/Ka8kNST.jpg" }
-]
+import axios from 'axios';
+import { connect } from 'react-redux';
+import PopupCard from './PopupCard';
+import { renderPhotos, changeCardVisibility, selectImageCard } from '../action';
 
 const { width, height } = Dimensions.get("window");
-
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
 
-export default class HomeScreen extends React.Component {
+let modalContent;
+
+
+class MapScreen extends React.Component {
   static navigationOptions = {
     header: null
   };
   constructor(props) {
     super(props);
-    this.state = {
-      markers: [
-        {
-          coordinate: {
-            latitude: 45.524548,
-            longitude: -122.6749817,
-          },
-          title: "Best Place",
-          description: "This is the best place in Portland",
-          image: Images[0],
-        },
-        {
-          coordinate: {
-            latitude: 45.524698,
-            longitude: -122.6655507,
-          },
-          title: "Second Best Place",
-          description: "This is the second best place in Portland",
-          image: Images[1],
-        },
-        {
-          coordinate: {
-            latitude: 45.5230786,
-            longitude: -122.6701034,
-          },
-          title: "Third Best Place",
-          description: "This is the third best place in Portland",
-          image: Images[2],
-        },
-        {
-          coordinate: {
-            latitude: 45.521016,
-            longitude: -122.6561917,
-          },
-          title: "Fourth Best Place",
-          description: "This is the fourth best place in Portland",
-          image: Images[3],
-        },
-      ],
-      region: {
-        latitude: 45.52220671242907,
-        longitude: -122.6653281029795,
-        latitudeDelta: 0.04864195044303443,
-        longitudeDelta: 0.040142817690068,
-      },
-    };
+  }
+
+
+    componentWillMount() {
+    this.index = 0;
+    this.animation = new Animated.Value(0);
+    this.callDatabase()
+
   }
 
   componentDidMount() {
@@ -86,8 +52,8 @@ export default class HomeScreen extends React.Component {
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.markers.length) {
-        index = this.state.markers.length - 1;
+      if (index >= this.props.markers.length) {
+        index = this.props.markers.length - 1;
       }
       if (index <= 0) {
         index = 0;
@@ -97,27 +63,75 @@ export default class HomeScreen extends React.Component {
       this.regionTimeout = setTimeout(() => {
         if (this.index !== index) {
           this.index = index;
-          const { coordinate } = this.state.markers[index];
+          const { coordinate } = this.props.markers[index];
           this.map.animateToRegion(
             {
               ...coordinate,
-              latitudeDelta: this.state.region.latitudeDelta,
-              longitudeDelta: this.state.region.longitudeDelta,
+              latitudeDelta: this.props.region.latitudeDelta,
+              longitudeDelta: this.props.region.longitudeDelta,
             },
             350
           );
         }
       }, 10);
     });
+
   }
 
-  componentWillMount() {
-    this.index = 0;
-    this.animation = new Animated.Value(0);
+  callDatabase() {
+    axios({
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        query {ReadPhoto(type: {
+        }) {
+         title, latitude, longitude, comment, imageFile
+        }
+      }
+        `
+      }
+    }).then(result => {
+      const mapResult = result.data.data.ReadPhoto.map(object => (
+      {
+        coordinate: {
+          latitude: Number(object.latitude),
+          longitude: Number(object.longitude),
+        },
+        title: `${object.title}`,
+        description: `${object.comment}`,
+        image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
+      }
+    ));
+
+      for(let i = 0; i < mapResult.length; i++) {
+        mapResult[i].index = i;
+        this.props.renderPhotos(mapResult[i])
+      }
+    })
+  }
+
+  onPressPopUpButton () {
+    this.props.changeCardVisibility(false)
+  }
+  onPressImageCard (index) {
+    const theme = getTheme();    
+      this.modalContent = (
+      <View style={[theme.cardStyle, styles.popUpCard]}>
+          <View style={theme.cardImageStyle}>
+            <Image source={this.props.markers[index].image} style={styles.popUpImage} />
+          </View>
+          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].title} />
+          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].description} />
+          <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" />
+      </View>)
+
+    this.props.changeCardVisibility(true)
+    this.props.selectImageCard(index)
   }
 
   render() {
-    const interpolations = this.state.markers.map((marker, index) => {
+    const interpolations = this.props.markers.map((marker, index) => {
       const inputRange = [
         (index - 1) * CARD_WIDTH,
         index * CARD_WIDTH,
@@ -138,12 +152,15 @@ export default class HomeScreen extends React.Component {
 
     return (
       <View style={styles.container}>
+        {this.props.visible 
+          ? <PopupCard /> 
+          : <View />}
         <MapView
           ref={map => this.map = map}
-          initialRegion={this.state.region}
+          initialRegion={this.props.region}
           style={styles.container}
         >
-          {this.state.markers.map((marker, index) => {
+          {this.props.markers.map((marker, index) => {
             return (
               <MapView.Marker key={index} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
@@ -153,6 +170,7 @@ export default class HomeScreen extends React.Component {
               </MapView.Marker>
             );
           })}
+
         </MapView>
         <Animated.ScrollView
           horizontal
@@ -174,8 +192,11 @@ export default class HomeScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-          {this.state.markers.map((marker, index) => (
-            <View style={styles.card} key={index}>
+
+
+        {this.props.markers.map((marker, index) => (
+          <TouchableOpacity key={marker.index} onPress={() =>this.onPressImageCard(marker.index)}>
+            <View style={styles.card} >
               <Image
                 source={marker.image}
                 style={styles.cardImage}
@@ -186,49 +207,17 @@ export default class HomeScreen extends React.Component {
                 <Text numberOfLines={1} style={styles.cardDescription}>
                   {marker.description}
                 </Text>
-              </View>
+              </View>              
             </View>
-          ))}
+          </TouchableOpacity>
+        ))}     
         </Animated.ScrollView>
       </View>
     );
   }
-
-  _maybeRenderDevelopmentModeWarning() {
-    if (__DEV__) {
-      const learnMoreButton = (
-        <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-          Learn more
-        </Text>
-      );
-
-      return (
-        <Text style={styles.developmentModeText}>
-          Development mode is enabled, your app will be slower but you can use
-          useful development tools. {learnMoreButton}
-        </Text>
-      );
-    } else {
-      return (
-        <Text style={styles.developmentModeText}>
-          You are not in development mode, your app will run at full speed.
-        </Text>
-      );
-    }
-  }
-
-  _handleLearnMorePress = () => {
-    WebBrowser.openBrowserAsync(
-      "https://docs.expo.io/versions/latest/guides/development-mode"
-    );
-  };
-
-  _handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      "https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes"
-    );
-  };
 }
+
+const theme = getTheme();
 
 const styles = StyleSheet.create({
   container: {
@@ -299,4 +288,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(130,4,150, 0.5)",
   },
-});
+})
+
+const mapStateToProps = state => ({
+  markers: state.markers,
+  region: state.region,
+  visible: state.visible,
+  selectedImage: state.selectedImage
+})
+
+const mapDispatchToProps = dispatch => ({
+  renderPhotos: photos => {
+    const action = renderPhotos(photos);
+    dispatch(action)
+  },
+  changeCardVisibility: visibility => {
+    const action = changeCardVisibility(visibility)
+    dispatch(action)
+  },
+  selectImageCard: index => {
+    const action = selectImageCard(index)
+    dispatch(action)
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(MapScreen)
