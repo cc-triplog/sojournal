@@ -9,23 +9,20 @@ let photoList = fs.readdirSync("./seeds/photos/", (err, data) => {
 let photoObjectArray = [];
 
 for (let i in photoList) {
-  let photo = fs
-    .readFileSync("./seeds/photos/" + photoList[i])
-    .toString("base64");
   photoObjectArray.push({
-    title: "Test: Look at " + photoList[i] + "!",
+    title: "Test Title: Look at " + photoList[i] + "!",
     device_id: 1,
     group_id: 1,
     order_in_group: i,
     user_id: 4,
-    latitude: 35.658124669454075 + 0.001 * i,
-    longitude: 139.72756780246945 + 0.001 * i,
+    latitude: 35.658124669454075 + 0.002 * i,
+    longitude: 139.72756780246945 + 0.002 * i,
     comment:
-      "This is test photo " +
+      "Test Comment: This is photo " +
       (Number(i) + 1) +
-      ".<br>The file name is " +
+      ".<br>\nThe file name is " +
       photoList[i],
-    image_file: photo
+    image_file: photoList[i]
   });
 }
 
