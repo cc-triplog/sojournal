@@ -4,6 +4,9 @@ import math
 from datetime import datetime
 from pynput import keyboard
 import threading
+import os
+from graphqlclient import GraphQLClient
+import json
 
 global startFlag
 global midnight
@@ -11,6 +14,29 @@ today = datetime.now()
 midnight = datetime(year=today.year, month=today.month,
                     day=today.day, hour=0, minute=0, second=0)
 startFlag = False
+
+
+#GRAPHQL_URL = os.environ['URL_LOCAL']
+GRAPHQL_URL = "http://localhost:4000/graphql"
+
+
+def get_interval_config():
+    client = GraphQLClient(GRAPHQL_URL)
+    result = client.execute(
+        """query{ReadIntervalConfig(type:{id: 2}){
+            id,
+            deviceId,
+            startMethod,
+            startTimeOfDay,
+            startCountdown,
+            stopMethod,
+            stopTimeOfDay,
+            startCountdown,
+            interval
+        }}"""
+    )
+    config = json.loads(result)["data"]["ReadIntervalConfig"][0]
+    return config
 
 
 def datetime_to_epoch(d):
@@ -41,31 +67,23 @@ def epoch_to_datetime(epoch):
 def take_photo_with_gps(interval_config):
     global startFlag
     count = 0
+    starttime = datetime.now()
     while True:
         currenttime = datetime.now()
         deltatime = (currenttime - midnight).seconds
-        if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
-            print "Try taking photo"
-            count += 1
-        # if interval_config["stopMethod"] == "DATETIME":
-        #     if (interval_config["stopTimeOfDay"] - currenttimeEpoch) == 0:
-        #         print "Finish taking photo: " + str(count)
-        #         return True
-        # if interval_config["stopMethod"] == "MANUAL":
-        #     print threading.current_thread().name
-        #     if startFlag == False:
-        #         break
-        if startFlag == False:
-            break
+        if interval_config["startMethod"] == "startTimeOfDay":
+            if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
+                print "Try taking photo"
+                count += 1
+            if startFlag == False:
+                break
+        else:
+            if (currenttime - starttime).seconds % interval_config["interval"] == 0:
+                print "Try taking photo"
+                count += 1
+            if startFlag == False:
+                break
         time.sleep(1)
-
-# def on_press(key):
-#     try:
-#         print('alphanumeric key {0} pressed'.format(
-#             key.char))
-#     except AttributeError:
-#         print('special key {0} pressed'.format(
-#             key))
 
 
 def on_press(key):
@@ -97,23 +115,24 @@ class StoppableThread(threading.Thread):
         return self._stop_event.is_set()
 
 
-interval_config = {
-    "startMethod": "TIMER",
-    "startTimeOfDay": 1552533308,
-    "startCountdown": 10,
-    "stopMethod": "TIMER",
-    "stopTimeOfDay": 5,
-    "stopCountdown": 30,
-    "interval": 5
-}
+# interval_config = {
+#     "startMethod": "TIMER",
+#     "startTimeOfDay": 1552533308,
+#     "startCountdown": 10,
+#     "stopMethod": "TIMER",
+#     "stopTimeOfDay": 5,
+#     "stopCountdown": 30,
+#     "interval": 5
+# }
 
 
 if __name__ == "__main__":
     while True:
+        interval_config = get_interval_config()
         thread = StoppableThread(target=take_photo_with_gps,
                                  args=([interval_config]))
         print threading.current_thread().name
-        if interval_config["startMethod"] == "TIMEOFDAY":
+        if interval_config["startMethod"] == "startTimeOfDay":
             starttime = interval_config["startTimeOfDay"]
             endtime = interval_config["stopTimeOfDay"]
             currenttime = datetime.now()
@@ -122,13 +141,13 @@ if __name__ == "__main__":
                 print "Start Thread"
                 startFlag == True
                 thread.start()
-            if (interval_config["stopMethod"] == "TIMEOFDAY"):
+            if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
                     startFlag == False
                     print "startflag is " + str(startFlag)
                     thread.stop()
                     print "Stop Thread"
-            if (interval_config["stopMethod"] == "MANUAL"):
+            if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
                         on_press=on_press) as listener:
                     listener.join()
@@ -136,14 +155,14 @@ if __name__ == "__main__":
                 if (startFlag == False):
                     thread.stop()
                     print "stop thread"
-            if (interval_config["stopMethod"] == "TIMER"):
+            if (interval_config["stopMethod"] == "stopCountdown"):
                 time.sleep(interval_config["stopCountdown"])
                 print startFlag
                 startFlag = False
                 thread.stop()
                 print "stop thread"
 
-        if interval_config["startMethod"] == "MANUAL":
+        if interval_config["startMethod"] == "startButton":
             with keyboard.Listener(
                     on_press=on_press) as listener:
                 listener.join()
@@ -151,13 +170,13 @@ if __name__ == "__main__":
             if (startFlag):
                 thread.start()
                 print "start thread"
-            if (interval_config["stopMethod"] == "TIMEOFDAY"):
+            if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
                     startFlag == False
                     print "startflag is " + str(startFlag)
                     thread.stop()
                     print "Stop Thread"
-            if (interval_config["stopMethod"] == "MANUAL"):
+            if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
                         on_press=on_press) as listener:
                     listener.join()
@@ -165,13 +184,13 @@ if __name__ == "__main__":
                 if (startFlag == False):
                     thread.stop()
                     print "stop thread"
-            if (interval_config["stopMethod"] == "TIMER"):
+            if (interval_config["stopMethod"] == "stopCountdown"):
                 time.sleep(interval_config["stopCountdown"])
                 print startFlag
                 startFlag = False
                 thread.stop()
                 print "stop thread"
-        if interval_config["startMethod"] == "TIMER":
+        if interval_config["startMethod"] == "startCountdown":
             with keyboard.Listener(
                     on_press=on_press) as listener:
                 listener.join()
@@ -182,13 +201,13 @@ if __name__ == "__main__":
                 time.sleep(interval_config["startCountdown"])
                 thread.start()
                 print "start thread"
-            if (interval_config["stopMethod"] == "TIMEOFDAY"):
+            if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
                     startFlag == False
                     print "startflag is " + str(startFlag)
                     thread.stop()
                     print "Stop Thread"
-            if (interval_config["stopMethod"] == "MANUAL"):
+            if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
                         on_press=on_press) as listener:
                     listener.join()
@@ -196,7 +215,7 @@ if __name__ == "__main__":
                 if (startFlag == False):
                     thread.stop()
                     print "stop thread"
-            if (interval_config["stopMethod"] == "TIMER"):
+            if (interval_config["stopMethod"] == "stopCountdown"):
                 time.sleep(interval_config["stopCountdown"])
                 print startFlag
                 startFlag = False
