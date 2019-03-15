@@ -271,13 +271,13 @@ module.exports = `
       CreateIntervalConfig(input: InputIntervalConfig): Boolean
       CreateRasppiConfig(input: InputRasppiConfig): Boolean
 
-      UpdateUser(input: UpdateUser): User
-      UpdateDevice(input: UpdateDevice): Device
-      UpdatePhoto(input: UpdatePhoto): Photo
-      UpdateGpsPoint(input: UpdateGpsPoint): GpsPoint
-      UpdateGroup(input: UpdateGroup): Group
-      UpdateIntervalConfig(input: UpdateIntervalConfig): IntervalConfig
-      UpdateRasppiConfig(input: UpdateRasppiConfig): RasppiConfig
+      UpdateUser(input: UpdateUser): Boolean
+      UpdateDevice(input: UpdateDevice): Boolean
+      UpdatePhoto(input: UpdatePhoto): Boolean
+      UpdateGpsPoint(input: UpdateGpsPoint): Boolean
+      UpdateGroup(input: UpdateGroup): Boolean
+      UpdateIntervalConfig(input: UpdateIntervalConfig): Boolean
+      UpdateRasppiConfig(input: UpdateRasppiConfig): Boolean
 
       DestroyUser(input: DestroyUser): Boolean
       DestroyDevice(input: DestroyDevice): Boolean
