@@ -2,7 +2,6 @@ import React from "react";
 import {
   AppRegistry,
   Animated,
-  Button,
   Dimensions,
   Image,
   Platform,
@@ -15,7 +14,7 @@ import {
   View
 } from "react-native";
 import './styles'
-import { Overlay } from 'react-native-elements';
+import { Button, Overlay } from 'react-native-elements';
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
 import MapView from "react-native-maps";
@@ -39,25 +38,77 @@ class PopupCard extends React.Component {
     super(props);
   }
 
-  onPressImageCard () {
+  onPressExit () {
     this.props.changeCardVisibility(false)
     console.log("=======is the prop changing", this.props.visible)
+  }
+  onPressUpload () {
+    console.log("==========press upload========", this.props.visible)
+    axios({
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        query {ReadPhoto(type: {
+        }) {
+         title, latitude, longitude, comment, imageFile
+        }
+      }
+        `
+      }
+    }).then(result => {
+      const mapResult = result.data.data.ReadPhoto.map(object => (
+      {
+        coordinate: {
+          latitude: Number(object.latitude),
+          longitude: Number(object.longitude),
+        },
+        title: `${object.title}`,
+        description: `${object.comment}`,
+        image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
+      }
+    ));
   }
 
   render() {
 
     return (
-      <Overlay isVisible={this.props.visible} 
+      <Overlay
+      isVisible={this.props.visible} 
       windowBackgroundColor="rgba(255,255,255, .5)"
       overlayBackgroundColor="#fff"
+      fullScreen={false}
+      style={styles.overlay}
       >
-        <View>
+        <View style={styles.card}>
             <View style={[theme.cardImageStyle, styles.popupContent]}>
                     <Image source={this.props.markers[this.props.selectedImage].image} style={styles.popUpImage} />
             </View>
-            <TextInput style={theme.cardContentStyle} value={this.props.markers[this.props.selectedImage].title} />
-            <TextInput style={theme.cardContentStyle} value={this.props.markers[this.props.selectedImage].description} />
-            <Button onPress={() => {this.onPressImageCard()}} title="EXIT" color="#841584" accessibilityLabel="exit" />
+            <TextInput 
+            style={[theme.cardContentStyle, styles.textTitle]} 
+            defaultValue={this.props.markers[this.props.selectedImage].title} />
+            <View style={styles.textDescription}>
+              <TextInput 
+              multiline={true}
+              style={theme.cardContentStyle} 
+              defaultValue={this.props.markers[this.props.selectedImage].description} />
+            </View>
+            <View style={styles.alignButtons}>
+            <View style={styles.buttonUpload}>
+              <Button 
+                onPress={() => {this.onPressUpload()}} 
+                title="UPLOAD"
+                type="outline"  
+                accessibilityLabel="upload" />
+            </View>
+            <View style={styles.buttonExit}>
+              <Button 
+                onPress={() => {this.onPressExit()}} 
+                title="EXIT" 
+                type="outline"
+                accessibilityLabel="exit" />
+            </View>
+            </View>
         </View>
       </Overlay>
     );
@@ -67,25 +118,23 @@ class PopupCard extends React.Component {
 const theme = getTheme();
 
 const styles = StyleSheet.create({
+  alignButtons: {
+    flex:1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: "center"
+  },
+  buttonExit: {
+    flex: 1,
+  },
+  buttonUpload: {
+    flex:1,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff"
   },
-  map: {
-    height: 100,
-    flex: 1
-  },
-  scrollView: {
-    position: "absolute",
-    bottom: 30,
-    left: 0,
-    right: 0,
-    paddingVertical: 10,
-  },
-  endPadding: {
-    paddingRight: width - CARD_WIDTH,
-  },
-  popupCard: {
+  card: {
     padding: 10,
     elevation: 2,
     backgroundColor: "transparent",
@@ -99,28 +148,11 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH * 2,
     overflow: "visible",
   },
-
   cardImage: {
     flex: 3,
     width: "100%",
     height: "100%",
     alignSelf: "center",
-  },
-  textContent: {
-    flex: 1,
-  },
-  cardtitle: {
-    fontSize: 12,
-    marginTop: 5,
-    fontWeight: "bold",
-  },
-  cardDescription: {
-    fontSize: 12,
-    color: "#444",
-  },
-  markerWrap: {
-    alignItems: "center",
-    justifyContent: "center",
   },
   marker: {
     width: 8,
@@ -147,26 +179,12 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT * 2,
     overflow: "visible",
   },
+  overlay: {
+    height: 60
+  },
   textInputPopup: {
     width: "100%",
     height: "50%"
-  },
-  ring: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(130,4,150, 0.3)",
-    position: "absolute",
-    borderWidth: 1,
-    borderColor: "rgba(130,4,150, 0.5)",
-  },
-  enlargedPhoto: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    justifyContent: "center",
-    alignItems: 'center',
-    height: "80%",
-    width: "80%",
   },
 })
 
