@@ -8,7 +8,7 @@ import {
 import TabBarIcon from "../components/TabBarIcon";
 import HomeScreen from "../screens/HomeScreen";
 import Camera from "../screens/Camera";
-import SettingsScreen from "../screens/SettingsScreen";
+import SettingsScreen from "../screens/RaspberryPi";
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen
