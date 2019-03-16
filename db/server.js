@@ -204,7 +204,7 @@ let root = {
     return true;
   },
   CreatePhoto: (req, res) => {
-    const keyName = currentUser + "/" + uuid.v4();
+    const keyName = currentUser + "/" + uuid.v4() + ".jpg";
     const objectParams = {
       Bucket: bucketName,
       Key: keyName,
