@@ -432,25 +432,25 @@ let root = {
     if (req.input.startMethod) {
       updateObject.start_method = req.input.startMethod;
     }
-    if (req.input.startTimeOfDay) {
+    if (typeof req.input.startTimeOfDay === "number") {
       updateObject.start_time_of_day = req.input.startTimeOfDay;
     }
-    if (req.input.startEpoch) {
+    if (typeof req.input.startEpoch === "number") {
       updateObject.start_epoch = req.input.startEpoch;
     }
-    if (req.input.startCountdown) {
+    if (typeof req.input.startCountdown === "number") {
       updateObject.start_countdown = req.input.startCoundown;
     }
     if (req.input.stopMethod) {
       updateObject.stop_method = req.input.stopMethod;
     }
-    if (req.input.stopTimeOfDay) {
+    if (typeof req.input.stopTimeOfDay === "number") {
       updateObject.stop_time_of_day = req.input.stopTimeOfDay;
     }
-    if (req.input.stopEpoch) {
+    if (typeof req.input.stopEpoch === "number") {
       updateObject.stop_epoch = req.input.stopEpoch;
     }
-    if (req.input.stopCountdown) {
+    if (typeof req.input.stopCountdown === "number") {
       updateObject.stop_countdown = req.input.stopCountdown;
     }
     if (req.input.interval) {
