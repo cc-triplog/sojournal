@@ -2,6 +2,7 @@ const AWS = require("aws-sdk");
 AWS.config.loadFromPath("./.env.json");
 //console.log(AWS.config.credentials);
 const uuid = require("uuid");
+const atob = require("atob");
 const bucketName = "magellansmiles";
 
 const express = require("express");
@@ -204,11 +205,11 @@ let root = {
     return true;
   },
   CreatePhoto: (req, res) => {
-    const keyName = currentUser + "/" + uuid.v4();
+    const keyName = currentUser + "/" + uuid.v4() + ".jpg";
     const objectParams = {
       Bucket: bucketName,
       Key: keyName,
-      Body: req.input.imageFile
+      Body: atob(req.input.imageFile)
     };
     var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
       .putObject(objectParams)
