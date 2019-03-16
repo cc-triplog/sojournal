@@ -1,26 +1,8 @@
-let envVar;
-try {
-  envVar = require("../.env");
-} catch (err) {
-  console.log("have you thought about using an env file?");
-}
 const AWS = require("aws-sdk");
+AWS.config.loadFromPath("./.env.json");
+//console.log(AWS.config.credentials);
 const uuid = require("uuid");
 const bucketName = "magellansmiles";
-
-// Create name for uploaded object key
-const keyName = "hello_world.txt";
-const objectParams = { Bucket: bucketName, Key: keyName, Body: "Hello World!" };
-var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
-  .putObject(objectParams)
-  .promise();
-uploadPromise
-  .then(function(data) {
-    console.log("Successfully uploaded data to " + bucketName + "/" + keyName);
-  })
-  .catch(function(err) {
-    console.error(err, err.stack);
-  });
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -222,11 +204,11 @@ let root = {
     return true;
   },
   CreatePhoto: (req, res) => {
-    const keyName = "hello_world.txt";
+    const keyName = currentUser + "/" + uuid.v4();
     const objectParams = {
       Bucket: bucketName,
       Key: keyName,
-      Body: "Hello World!"
+      Body: req.input.imageFile
     };
     var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
       .putObject(objectParams)
@@ -250,7 +232,7 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        //image_file: req.input.imageFile,
+        image_file: keyName,
         altitude: req.input.altitude,
         bearing: req.input.bearing
       })
