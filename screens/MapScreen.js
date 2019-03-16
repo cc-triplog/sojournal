@@ -101,7 +101,7 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
-        index: `${object.id}` 
+        id: `${object.id}`,
       }
     ));
 
@@ -111,7 +111,6 @@ class MapScreen extends React.Component {
       }
     })
   }
-
   onPressPopUpButton () {
     this.props.changeCardVisibility(false)
   }
@@ -160,7 +159,7 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker, index) => {
             return (
-              <MapView.Marker key={marker.index} coordinate={marker.coordinate}>
+              <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
                   <Animated.View style={[styles.ring]} />
                   <View style={styles.marker} />
@@ -193,7 +192,7 @@ class MapScreen extends React.Component {
 
 
         {this.props.markers.map((marker, index) => (
-          <TouchableOpacity key={marker.index} onPress={() =>this.onPressImageCard(marker.index)}>
+          <TouchableOpacity key={marker.id} onPress={() =>this.onPressImageCard(marker.id)}>
             <View style={styles.card}>
               <Image
                 source={marker.image}

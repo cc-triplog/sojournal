@@ -21,7 +21,7 @@ import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { renderPhotos, changeCardVisibility, selectImageCard } from '../action';
+import { renderPhotos, changeCardVisibility, selectImageCard, updateOnePhoto } from '../action';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -50,20 +50,6 @@ class PopupCard extends React.Component {
     console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload () {
-    console.log("=============axios", {
-      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
-      method: 'post',
-      data: {
-        query: `
-        mutation {UpdatePhoto(input: {
-          id:${this.props.selectedImage}
-          title: "${this.changedTitle}",
-          comment: "${this.changedDescription}"
-        })
-      }
-        `
-      }
-    });
 
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
@@ -71,7 +57,7 @@ class PopupCard extends React.Component {
       data: {
         query: `
         mutation {UpdatePhoto(input: {
-          id:${this.props.markers[this.props.selectedImage].index}
+          id:${this.props.markers[this.props.selectedImageIndex].index}
           title: "${this.changedTitle}",
           comment: "${this.changedDescription}"
         })
@@ -79,8 +65,20 @@ class PopupCard extends React.Component {
         `
       }
     }).then(result => {
-
+      const newPhotoData = {
+        coordinate: {
+          latitude: this.props.markers[this.props.selectedImageIndex].latitude,
+          longitude: this.props.markers[this.props.selectedImageIndex].longitude,
+        },
+        title: this.changedTitle,
+        description: this.changedDescription,
+        image: this.props.markers[this.props.selectedImageIndex].image,
+        id: this.props.markers[this.props.selectedImageIndex].id
+      }
+      this.props.updateOnePhoto(newPhotoData)
     })
+    console.log("==============imageid", this.props.markers[this.props.selectedImageIndex].id )
+    console.log("==================markers", this.props.markers)
 }
 
   render() {
@@ -95,18 +93,18 @@ class PopupCard extends React.Component {
       >
         <View style={styles.card}>
             <View style={[theme.cardImageStyle, styles.popupContent]}>
-                    <Image source={this.props.markers[this.props.selectedImage].image} style={styles.popUpImage} />
+                    <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
             </View>
             <TextInput 
             style={[theme.cardContentStyle, styles.textTitle]}
             onChangeText={(text) => {this.onChangeTextTitle(text)}} 
-            defaultValue={this.props.markers[this.props.selectedImage].title} />
+            defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
             <View style={styles.textDescription}>
               <TextInput 
               multiline={true}
               style={theme.cardContentStyle}
               onChangeText={(text) => {this.onChangeTextDescription(text)}} 
-              defaultValue={this.props.markers[this.props.selectedImage].description} />
+              defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
             </View>
             <View style={styles.alignButtons}>
             <View style={styles.buttonUpload}>
@@ -207,7 +205,7 @@ const mapStateToProps = state => ({
   markers: state.markers,
   region: state.region,
   visible: state.visible,
-  selectedImage: state.selectedImage
+  selectedImageIndex: state.selectedImageIndex
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -218,6 +216,10 @@ const mapDispatchToProps = dispatch => ({
     selectImageCard: index => {
     const action = selectImageCard(index)
     dispatch(action)
+    },
+    updateOnePhoto: photo => {
+      const action = updateOnePhoto(photo)
+      dispatch(action)
     }
 })
 

@@ -7,7 +7,8 @@ const initialState = {
         longitudeDelta: 0.040142817690068,
       },
       visible: false,
-      selectedImage: null
+      selectedImageIndex: null,
+      updateImageData: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -27,14 +28,22 @@ const reducer = (state = initialState, action) => {
             }
         }
         case "SELECT_IMAGECARD": {
-            const stateChanges = { selectedImage: action.index }
+            const stateChanges = { selectedImageIndex: action.index }
             return {
                 ...state,
                 ...stateChanges
             }
         }
-        case "CHANGE_TITLE": {
-            const stateChanges = {  }
+        case "UPDATE_ONEPHOTO": {
+            const stateChanges = { markers: [
+                ...state.markers.slice(0, state.selectedImageIndex - 1),
+                action.photo,
+                ...state.markers.slice(state.selectedImageIndex + 1)
+            ] }
+            return {
+                ...state,
+                stateChanges
+            }
         }
         default: {
             return state;

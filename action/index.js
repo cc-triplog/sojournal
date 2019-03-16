@@ -28,9 +28,16 @@ const changeDescription = (description) => {
         description
     }
 }
+const updateOnePhoto = (photo) => {
+    return {
+        type: "UPDATE_ONEPHOTO",
+        photo
+    }
+}
 
 module.exports ={
     renderPhotos,
     changeCardVisibility,
-    selectImageCard
+    selectImageCard,
+    updateOnePhoto
 }
