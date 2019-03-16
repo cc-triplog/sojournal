@@ -439,7 +439,7 @@ let root = {
       updateObject.start_epoch = req.input.startEpoch;
     }
     if (typeof req.input.startCountdown === "number") {
-      updateObject.start_countdown = req.input.startCoundown;
+      updateObject.start_countdown = req.input.startCountdown;
     }
     if (req.input.stopMethod) {
       updateObject.stop_method = req.input.stopMethod;
