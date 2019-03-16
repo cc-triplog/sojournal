@@ -423,6 +423,9 @@ let root = {
   },
   UpdateIntervalConfig: (req, res) => {
     let updateObject = { user_id: currentUser };
+    if (req.input.title) {
+      updateObject.title = req.input.title;
+    }
     if (req.input.deviceId) {
       updateObject.device_id = req.input.deviceId;
     }
