@@ -12,7 +12,9 @@ import CommentModal from "../components/CommentModal";
 
 export default class CameraPage extends React.Component {
   camera = null;
-
+  static navigationOptions = {
+    header: null
+  };
   state = {
     capture: null,
     imageView: false,
@@ -142,7 +144,10 @@ export default class CameraPage extends React.Component {
     this.setModalVisible();
   };
 
-  async componentDidMount() {}
+  async componentDidMount() {
+    await Permissions.askAsync(Permissions.CAMERA);
+    await Permissions.askAsync(Permissions.CAMERA_ROLL);
+  }
 
   render() {
     const { capture, imageView, modalVisible } = this.state;
