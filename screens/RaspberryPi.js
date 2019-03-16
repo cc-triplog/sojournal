@@ -7,17 +7,27 @@ import moment from "moment";
 import axios from "axios";
 
 export default class RaspberryPi extends React.Component {
+  static navigationOptions = {
+    title: "Interval Settings",
+    headerStyle: {
+      backgroundColor: "grey"
+    },
+    headerTintColor: "#fff",
+    headerTitleStyle: {
+      fontWeight: "bold"
+    }
+  };
   state = {
     startMethod: "startButton",
-    finishMethod: "stopButton",
+    stopMethod: "stopButton",
     interval: "",
     startTimePicked: "",
     finishTimePicked: "",
     isDateTimePickerVisible: false,
     currentlySetting: "",
-    timerHours: 0,
-    timerMinutes: 0,
-    timerSeconds: 0,
+    stopTimerHours: 0,
+    stopTimerMinutes: 0,
+    stopTimerSeconds: 0,
     intervalHours: 0,
     intervalMinutes: 0,
     intervalSeconds: 0,
@@ -27,7 +37,6 @@ export default class RaspberryPi extends React.Component {
   };
 
   handleUpdate = target => value => {
-    console.log(target);
     this.setState({ [target]: value });
   };
 
@@ -53,6 +62,16 @@ export default class RaspberryPi extends React.Component {
   timeToSeconds(hours, minutes, seconds) {
     return hours * 3600 + minutes * 60 + seconds;
   }
+  secondsToTime(givenSeconds) {
+    const hours = Math.floor(givenSeconds / 3600);
+    const minutes = Math.floor((givenSeconds - hours * 3600) / 60);
+    const seconds = givenSeconds % 60;
+    return {
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds
+    };
+  }
 
   convertConfigsBeforeUpload = () => {
     const {
@@ -61,25 +80,27 @@ export default class RaspberryPi extends React.Component {
       intervalSeconds,
       startTimePicked,
       finishTimePicked,
-      timerHours,
-      timerMinutes,
-      timerSeconds,
+      stopTimerHours,
+      stopTimerMinutes,
+      stopTimerSeconds,
       startTimerHours,
       startTimerMinutes,
-      startTimerSeconds
+      startTimerSeconds,
+      startMethod,
+      stopMethod
     } = this.state;
     let data = {
-      startMethod: this.state.startMethod,
-      stopMethod: this.state.finishMethod,
+      startMethod: startMethod,
+      stopMethod: stopMethod,
       interval: this.timeToSeconds(
         intervalHours,
         intervalMinutes,
         intervalSeconds
       ),
-      startTimeOfDay: null,
-      stopTimeOfDay: null,
-      stopCountdown: null,
-      startCountdown: null
+      startTimeOfDay: 0,
+      stopTimeOfDay: 0,
+      stopCountdown: 0,
+      startCountdown: 0
     };
     if (this.state.startMethod === "startTimeOfDay") {
       data.startTimeOfDay = this.timeToSeconds(
@@ -88,7 +109,7 @@ export default class RaspberryPi extends React.Component {
         startTimePicked.getSeconds()
       );
     }
-    if (this.state.finishMethod === "stopTimeOfDay") {
+    if (this.state.stopMethod === "stopTimeOfDay") {
       data.stopTimeOfDay = this.timeToSeconds(
         finishTimePicked.getHours(),
         finishTimePicked.getMinutes(),
@@ -102,11 +123,11 @@ export default class RaspberryPi extends React.Component {
         startTimerSeconds
       );
     }
-    if (this.state.finishMethod === "stopCountdown") {
+    if (this.state.stopMethod === "stopCountdown") {
       data.stopCountdown = this.timeToSeconds(
-        timerHours,
-        timerMinutes,
-        timerSeconds
+        stopTimerHours,
+        stopTimerMinutes,
+        stopTimerSeconds
       );
     }
     return data;
@@ -114,7 +135,25 @@ export default class RaspberryPi extends React.Component {
 
   uploadConfigs = () => {
     const data = this.convertConfigsBeforeUpload();
-    console.log(data);
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation
+          {UpdateIntervalConfig(
+            input:{
+              id: 1
+              startMethod:"${data.startMethod}"
+              stopMethod: "${data.stopMethod}"
+              startCountdown: ${data.startCountdown}
+              stopCountdown: ${data.stopCountdown}
+              stopTimeOfDay: ${data.stopTimeOfDay}
+              startTimeOfDay: ${data.startTimeOfDay}
+              interval: ${data.interval}
+          })}`
+      }
+    }).catch(err => console.log(err));
   };
 
   getConfigs = () => {
@@ -130,18 +169,47 @@ export default class RaspberryPi extends React.Component {
           }
         }`
       }
-    }).then(res => console.log(res));
+    }).then(res => {
+      this.convertConfigsFromServer(res.data.data.ReadIntervalConfig[0]);
+    });
   };
+
+  convertConfigsFromServer = res => {
+    this.setState({
+      startMethod: res.startMethod,
+      stopMethod: res.stopMethod,
+      intervalHours: this.secondsToTime(res.interval)["hours"],
+      intervalMinutes: this.secondsToTime(res.interval)["minutes"],
+      intervalSeconds: this.secondsToTime(res.interval)["seconds"]
+    });
+    if (res.startMethod === "startCountdown") {
+      this.setState({
+        startTimerHours: this.secondsToTime(res.startCountdown)["hours"],
+        startTimerMinutes: this.secondsToTime(res.startCountdown)["minutes"],
+        startTimerSeconds: this.secondsToTime(res.startCountdown)["seconds"]
+      });
+    }
+    if (res.stopMethod === "stopCountdown") {
+      this.setState({
+        stopTimerHours: this.secondsToTime(res.stopCountdown)["hours"],
+        stopTimerMinutes: this.secondsToTime(res.stopCountdown)["minutes"],
+        stopTimerSeconds: this.secondsToTime(res.stopCountdown)["seconds"]
+      });
+    }
+  };
+  componentDidMount() {
+    this.getConfigs();
+  }
 
   render() {
     const {
       startTimePicked,
       finishTimePicked,
-      timerHours,
-      timerMinutes,
-      timerSeconds,
+      stopTimerHours,
+      stopTimerMinutes,
+      stopTimerSeconds,
       startMethod,
-      finishMethod,
+      stopMethod,
       intervalHours,
       intervalMinutes,
       intervalSeconds,
@@ -150,7 +218,7 @@ export default class RaspberryPi extends React.Component {
       startTimerSeconds
     } = this.state;
     return (
-      <View>
+      <View style={{ marginTop: 20, marginRight: 15, marginLeft: 15 }}>
         <ScrollView>
           <Text style={{ color: "grey" }}> Start Method </Text>
           <Picker
@@ -196,14 +264,14 @@ export default class RaspberryPi extends React.Component {
           ) : null}
           <Text style={{ color: "grey" }}> Finish Method </Text>
           <Picker
-            selectedValue={this.state.finishMethod}
-            onValueChange={this.handleUpdate("finishMethod")}
+            selectedValue={this.state.stopMethod}
+            onValueChange={this.handleUpdate("stopMethod")}
           >
             <Picker.Item label="Manual" value="stopButton" />
             <Picker.Item label="Set Time" value="stopTimeOfDay" />
             <Picker.Item label="Timer" value="stopCountdown" />
           </Picker>
-          {finishMethod === "stopTimeOfDay" ? (
+          {stopMethod === "stopTimeOfDay" ? (
             <Button
               buttonStyle={{
                 width: "50%",
@@ -225,16 +293,16 @@ export default class RaspberryPi extends React.Component {
             onConfirm={this._handleDatePicked}
             onCancel={this._hideDateTimePicker}
           />
-          {finishMethod === "stopCountdown" ? (
+          {stopMethod === "stopCountdown" ? (
             <View>
               <View style={{ height: 180 }}>
                 <Text style={{ color: "grey" }}> Set Timer </Text>
                 <TimePicker
-                  target={"timer"}
+                  target={"stopTimer"}
                   handleUpdate={this.handleUpdate}
-                  selectedHours={timerHours}
-                  selectedMinutes={timerMinutes}
-                  selectedSeconds={timerSeconds}
+                  selectedHours={stopTimerHours}
+                  selectedMinutes={stopTimerMinutes}
+                  selectedSeconds={stopTimerSeconds}
                 />
               </View>
               <Text style={{ color: "grey", marginTop: 20 }}>
