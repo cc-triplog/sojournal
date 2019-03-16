@@ -1,9 +1,11 @@
-
-// try {
-//   const result = require("dotenv").config();
-// } catch (err) {
-//   console.log("have you thought about using an env file?");
-// }
+let envVar;
+try {
+  envVar = require("../.env");
+  console.log(envVar);
+} catch (err) {
+  console.log("have you thought about using an env file?");
+}
+console.log(envVar || "poop!!!");
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -257,7 +259,7 @@ let root = {
     return true;
   },
   CreateIntervalConfig: (req, res) => {
-    db("create_interval_configs")
+    db("interval_configs")
       .insert({
         title: req.input.title,
         user_id: currentUser,
@@ -419,8 +421,11 @@ let root = {
       });
     return true;
   },
-  UpdateGroup: (req, res) => {
+  UpdateIntervalConfig: (req, res) => {
     let updateObject = { user_id: currentUser };
+    if (req.input.title) {
+      updateObject.title = req.input.title;
+    }
     if (req.input.deviceId) {
       updateObject.device_id = req.input.deviceId;
     }
@@ -451,7 +456,7 @@ let root = {
     if (req.input.interval) {
       updateObject.interval = req.input.interval;
     }
-    db("groups")
+    db("interval_configs")
       .where({ id: req.input.id })
       .update(updateObject)
       .then(res => {
@@ -543,7 +548,7 @@ let root = {
     return true;
   },
   DestroyIntervalConfig: (req, res) => {
-    db("log_interval_configs")
+    db("interval_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
       .then(res => {
