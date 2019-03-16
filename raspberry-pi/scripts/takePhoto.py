@@ -12,26 +12,36 @@ import json
 import pyexif
 from fractions import Fraction
 import math
+from pynput import keyboard
+import threading
+import json
 
 
 GRAPHQL_URL = os.environ['URL_LOCAL']
+lastLatLon = None
+lastLatLonExif = None
+today = datetime.now()
+midnight = datetime(year=today.year, month=today.month,
+                    day=today.day, hour=0, minute=0, second=0)
+startFlag = False
 
 
 def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
-    config = client.execute(
-        """query{ReadLogCamConfig(type:{id: 1}){
+    result = client.execute(
+        """query{ReadIntervalConfig(type:{id: 2}){
             id,
             deviceId,
-            intervalStartMethod,
-            intervalStopMethod,
-            intervalStartEpoch,
-            intervalStopEpoch,
-            intervalStopCountdown,
-            intervalInterval
+            startMethod,
+            startTimeOfDay,
+            startCountdown,
+            stopMethod,
+            stopTimeOfDay,
+            startCountdown,
+            interval
         }}"""
     )
-    print config
+    config = json.loads(result)["data"]["ReadIntervalConfig"][0]
     return config
 
 
@@ -44,7 +54,8 @@ def epoch_to_datetime(epoch):
 
 
 def take_photo(camera, filename, gps_info, lastLatLonExif):
-
+    global lastLatLon
+    global lastLatLonExif
     if lastLatLonExif is None:
         camera.exif_tags['GPS.GPSLatitude'] = "35/1,39/1,2905527/100000"
         camera.exif_tags['GPS.GPSLongitude'] = "139/1,43/1,2017163/50000"
@@ -71,7 +82,7 @@ def take_photo(camera, filename, gps_info, lastLatLonExif):
         print "longitude is " + exiv_lng
         lastLatLon = (exiv_lat, exiv_lng)
     # camera warm-up time
-    #time.sleep(2)
+    # time.sleep(2)
     camera.capture('./photos/' + filename)
 
 
@@ -173,62 +184,167 @@ def upload_server(filename, timestr, gps_info, lastLatLon):
 
 
 def take_photo_with_gps(interval_config):
-    starttime = epoch_to_datetime(interval_config["intervalStartEpoch"])
+    global startFlag
+    starttime = datetime.now()
     count = 0
     gps_socket = gps3.GPSDSocket()
     data_stream = gps3.DataStream()
     gps_socket.connect()
     gps_socket.watch()
-    lastLatLonExif = None
-    lastLatLon = None
     camera = picamera.PiCamera()
     camera.resolution = (1024, 768)
     camera.start_preview()
     camera.led = False
     while True:
         currenttime = datetime.now()
-        currenttimeEpoch = int(time.time())
-        delta = currenttime - starttime
-        if math.floor(delta.total_seconds()) % interval_config["intervalInterval"] == 0:
-            count += 1
-	    timestr = 'photo' + datetime.now().strftime('%Y%m%d%H%M%S')
-            filename = timestr + '.jpg'
-            print "starting get gps info"
-            gps_info = get_gps(data_stream, gps_socket, lastLatLon)
-            print "finish get gps info"
-            print "starting take photo " + filename
-            take_photo(camera, filename, gps_info, lastLatLonExif)
-            print "finish take photo " + filename
-            print "starting upload photo " + filename
-            upload_server(filename, timestr, gps_info, lastLatLon)
-            # upload_s3(filename)
-            print "finish upload photo " + filename
-
-        if interval_config["intervalEndMethod"] == "DATETIME":
-            if (interval_config["intervalEndEpoch"] - currenttimeEpoch) == 0:
-                print "Finish taking photo: " + str(count)
-                return True
-        if interval_config["intervalEndMethod"] == "MANUAL":
-            break
+        deltatime = (currenttime - midnight).seconds
+        if interval_config["startMethod"] == "startTimeOfDay":
+            if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
+                count += 1
+                timestr = datetime.now().strftime('%Y%m%d%H%M%S')
+                filename = timestr + '.jpg'
+                print "starting get gps info"
+                gps_info = get_gps(data_stream, gps_socket, lastLatLon)
+                print "finish get gps info"
+                print "starting take photo " + filename
+                take_photo(camera, filename, gps_info, lastLatLonExif)
+                print "finish take photo " + filename
+                print "starting upload photo " + filename
+                upload_server(filename, timestr, gps_info, lastLatLon)
+                # upload_s3(filename)
+                print "finish upload photo " + filename
+            if startFlag == False:
+                break
+        else:
+            if (currenttime - starttime).seconds % interval_config["interval"] == 0:
+                print "Try taking photo"
+                count += 1
+            if startFlag == False:
+                break
         time.sleep(1)
 
 
-#interval_config = get_interval_config()
-interval_config = {
-    "intervalStartMethod": "DATETIME",
-    "intervalStartEpoch": 1552542120,
-    "intervalEndMethod": "DATETIME",
-    "intervalEndEpoch": 1552542180,
-    "intervalInterval": 5
-}
-while True:
-    if interval_config["intervalStartMethod"] == "DATETIME":
-        starttime = interval_config["intervalStartEpoch"]
-        endtime = interval_config["intervalEndEpoch"]
-        currenttime = int(time.time())
-        if (starttime - currenttime == 0):
-            flag = take_photo_with_gps(interval_config)
-            if flag == True:
-                break
-    if interval_config["intervalStartMethod"] == "MANUAL":
-        break
+def on_press(key):
+    print threading.current_thread().name
+    global startFlag
+    if startFlag == False:
+        if key == keyboard.Key.tab:
+            startFlag = True
+            return False
+    else:
+        if key == keyboard.Key.tab:
+            startFlag = False
+            return False
+
+
+class StoppableThread(threading.Thread):
+    """Thread class with a stop() method. The thread itself has to check
+    regularly for the stopped() condition."""
+
+    def __init__(self, *args, **kwargs):
+        super(StoppableThread, self).__init__(*args, **kwargs)
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+        self.join()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
+
+if __name__ == "__main__":
+    while True:
+        interval_config = get_interval_config()
+        thread = StoppableThread(target=take_photo_with_gps,
+                                 args=([interval_config]))
+        print threading.current_thread().name
+        if interval_config["startMethod"] == "startTimeOfDay":
+            starttime = interval_config["startTimeOfDay"]
+            endtime = interval_config["stopTimeOfDay"]
+            currenttime = datetime.now()
+            deltatime = (currenttime - midnight).seconds
+            if (starttime - deltatime == 0):
+                print "Start Thread"
+                startFlag == True
+                thread.start()
+            if (interval_config["stopMethod"] == "stopTimeOfDay"):
+                if (deltatime - endtime == 0):
+                    startFlag == False
+                    print "startflag is " + str(startFlag)
+                    thread.stop()
+                    print "Stop Thread"
+            if (interval_config["stopMethod"] == "stopButton"):
+                with keyboard.Listener(
+                        on_press=on_press) as listener:
+                    listener.join()
+                print "startflag is " + str(startFlag)
+                if (startFlag == False):
+                    thread.stop()
+                    print "stop thread"
+            if (interval_config["stopMethod"] == "stopCountdown"):
+                time.sleep(interval_config["stopCountdown"])
+                print startFlag
+                startFlag = False
+                thread.stop()
+                print "stop thread"
+
+        if interval_config["startMethod"] == "startButton":
+            with keyboard.Listener(
+                    on_press=on_press) as listener:
+                listener.join()
+            print "startflag is " + str(startFlag)
+            if (startFlag):
+                thread.start()
+                print "start thread"
+            if (interval_config["stopMethod"] == "stopTimeOfDay"):
+                if (deltatime - endtime == 0):
+                    startFlag == False
+                    print "startflag is " + str(startFlag)
+                    thread.stop()
+                    print "Stop Thread"
+            if (interval_config["stopMethod"] == "stopButton"):
+                with keyboard.Listener(
+                        on_press=on_press) as listener:
+                    listener.join()
+                print "startflag is " + str(startFlag)
+                if (startFlag == False):
+                    thread.stop()
+                    print "stop thread"
+            if (interval_config["stopMethod"] == "stopCountdown"):
+                time.sleep(interval_config["stopCountdown"])
+                print startFlag
+                startFlag = False
+                thread.stop()
+                print "stop thread"
+        if interval_config["startMethod"] == "startCountdown":
+            with keyboard.Listener(
+                    on_press=on_press) as listener:
+                listener.join()
+            print "startflag is " + str(startFlag)
+            if (startFlag):
+                print "waiting :" + \
+                    str(interval_config["startCountdown"]) + " seconds..."
+                time.sleep(interval_config["startCountdown"])
+                thread.start()
+                print "start thread"
+            if (interval_config["stopMethod"] == "stopTimeOfDay"):
+                if (deltatime - endtime == 0):
+                    startFlag == False
+                    print "startflag is " + str(startFlag)
+                    thread.stop()
+                    print "Stop Thread"
+            if (interval_config["stopMethod"] == "stopButton"):
+                with keyboard.Listener(
+                        on_press=on_press) as listener:
+                    listener.join()
+                print "startflag is " + str(startFlag)
+                if (startFlag == False):
+                    thread.stop()
+                    print "stop thread"
+            if (interval_config["stopMethod"] == "stopCountdown"):
+                time.sleep(interval_config["stopCountdown"])
+                print startFlag
+                startFlag = False
+                thread.stop()
+                print "stop thread"

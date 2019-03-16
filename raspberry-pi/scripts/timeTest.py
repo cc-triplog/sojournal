@@ -47,23 +47,6 @@ def epoch_to_datetime(epoch):
     return datetime(*time.localtime(epoch)[:6])
 
 
-# def take_photo_timeofday(interval_config):
-#     count = 0
-#     while True:
-#         currenttime = datetime.now()
-#         deltatime = (currenttime - midnight).seconds
-#         if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
-#             print "Try taking photo"
-#             count += 1
-#         # if interval_config["stopMethod"] == "DATETIME":
-#         #     if (interval_config["stopTimeOfDay"] - currenttime) == 0:
-#         #         print "Finish taking photo: " + str(count)
-#         #         return True
-#         # if interval_config["intervalEndMethod"] == "MANUAL":
-#         #     print "aaa"
-#         time.sleep(1)
-
-
 def take_photo_with_gps(interval_config):
     global startFlag
     count = 0
