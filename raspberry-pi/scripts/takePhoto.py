@@ -12,15 +12,20 @@ import json
 import pyexif
 from fractions import Fraction
 
-GRAPHQL_URL = os.environ['URL_PROD']
+GRAPHQL_URL = os.environ['URL_LOCAL']
 
-def take_photo(filename, gps_info):
+
+def take_photo(filename, gps_info, lastLatLonExif):
     with picamera.PiCamera() as camera:
         camera.resolution = (1024, 768)
         camera.start_preview()
         camera.led = False
-        camera.exif_tags['GPS.GPSAltitude'] = "18.638"
-        camera.exif_tags['GPS.GPSLatitude'] = "5/1,10/1,15/1"
+        if lastLatLonExif is None:
+            camera.exif_tags['GPS.GPSLatitude'] = "35/1,39/1,2905527/100000"
+            camera.exif_tags['GPS.GPSLongitude'] = "139/1,43/1,2017163/50000"
+        else:
+            camera.exif_tags['GPS.GPSLatitude'] = lastLatLonExif[0]
+            camera.exif_tags['GPS.GPSLongitude'] = lastLatLonExif[1]
         if gps_info is not None:
             lat_deg = to_deg(gps_info['lat'], ["S", "N"])
             lng_deg = to_deg(gps_info['lon'], ["W", "E"])
@@ -39,6 +44,7 @@ def take_photo(filename, gps_info):
             camera.exif_tags['GPS.GPSTrack'] = str(gps_info['track'])
             print "lattitude is " + exiv_lat
             print "longitude is " + exiv_lng
+            lastLatLon = (exiv_lat, exiv_lng)
         # camera warm-up time
         time.sleep(2)
         camera.capture('./photos/' + filename)
@@ -51,7 +57,7 @@ def upload_s3(filename):
     print "done"
 
 
-def get_gps(data_stream, gps_socket):
+def get_gps(data_stream, gps_socket, lastLatLon):
     gps_info = None
     for newdata in gps_socket:
         print(newdata)
@@ -65,6 +71,7 @@ def get_gps(data_stream, gps_socket):
             print 'alt : ', data_stream.TPV['alt']
             print 'track : ', data_stream.TPV['track']
             gps_info = data_stream.TPV
+            lastLatLon = (data_stream.TPV['lat'], data_stream.TPV['lon'])
             break
         break
     return gps_info
@@ -98,7 +105,7 @@ def change_to_rational(number):
     return str(f.numerator) + "/" + str(f.denominator)
 
 
-def upload_server(filename, gps_info):
+def upload_server(filename, timestr, gps_info, lastLatLon):
     with open('./photos/' + filename, 'rb') as f:
         data = f.read()
         base64 = data.encode('base64')
@@ -106,10 +113,13 @@ def upload_server(filename, gps_info):
         client = GraphQLClient(GRAPHQL_URL)
         print type(base64) is str
 
+        if lastLatLon is None:
+            lastLatLon = (35.657995, 139.727666)
+
         if gps_info is not None:
             result = client.execute(
                 "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
-                base64 + "\"\"\", longitude: " +
+                base64 + "\"\"\", title: " + timestr + ", longitude: " +
                 str(gps_info['lon']) + ", latitude: " +
                 str(gps_info['lat']) + ", deviceId: 2, altitude: " +
                 str(gps_info['alt']) + ", bearing: " +
@@ -119,7 +129,10 @@ def upload_server(filename, gps_info):
         else:
             result = client.execute(
                 "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
-                base64 + "\"\"\", deviceId: 2})}"
+                base64 + "\"\"\", title: \"" + timestr +
+                "\", latitude: " +
+                str(lastLatLon[0]) + ", longitude: " +
+                str(lastLatLon[1]) + ", deviceId: 2})}"
             )
             print(result)
 
@@ -128,17 +141,19 @@ gps_socket = gps3.GPSDSocket()
 data_stream = gps3.DataStream()
 gps_socket.connect()
 gps_socket.watch()
+lastLatLonExif = None
+lastLatLon = None
 while True:
-    timestr = datetime.now().strftime('%Y%m%d%H%M%S')
+    timestr = 'photo' + datetime.now().strftime('%Y%m%d%H%M%S')
     filename = timestr + '.jpg'
     print "starting get gps info"
-    gps_info = get_gps(data_stream, gps_socket)
+    gps_info = get_gps(data_stream, gps_socket, lastLatLon)
     print "finish get gps info"
     print "starting take photo " + filename
-    take_photo(filename, gps_info)
+    take_photo(filename, gps_info, lastLatLonExif)
     print "finish take photo " + filename
     print "starting upload photo " + filename
-    upload_server(filename, gps_info)
+    upload_server(filename, timestr, gps_info, lastLatLon)
     # upload_s3(filename)
     print "finish upload photo " + filename
     time.sleep(10)

@@ -7,13 +7,6 @@ import styles from "./styles";
 export default ({ capture, trashPicture, uploadPicture, addStory }) => (
   //   <React.Fragment>
   <View>
-    <Image
-      source={{ uri: capture.uri }}
-      style={{
-        width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height,
-        resizeMode: "contain"
-      }}
-    />
+    <Image source={{ uri: capture.uri }} style={styles.preview} />
   </View>
 );
