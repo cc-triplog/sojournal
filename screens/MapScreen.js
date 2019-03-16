@@ -28,8 +28,6 @@ const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
 
-let modalContent;
-
 
 class MapScreen extends React.Component {
   static navigationOptions = {
@@ -41,7 +39,7 @@ class MapScreen extends React.Component {
 
 
     componentWillMount() {
-    this.index = 1;
+    this.index = 0;
     this.animation = new Animated.Value(0);
     this.callDatabase()
 
@@ -101,7 +99,7 @@ class MapScreen extends React.Component {
         },
         title: `${object.title}`,
         description: `${object.comment}`,
-        image: { uri: `data:image/jpg;base64,${object.imageFile}` },
+        image: { uri: `${object.imageFile}` },
         index: `${object.id}` 
       }
     ));
@@ -117,19 +115,16 @@ class MapScreen extends React.Component {
     this.props.changeCardVisibility(false)
   }
   onPressImageCard (index) {
-    const theme = getTheme();    
-      this.modalContent = (
-      <View style={[theme.cardStyle, styles.popUpCard]}>
-          <View style={theme.cardImageStyle}>
-            <Image source={this.props.markers[index].image} style={styles.popUpImage} />
-          </View>
-          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].title} />
-          <TextInput style={theme.cardContentStyle} value={this.props.markers[index].description} />
-          <Button onPress={this.onPressImageCard} title="EXIT" color="#841584" accessibilityLabel="exit" />
-      </View>)
+    const theme = getTheme(); 
+    let idToIndex;
 
+    for(let i = 0; i < this.props.markers.length; i++) {
+      if(this.props.markers[i].index === index) {
+        idToIndex = i
+      }
+    }
     this.props.changeCardVisibility(true)
-    this.props.selectImageCard(index)
+    this.props.selectImageCard(idToIndex)
   }
 
   render() {

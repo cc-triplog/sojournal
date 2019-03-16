@@ -71,13 +71,15 @@ class PopupCard extends React.Component {
       data: {
         query: `
         mutation {UpdatePhoto(input: {
-          id:${this.props.selectedImage}
+          id:${this.props.markers[this.props.selectedImage].index}
           title: "${this.changedTitle}",
           comment: "${this.changedDescription}"
         })
       }
         `
       }
+    }).then(result => {
+
     })
 }
 
