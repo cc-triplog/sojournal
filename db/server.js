@@ -6,6 +6,21 @@ try {
 }
 const AWS = require("aws-sdk");
 const uuid = require("uuid");
+const bucketName = "magellansmiles";
+
+// Create name for uploaded object key
+const keyName = "hello_world.txt";
+const objectParams = { Bucket: bucketName, Key: keyName, Body: "Hello World!" };
+var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+  .putObject(objectParams)
+  .promise();
+uploadPromise
+  .then(function(data) {
+    console.log("Successfully uploaded data to " + bucketName + "/" + keyName);
+  })
+  .catch(function(err) {
+    console.error(err, err.stack);
+  });
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -207,6 +222,24 @@ let root = {
     return true;
   },
   CreatePhoto: (req, res) => {
+    const keyName = "hello_world.txt";
+    const objectParams = {
+      Bucket: bucketName,
+      Key: keyName,
+      Body: "Hello World!"
+    };
+    var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+      .putObject(objectParams)
+      .promise();
+    uploadPromise
+      .then(function(data) {
+        console.log(
+          "Successfully uploaded data to " + bucketName + "/" + keyName
+        );
+      })
+      .catch(function(err) {
+        console.error(err, err.stack);
+      });
     db("photos")
       .insert({
         title: req.input.title,
