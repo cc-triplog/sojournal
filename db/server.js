@@ -208,6 +208,7 @@ let root = {
     const objectParams = {
       Bucket: bucketName,
       Key: keyName,
+      ContentType: "image/jpeg",
       Body: Buffer.from(req.input.imageFile, "base64")
     };
     var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
