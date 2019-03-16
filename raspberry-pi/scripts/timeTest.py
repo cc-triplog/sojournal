@@ -23,7 +23,7 @@ GRAPHQL_URL = "http://localhost:4000/graphql"
 def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
     result = client.execute(
-        """query{ReadIntervalConfig(type:{id: 2}){
+        """query{ReadIntervalConfig(type:{id: 1}){
             id,
             deviceId,
             startMethod,
@@ -94,6 +94,9 @@ class StoppableThread(threading.Thread):
         self._stop_event.set()
         self.join()
 
+    def stop_timeofday(self):
+        self._stop_event.set()
+
     def stopped(self):
         return self._stop_event.is_set()
 
@@ -110,25 +113,32 @@ class StoppableThread(threading.Thread):
 
 
 if __name__ == "__main__":
+    # for debugging
+    currenttime = datetime.now()
+    deltatime = (currenttime - midnight).seconds
+    print deltatime
     while True:
         interval_config = get_interval_config()
         thread = StoppableThread(target=take_photo_with_gps,
                                  args=([interval_config]))
-        print threading.current_thread().name
+        #print threading.current_thread().name
         if interval_config["startMethod"] == "startTimeOfDay":
             starttime = interval_config["startTimeOfDay"]
             endtime = interval_config["stopTimeOfDay"]
             currenttime = datetime.now()
             deltatime = (currenttime - midnight).seconds
+            # print "starttime: " + \
+            #     str(starttime) + ", deltatime: " + \
+            #     str(deltatime) + ", endtime: " + str(endtime)
             if (starttime - deltatime == 0):
                 print "Start Thread"
-                startFlag == True
+                startFlag = True
                 thread.start()
             if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
-                    startFlag == False
+                    startFlag = False
                     print "startflag is " + str(startFlag)
-                    thread.stop()
+                    thread.stop_timeofday()
                     print "Stop Thread"
             if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
@@ -204,6 +214,8 @@ if __name__ == "__main__":
                 startFlag = False
                 thread.stop()
                 print "stop thread"
+
+        time.sleep(1)
 
         # if interval_config["intervalStartMethod"] == "DATETIME":
         #     starttime = interval_confi            g["intervalStartEpoch"]
