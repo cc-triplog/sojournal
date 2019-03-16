@@ -1,11 +1,11 @@
 let envVar;
 try {
   envVar = require("../.env");
-  console.log(envVar);
 } catch (err) {
   console.log("have you thought about using an env file?");
 }
-console.log(envVar || "poop!!!");
+const AWS = require("aws-sdk");
+const uuid = require("uuid");
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -438,7 +438,7 @@ let root = {
     if (req.input.startEpoch) {
       updateObject.start_epoch = req.input.startEpoch;
     }
-    if (req.input.startCoundown) {
+    if (req.input.startCountdown) {
       updateObject.start_countdown = req.input.startCoundown;
     }
     if (req.input.stopMethod) {
