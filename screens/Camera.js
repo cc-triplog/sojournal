@@ -18,31 +18,7 @@ export default class CameraPage extends React.Component {
   state = {
     capture: null,
     imageView: false,
-    modalVisible: false,
-    permissions: {
-      hasLocationPermission: null,
-      hasCameraPermission: null
-    }
-  };
-
-  checkPermissions = async () => {
-    // const camera = await Permissions.askAsync(Permissions.CAMERA);
-    // const hasCameraPermission = camera.status === "granted";
-
-    // const cameraRoll = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    // const hasCameraRollPermission = cameraRoll.status === "granted";
-
-    // const location = await Permissions.askAsync(Permissions.LOCATION);
-    // const hasLocationPermission = location.status === "granted";
-
-    // return (
-    //   hasCameraPermission && hasCameraRollPermission && hasLocationPermission
-    // );
-    const {
-      hasLocationPermission,
-      hasCameraPermission
-    } = this.state.permissions;
-    return hasLocationPermission && hasCameraPermission;
+    modalVisible: false
   };
 
   getDateFromCamera = input => {
