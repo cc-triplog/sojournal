@@ -8,7 +8,7 @@ import {
 import TabBarIcon from "../components/TabBarIcon";
 import MapScreen from "../screens/MapScreen";
 import Camera from "../screens/Camera";
-import SettingsScreen from "../screens/SettingsScreen";
+import SettingsScreen from "../screens/RaspberryPi";
 
 const MapStack = createStackNavigator({
   Map: MapScreen
