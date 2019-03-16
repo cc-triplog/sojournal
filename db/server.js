@@ -259,7 +259,7 @@ let root = {
     return true;
   },
   CreateIntervalConfig: (req, res) => {
-    db("create_interval_configs")
+    db("interval_configs")
       .insert({
         title: req.input.title,
         user_id: currentUser,
@@ -453,7 +453,7 @@ let root = {
     if (req.input.interval) {
       updateObject.interval = req.input.interval;
     }
-    db("groups")
+    db("interval_configs")
       .where({ id: req.input.id })
       .update(updateObject)
       .then(res => {
@@ -545,7 +545,7 @@ let root = {
     return true;
   },
   DestroyIntervalConfig: (req, res) => {
-    db("log_interval_configs")
+    db("interval_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
       .then(res => {
