@@ -527,6 +527,7 @@ let root = {
     return true;
   },
   DestroyPhoto: (req, res) => {
+    // Post MVP - delete files from S3
     db("photos")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
