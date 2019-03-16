@@ -91,6 +91,7 @@ class MapScreen extends React.Component {
       }
     }).then(result => {
       console.log("====================whole thing ", result.data.data.ReadPhoto)
+      const http = "http://"
       const mapResult = result.data.data.ReadPhoto.map(object => (
       {
         coordinate: {
@@ -99,7 +100,7 @@ class MapScreen extends React.Component {
         },
         title: `${object.title}`,
         description: `${object.comment}`,
-        image: { uri: `${object.imageFile}` },
+        image: { uri: `${http + object.imageFile}` },
         index: `${object.id}` 
       }
     ));
