@@ -41,7 +41,7 @@ class MapScreen extends React.Component {
 
 
     componentWillMount() {
-    this.index = 0;
+    this.index = 1;
     this.animation = new Animated.Value(0);
     this.callDatabase()
 
@@ -86,12 +86,13 @@ class MapScreen extends React.Component {
         query: `
         query {ReadPhoto(type: {
         }) {
-         title, latitude, longitude, comment, imageFile
+         title, latitude, longitude, comment, imageFile, id
         }
       }
         `
       }
     }).then(result => {
+      console.log("====================whole thing ", result.data.data.ReadPhoto)
       const mapResult = result.data.data.ReadPhoto.map(object => (
       {
         coordinate: {
@@ -100,12 +101,13 @@ class MapScreen extends React.Component {
         },
         title: `${object.title}`,
         description: `${object.comment}`,
-        image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
+        image: { uri: `data:image/jpg;base64,${object.imageFile}` },
+        index: `${object.id}` 
       }
     ));
 
       for(let i = 0; i < mapResult.length; i++) {
-        mapResult[i].index = i;
+        // mapResult[i].index = i;
         this.props.renderPhotos(mapResult[i])
       }
     })
@@ -162,7 +164,7 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker, index) => {
             return (
-              <MapView.Marker key={index} coordinate={marker.coordinate}>
+              <MapView.Marker key={marker.index} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
                   <Animated.View style={[styles.ring]} />
                   <View style={styles.marker} />

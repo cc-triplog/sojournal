@@ -27,7 +27,8 @@ const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
 
-let modalContent;
+let changedTitle
+let changedDescription
 
 
 class PopupCard extends React.Component {
@@ -38,37 +39,47 @@ class PopupCard extends React.Component {
     super(props);
   }
 
+  onChangeTextTitle (text) {
+    this.changedTitle = text
+  }
+  onChangeTextDescription (text) {
+    this.changedDescription = text
+  }
   onPressExit () {
     this.props.changeCardVisibility(false)
     console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload () {
-    console.log("==========press upload========", this.props.visible)
+    console.log("=============axios", {
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        mutation {UpdatePhoto(input: {
+          id:${this.props.selectedImage}
+          title: "${this.changedTitle}",
+          comment: "${this.changedDescription}"
+        })
+      }
+        `
+      }
+    });
+
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
       data: {
         query: `
-        query {ReadPhoto(type: {
-        }) {
-         title, latitude, longitude, comment, imageFile
-        }
+        mutation {UpdatePhoto(input: {
+          id:${this.props.selectedImage}
+          title: "${this.changedTitle}",
+          comment: "${this.changedDescription}"
+        })
       }
         `
       }
-    }).then(result => {
-      const mapResult = result.data.data.ReadPhoto.map(object => (
-      {
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude),
-        },
-        title: `${object.title}`,
-        description: `${object.comment}`,
-        image: { uri: `data:image/jpg;base64,${object.imageFile}` }, 
-      }
-    ));
-  }
+    })
+}
 
   render() {
 
@@ -85,12 +96,14 @@ class PopupCard extends React.Component {
                     <Image source={this.props.markers[this.props.selectedImage].image} style={styles.popUpImage} />
             </View>
             <TextInput 
-            style={[theme.cardContentStyle, styles.textTitle]} 
+            style={[theme.cardContentStyle, styles.textTitle]}
+            onChangeText={(text) => {this.onChangeTextTitle(text)}} 
             defaultValue={this.props.markers[this.props.selectedImage].title} />
             <View style={styles.textDescription}>
               <TextInput 
               multiline={true}
-              style={theme.cardContentStyle} 
+              style={theme.cardContentStyle}
+              onChangeText={(text) => {this.onChangeTextDescription(text)}} 
               defaultValue={this.props.markers[this.props.selectedImage].description} />
             </View>
             <View style={styles.alignButtons}>

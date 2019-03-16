@@ -16,6 +16,18 @@ const selectImageCard = (index) => {
         index
     }
 }
+const changeTitle = (title) => {
+    return {
+        type: "CHANGE_TITLE",
+        title
+    }
+}
+const changeDescription = (description) => {
+    return {
+        type: "CHANGE_DESCRIPTION",
+        description
+    }
+}
 
 module.exports ={
     renderPhotos,

@@ -33,6 +33,9 @@ const reducer = (state = initialState, action) => {
                 ...stateChanges
             }
         }
+        case "CHANGE_TITLE": {
+            const stateChanges = {  }
+        }
         default: {
             return state;
         }
