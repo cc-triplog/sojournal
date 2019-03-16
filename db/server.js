@@ -1,9 +1,11 @@
-
-// try {
-//   const result = require("dotenv").config();
-// } catch (err) {
-//   console.log("have you thought about using an env file?");
-// }
+let envVar;
+try {
+  envVar = require("../.env");
+  console.log(envVar);
+} catch (err) {
+  console.log("have you thought about using an env file?");
+}
+console.log(envVar || "poop!!!");
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -419,7 +421,7 @@ let root = {
       });
     return true;
   },
-  UpdateGroup: (req, res) => {
+  UpdateIntervalConfig: (req, res) => {
     let updateObject = { user_id: currentUser };
     if (req.input.deviceId) {
       updateObject.device_id = req.input.deviceId;
