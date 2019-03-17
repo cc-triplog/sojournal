@@ -35,11 +35,7 @@ const reducer = (state = initialState, action) => {
             }
         }
         case "UPDATE_ONEPHOTO": {
-            const stateChanges = { markers: [
-                ...state.markers.slice(0, state.selectedImageIndex - 1),
-                action.photo,
-                ...state.markers.slice(state.selectedImageIndex + 1)
-            ] }
+            const stateChanges = { markers: action.photo }
             return {
                 ...state,
                 ...stateChanges

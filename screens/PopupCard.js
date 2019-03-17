@@ -75,7 +75,12 @@ class PopupCard extends React.Component {
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
-      this.props.updateOnePhoto(newPhotoData)
+      const copyOfNewState = this.props.markers.map(photo => {
+        if(photo.id === this.props.markers[this.props.selectedImageIndex].id) {
+          photo = newPhotoData
+        }
+      })
+      this.props.updateOnePhoto(copyOfNewState)
     })
     console.log("==============imageid", this.props.markers[this.props.selectedImageIndex].id )
     console.log("==================markers", this.props.markers)
