@@ -21,7 +21,14 @@ import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { renderPhotos, changeCardVisibility, selectImageCard, updateOnePhoto } from '../action';
+import { 
+  renderPhotos, 
+  changeCardVisibility, 
+  selectImageCard, 
+  insertPhotoWithIndex, 
+  deletePhoto,
+  reflectStateChange 
+} from '../action';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -50,14 +57,13 @@ class PopupCard extends React.Component {
     console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload () {
-
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
       data: {
         query: `
         mutation {UpdatePhoto(input: {
-          id:${this.props.markers[this.props.selectedImageIndex].index}
+          id:${this.props.markers[this.props.selectedImageIndex].id}
           title: "${this.changedTitle}",
           comment: "${this.changedDescription}"
         })
@@ -80,11 +86,10 @@ class PopupCard extends React.Component {
           photo = newPhotoData
         }
       })
-      this.props.updateOnePhoto(copyOfNewState)
-    })
-    console.log("==============imageid", this.props.markers[this.props.selectedImageIndex].id )
-    console.log("==================markers", this.props.markers)
-    console.log("============selectedImageIndex", this.props.selectedImageIndex)
+      this.props.insertPhotoWithIndex(newPhotoData);
+      this.props.deletePhoto(this.props.selectedImageIndex);
+      this.props.reflectStateChange(!(this.props.stateChanged))
+    }).then(console.log("========after axios call", this.props.markers))
 }
 
   render() {
@@ -97,7 +102,74 @@ class PopupCard extends React.Component {
       fullScreen={false}
       style={styles.overlay}
       >
-        <View style={styles.card}>
+      {
+        this.props.stateChanged
+        ? <View style={styles.card}>
+        <View style={[theme.cardImageStyle, styles.popupContent]}>
+                <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
+        </View>
+        <TextInput 
+        style={[theme.cardContentStyle, styles.textTitle]}
+        onChangeText={(text) => {this.onChangeTextTitle(text)}} 
+        defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+        <View style={styles.textDescription}>
+          <TextInput 
+          multiline={true}
+          style={theme.cardContentStyle}
+          onChangeText={(text) => {this.onChangeTextDescription(text)}} 
+          defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+        </View>
+        <View style={styles.alignButtons}>
+        <View style={styles.buttonUpload}>
+          <Button 
+            onPress={() => {this.onPressUpload()}} 
+            title="UPLOAD"
+            type="outline"  
+            accessibilityLabel="upload" />
+        </View>
+        <View style={styles.buttonExit}>
+          <Button 
+            onPress={() => {this.onPressExit()}} 
+            title="EXIT" 
+            type="outline"
+            accessibilityLabel="exit" />
+        </View>
+        </View>
+    </View>
+    : <View style={styles.card}>
+    <View style={[theme.cardImageStyle, styles.popupContent]}>
+            <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
+    </View>
+    <TextInput 
+    style={[theme.cardContentStyle, styles.textTitle]}
+    onChangeText={(text) => {this.onChangeTextTitle(text)}} 
+    defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+    <View style={styles.textDescription}>
+      <TextInput 
+      multiline={true}
+      style={theme.cardContentStyle}
+      onChangeText={(text) => {this.onChangeTextDescription(text)}} 
+      defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+    </View>
+    <View style={styles.alignButtons}>
+    <View style={styles.buttonUpload}>
+      <Button 
+        onPress={() => {this.onPressUpload()}} 
+        title="UPLOAD"
+        type="outline"  
+        accessibilityLabel="upload" />
+    </View>
+    <View style={styles.buttonExit}>
+      <Button 
+        onPress={() => {this.onPressExit()}} 
+        title="EXIT" 
+        type="outline"
+        accessibilityLabel="exit" />
+    </View>
+    </View>
+</View>
+      }
+        {/* <View style={styles.card}>
             <View style={[theme.cardImageStyle, styles.popupContent]}>
                     <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
             </View>
@@ -128,7 +200,7 @@ class PopupCard extends React.Component {
                 accessibilityLabel="exit" />
             </View>
             </View>
-        </View>
+        </View> */}
       </Overlay>
     );
   }
@@ -141,7 +213,9 @@ const styles = StyleSheet.create({
     flex:1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: "center"
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 20
   },
   buttonExit: {
     flex: 1,
@@ -211,7 +285,8 @@ const mapStateToProps = state => ({
   markers: state.markers,
   region: state.region,
   visible: state.visible,
-  selectedImageIndex: state.selectedImageIndex
+  selectedImageIndex: state.selectedImageIndex,
+  stateChanged: state.stateChanged
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -223,8 +298,16 @@ const mapDispatchToProps = dispatch => ({
     const action = selectImageCard(index)
     dispatch(action)
     },
-    updateOnePhoto: photo => {
-      const action = updateOnePhoto(photo)
+    insertPhotoWithIndex: photo => {
+      const action = insertPhotoWithIndex(photo)
+      dispatch(action)
+    },
+    deletePhoto: index => {
+      const action = deletePhoto(index)
+      dispatch(action)
+    },
+    reflectStateChange: change => {
+      const action = reflectStateChange(change)
       dispatch(action)
     }
 })

@@ -8,7 +8,7 @@ const initialState = {
       },
       visible: false,
       selectedImageIndex: null,
-      updateImageData: null
+      stateChanged: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -34,8 +34,29 @@ const reducer = (state = initialState, action) => {
                 ...stateChanges
             }
         }
-        case "UPDATE_ONEPHOTO": {
-            const stateChanges = { markers: action.photo }
+        case "INSERT_PHOTOWITHINDEX": {
+            const stateChanges = { markers: [ 
+                ...state.markers.slice(0, state.selectedImageIndex - 1),
+                action.photo,
+                ...state.markers.slice(state.selectedImageIndex)
+             ] }
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "DELETE_PHOTO": {
+            const stateChanges = { markers: [
+                ...state.markers.slice(0, action.index),
+                ...state.markers.slice(action.index + 2)
+            ] }
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "REFLECT_STATECHANGE": {
+            const stateChanges = { stateChanged: action.change }
             return {
                 ...state,
                 ...stateChanges

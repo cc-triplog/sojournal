@@ -28,10 +28,16 @@ const changeDescription = (description) => {
         description
     }
 }
-const updateOnePhoto = (photo) => {
+const insertPhotoWithIndex = (photo) => {
     return {
-        type: "UPDATE_ONEPHOTO",
+        type: "INSERT_PHOTOWITHINDEX",
         photo
+    }
+}
+const deletePhoto = (index) => {
+    return {
+        type: "DELETE_PHOTO",
+        index
     }
 }
 
@@ -39,5 +45,6 @@ module.exports ={
     renderPhotos,
     changeCardVisibility,
     selectImageCard,
-    updateOnePhoto
+    insertPhotoWithIndex,
+    deletePhoto
 }
