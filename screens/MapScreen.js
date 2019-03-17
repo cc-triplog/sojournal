@@ -111,21 +111,19 @@ class MapScreen extends React.Component {
       }
     })
   }
-  onPressPopUpButton () {
-    this.props.changeCardVisibility(false)
-  }
-  onPressImageCard (index) {
-    const theme = getTheme(); 
-    let idToIndex;
-
+  idToIndex (id) {
+    let index;
     for(let i = 0; i < this.props.markers.length; i++) {
-      if(this.props.markers[i].index === index) {
-        idToIndex = i
-      }
-    }
-    this.props.changeCardVisibility(true)
-    this.props.selectImageCard(idToIndex)
+      if(this.props.markers[i].id === id) index = i
+      this.props.selectedImageIndex(index)
+    } 
   }
+  onPressImageCard (id) {
+    this.props.changeCardVisibility(true)
+    this.idToIndex(index)
+    console.log("=============selectedImageIndex",this.props.selectedImageIndex)
+  }
+
 
   render() {
     const interpolations = this.props.markers.map((marker, index) => {
@@ -157,7 +155,7 @@ class MapScreen extends React.Component {
           initialRegion={this.props.region}
           style={styles.container}
         >
-          {this.props.markers.map((marker, index) => {
+          {this.props.markers.map((marker) => {
             return (
               <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
@@ -191,7 +189,7 @@ class MapScreen extends React.Component {
         >
 
 
-        {this.props.markers.map((marker, index) => (
+        {this.props.markers.map((marker) => (
           <TouchableOpacity key={marker.id} onPress={() =>this.onPressImageCard(marker.id)}>
             <View style={styles.card}>
               <Image
@@ -291,7 +289,7 @@ const mapStateToProps = state => ({
   markers: state.markers,
   region: state.region,
   visible: state.visible,
-  selectedImage: state.selectedImage
+  selectedImageIndex: state.selectedImageIndex
 })
 
 const mapDispatchToProps = dispatch => ({

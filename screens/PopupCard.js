@@ -79,6 +79,7 @@ class PopupCard extends React.Component {
     })
     console.log("==============imageid", this.props.markers[this.props.selectedImageIndex].id )
     console.log("==================markers", this.props.markers)
+    console.log("============selectedImageIndex", this.props.selectedImageIndex)
 }
 
   render() {

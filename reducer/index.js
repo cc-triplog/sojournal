@@ -42,7 +42,7 @@ const reducer = (state = initialState, action) => {
             ] }
             return {
                 ...state,
-                stateChanges
+                ...stateChanges
             }
         }
         default: {
