@@ -1,9 +1,9 @@
 {
-  "devToolsPort": 19002,
   "expoServerPort": 19000,
+  "expoServerNgrokUrl": "https://v8-k68.anonymous.triplog.exp.direct",
+  "packagerNgrokUrl": "https://packager.v8-k68.anonymous.triplog.exp.direct",
+  "ngrokPid": 46747,
+  "devToolsPort": 19002,
   "packagerPort": 19001,
-  "packagerPid": 80057,
-  "expoServerNgrokUrl": "https://89-pvf.anonymous.triplog.exp.direct",
-  "packagerNgrokUrl": "https://packager.89-pvf.anonymous.triplog.exp.direct",
-  "ngrokPid": 80084
+  "packagerPid": 46714
 }

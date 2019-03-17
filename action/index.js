@@ -16,9 +16,35 @@ const selectImageCard = (index) => {
         index
     }
 }
+const changeTitle = (title) => {
+    return {
+        type: "CHANGE_TITLE",
+        title
+    }
+}
+const changeDescription = (description) => {
+    return {
+        type: "CHANGE_DESCRIPTION",
+        description
+    }
+}
+const insertPhotoWithIndex = (photo) => {
+    return {
+        type: "INSERT_PHOTOWITHINDEX",
+        photo
+    }
+}
+const deletePhoto = (index) => {
+    return {
+        type: "DELETE_PHOTO",
+        index
+    }
+}
 
 module.exports ={
     renderPhotos,
     changeCardVisibility,
-    selectImageCard
+    selectImageCard,
+    insertPhotoWithIndex,
+    deletePhoto
 }
