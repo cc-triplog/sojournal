@@ -1,9 +1,8 @@
-
-// try {
-//   const result = require("dotenv").config();
-// } catch (err) {
-//   console.log("have you thought about using an env file?");
-// }
+const AWS = require("aws-sdk");
+AWS.config.loadFromPath("./.env.json");
+//console.log(AWS.config.credentials);
+const uuid = require("uuid");
+const bucketName = "magellansmiles";
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -205,6 +204,25 @@ let root = {
     return true;
   },
   CreatePhoto: (req, res) => {
+    const keyName = currentUser + "/" + uuid.v4() + ".jpg";
+    const objectParams = {
+      Bucket: bucketName,
+      Key: keyName,
+      ContentType: "image/jpeg",
+      Body: Buffer.from(req.input.imageFile, "base64")
+    };
+    var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+      .putObject(objectParams)
+      .promise();
+    uploadPromise
+      .then(function(data) {
+        console.log(
+          "Successfully uploaded data to " + bucketName + "/" + keyName
+        );
+      })
+      .catch(function(err) {
+        console.error(err, err.stack);
+      });
     db("photos")
       .insert({
         title: req.input.title,
@@ -215,7 +233,7 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        //image_file: req.input.imageFile,
+        image_file: keyName,
         altitude: req.input.altitude,
         bearing: req.input.bearing
       })
@@ -257,7 +275,7 @@ let root = {
     return true;
   },
   CreateIntervalConfig: (req, res) => {
-    db("create_interval_configs")
+    db("interval_configs")
       .insert({
         title: req.input.title,
         user_id: currentUser,
@@ -419,39 +437,42 @@ let root = {
       });
     return true;
   },
-  UpdateGroup: (req, res) => {
+  UpdateIntervalConfig: (req, res) => {
     let updateObject = { user_id: currentUser };
+    if (req.input.title) {
+      updateObject.title = req.input.title;
+    }
     if (req.input.deviceId) {
       updateObject.device_id = req.input.deviceId;
     }
     if (req.input.startMethod) {
       updateObject.start_method = req.input.startMethod;
     }
-    if (req.input.startTimeOfDay) {
+    if (typeof req.input.startTimeOfDay === "number") {
       updateObject.start_time_of_day = req.input.startTimeOfDay;
     }
-    if (req.input.startEpoch) {
+    if (typeof req.input.startEpoch === "number") {
       updateObject.start_epoch = req.input.startEpoch;
     }
-    if (req.input.startCoundown) {
-      updateObject.start_countdown = req.input.startCoundown;
+    if (typeof req.input.startCountdown === "number") {
+      updateObject.start_countdown = req.input.startCountdown;
     }
     if (req.input.stopMethod) {
       updateObject.stop_method = req.input.stopMethod;
     }
-    if (req.input.stopTimeOfDay) {
+    if (typeof req.input.stopTimeOfDay === "number") {
       updateObject.stop_time_of_day = req.input.stopTimeOfDay;
     }
-    if (req.input.stopEpoch) {
+    if (typeof req.input.stopEpoch === "number") {
       updateObject.stop_epoch = req.input.stopEpoch;
     }
-    if (req.input.stopCountdown) {
+    if (typeof req.input.stopCountdown === "number") {
       updateObject.stop_countdown = req.input.stopCountdown;
     }
     if (req.input.interval) {
       updateObject.interval = req.input.interval;
     }
-    db("groups")
+    db("interval_configs")
       .where({ id: req.input.id })
       .update(updateObject)
       .then(res => {
@@ -507,6 +528,7 @@ let root = {
     return true;
   },
   DestroyPhoto: (req, res) => {
+    // Post MVP - delete files from S3
     db("photos")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
@@ -543,7 +565,7 @@ let root = {
     return true;
   },
   DestroyIntervalConfig: (req, res) => {
-    db("log_interval_configs")
+    db("interval_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
       .then(res => {

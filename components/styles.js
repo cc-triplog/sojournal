@@ -8,7 +8,9 @@ export default StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "space-around",
-    flexDirection: "column"
+    flexDirection: "column",
+    height: winHeight,
+    width: winWidth
   },
   choiceButtons: {
     justifyContent: "center",
@@ -102,5 +104,8 @@ export default StyleSheet.create({
     width: 250,
     margin: 40,
     marginBottom: 80
+  },
+  picker: {
+    width: 150
   }
 });
