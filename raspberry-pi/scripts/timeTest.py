@@ -7,6 +7,9 @@ import threading
 import os
 from graphqlclient import GraphQLClient
 import json
+import redis
+import urllib2
+import socket
 
 global startFlag
 global midnight
@@ -15,15 +18,20 @@ midnight = datetime(year=today.year, month=today.month,
                     day=today.day, hour=0, minute=0, second=0)
 startFlag = False
 
+# redis settings
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 #GRAPHQL_URL = os.environ['URL_LOCAL']
-GRAPHQL_URL = "http://localhost:4000/graphql"
+GRAPHQL_URL = "http://192.168.33.44:4000/graphql"
+
+socket.setdefaulttimeout(10)
 
 
 def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
-    result = client.execute(
-        """query{ReadIntervalConfig(type:{id: 1}){
+    try:
+        result = client.execute(
+            """query{ReadIntervalConfig(type:{id: 1}){
             id,
             deviceId,
             startMethod,
@@ -33,8 +41,14 @@ def get_interval_config():
             stopTimeOfDay,
             startCountdown,
             interval
-        }}"""
-    )
+        }} """)
+
+    except urllib2.URLError as err:
+        if err.reason.message == 'timed out':
+            r.set('foo', 'bar')
+        if err.reason.errno == 51:
+            config = r.get('config')
+        print(err.reason)
     config = json.loads(result)["data"]["ReadIntervalConfig"][0]
     return config
 

@@ -26,19 +26,22 @@ startFlag = False
 
 def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
-    result = client.execute(
-        """query{ReadIntervalConfig(type:{id: 1}){
-            id,
-            deviceId,
-            startMethod,
-            startTimeOfDay,
-            startCountdown,
-            stopMethod,
-            stopTimeOfDay,
-            stopCountdown,
-            interval
-        }}"""
-    )
+    try:
+        result = client.execute(
+            """query{ReadIntervalConfig(type:{id: 1}){
+                id,
+                deviceId,
+                startMethod,
+                startTimeOfDay,
+                startCountdown,
+                stopMethod,
+                stopTimeOfDay,
+                stopCountdown,
+                interval
+            }}"""
+        )
+    except urllib2.URLError as err:
+        print(err.reason)
     config = json.loads(result)["data"]["ReadIntervalConfig"][0]
     return config
 
@@ -199,7 +202,7 @@ def take_photo_with_gps(interval_config):
         if interval_config["startMethod"] == "startTimeOfDay":
             if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
                 count += 1
-                timestr = datetime.now().strftime('%Y%m%d%H%M%S')
+                timestr = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
                 filename = timestr + '.jpg'
                 print "starting get gps info"
                 gps_info = get_gps(data_stream, gps_socket, lastLatLon)
@@ -304,6 +307,7 @@ if __name__ == "__main__":
                 print "stop thread"
 
         if interval_config["startMethod"] == "startButton":
+            print "waiting input"
             with keyboard.Listener(
                     on_press=on_press) as listener:
                 listener.join()
