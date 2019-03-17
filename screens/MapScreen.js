@@ -151,35 +151,12 @@ class MapScreen extends React.Component {
         {this.props.visible 
           ? <PopupCard /> 
           : <View />}
-        {
-          this.props.stateChanged
-          ? this.props.markers.map((marker) => {
-            return (
-              <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                <Animated.View style={[styles.markerWrap]}>
-                  <Animated.View style={[styles.ring]} />
-                  <View style={styles.marker} />
-                </Animated.View>
-              </MapView.Marker>
-            );
-          })
-          : this.props.markers.map((marker) => {
-            return (
-              <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                <Animated.View style={[styles.markerWrap]}>
-                  <Animated.View style={[styles.ring]} />
-                  <View style={styles.marker} />
-                </Animated.View>
-              </MapView.Marker>
-            );
-          })
-        }
         <MapView
           ref={map => this.map = map}
           initialRegion={this.props.region}
           style={styles.container}
         >
-          {/* {this.props.markers.map((marker) => {
+          {this.props.markers.map((marker) => {
             return (
               <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                 <Animated.View style={[styles.markerWrap]}>
@@ -188,7 +165,7 @@ class MapScreen extends React.Component {
                 </Animated.View>
               </MapView.Marker>
             );
-          })} */}
+          })}
 
         </MapView>
         <Animated.ScrollView
@@ -211,44 +188,7 @@ class MapScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-        {
-          this.props.stateChanged
-          ? this.props.markers.map((marker) => (
-            <TouchableOpacity key={marker.id} onPress={() =>this.onPressImageCard(marker.id)}>
-              <View style={styles.card}>
-                <Image
-                  source={marker.image}
-                  style={styles.cardImage}
-                  resizeMode="cover"
-                />
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.description}
-                  </Text>
-                </View>              
-              </View>
-            </TouchableOpacity>
-          ))
-          : this.props.markers.map((marker) => (
-            <TouchableOpacity key={marker.id} onPress={() =>this.onPressImageCard(marker.id)}>
-              <View style={styles.card}>
-                <Image
-                  source={marker.image}
-                  style={styles.cardImage}
-                  resizeMode="cover"
-                />
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.description}
-                  </Text>
-                </View>              
-              </View>
-            </TouchableOpacity>
-          ))
-        }
-        {/* {this.props.markers.map((marker) => (
+        {this.props.markers.map((marker) => (
           <TouchableOpacity key={marker.id} onPress={() =>this.onPressImageCard(marker.id)}>
             <View style={styles.card}>
               <Image
@@ -264,7 +204,7 @@ class MapScreen extends React.Component {
               </View>              
             </View>
           </TouchableOpacity>
-        ))}      */}
+        ))}     
         </Animated.ScrollView>
       </View>
     );

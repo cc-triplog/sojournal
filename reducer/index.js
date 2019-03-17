@@ -62,6 +62,13 @@ const reducer = (state = initialState, action) => {
                 ...stateChanges
             }
         }
+        case "REPLACE_ALLMARKERS": {
+            const stateChanges = { markers: action.photos}
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
         default: {
             return state;
         }
