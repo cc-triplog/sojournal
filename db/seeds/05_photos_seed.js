@@ -1,4 +1,3 @@
-const bucketName = "magellansmiles";
 const folderName = "testing";
 const photoObjectArray = [];
 
@@ -7,7 +6,7 @@ const seedArray = [
     title: "Look at Bri Bri.",
     comment:
       "He wants to pick his nose, but knows that he can't while a photo is being taken. Such restraint!",
-    imageFile: ""
+    imageFile: "c486849c-0d03-4e6c-9cad-c0a246b1243b.jpg"
   },
   {
     title: "This is Carlos.",
@@ -66,7 +65,7 @@ for (let i in seedArray) {
     latitude: 35.658124669454075 + 0.002 * i,
     longitude: 139.72756780246945 + 0.002 * i,
     comment: seedArray[i].comment,
-    image_file: bucketName + "/" + folderName + "/" + seedArray[i].imageFile
+    image_file: folderName + "/" + seedArray[i].imageFile
   });
 }
 
