@@ -76,7 +76,8 @@ class MapScreen extends React.Component {
   }
 
   // callDatabaseGPS = async () => {
-  //   axios({
+  //   console.log("===========tx")
+  //   await axios({
   //     url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
   //     method: 'post',
   //     data: {
@@ -90,24 +91,24 @@ class MapScreen extends React.Component {
   //     }
   //   }).then(async result => {
   //     console.log("============gps call", result)
-  //   //   const http = "http://"
-  //   //   const mapResult = result.data.data.ReadGps.map(object => (
-  //   //   {
-  //   //     coordinate: {
-  //   //       latitude: Number(object.latitude),
-  //   //       longitude: Number(object.longitude),
-  //   //     },
-  //   //     title: 'RP GPS',
-  //   //     description: 'GPS Points from Raspberry',
-  //   //     image: 'www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi7ksn0wYrhAhUEBKYKHfUKBUIQjRx6BAgBEAU&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F208129%2Fbase_gps_location_map_marker_market_pin_icon&psig=AOvVaw0hWR9bOa2miiidyCcL3Acu&ust=1552957725813436',
-  //   //     id: object.id,
-  //   //   }
-  //   // ));
+  //     const http = "http://"
+  //     const mapResult = result.data.data.ReadGps.map(object => (
+  //     {
+  //       coordinate: {
+  //         latitude: Number(object.latitude),
+  //         longitude: Number(object.longitude),
+  //       },
+  //       title: 'RP GPS',
+  //       description: 'GPS Points from Raspberry',
+  //       image: 'www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi7ksn0wYrhAhUEBKYKHfUKBUIQjRx6BAgBEAU&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F208129%2Fbase_gps_location_map_marker_market_pin_icon&psig=AOvVaw0hWR9bOa2miiidyCcL3Acu&ust=1552957725813436',
+  //       id: object.id,
+  //     }
+  //   ));
   //   console.log("==========gps points?", result)
   //     for(let i = 0; i < mapResult.length; i++) {
   //       await this.props.renderPhotos(mapResult[i])
   //     }
-  //   })
+  //   }).catch(err => console.log("===========catch", err))
   // }
   callDatabasePhotos = async () => {
     axios({
@@ -137,15 +138,46 @@ class MapScreen extends React.Component {
       }
     ));
 
-    console.log("============before await", this.props.markers)
       for(let i = 0; i < mapResult.length; i++) {
         await this.props.renderPhotos(mapResult[i])
       }
-      console.log("============after await",this.props.markers)
+    }).then(() => {
+      axios({
+        url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+        method: 'post',
+        data: {
+          query: `
+          query {ReadGpsPoint(type: {
+          }) {
+           id,title,comment,latitude,longitude
+          }
+        }
+          `
+        }
+      }).then(async result => {
+        console.log("============gps call", result)
+      //   const http = "http://"
+      //   const mapResult = result.data.data.ReadGps.map(object => (
+      //   {
+      //     coordinate: {
+      //       latitude: Number(object.latitude),
+      //       longitude: Number(object.longitude),
+      //     },
+      //     title: 'RP GPS',
+      //     description: 'GPS Points from Raspberry',
+      //     image: 'www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi7ksn0wYrhAhUEBKYKHfUKBUIQjRx6BAgBEAU&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F208129%2Fbase_gps_location_map_marker_market_pin_icon&psig=AOvVaw0hWR9bOa2miiidyCcL3Acu&ust=1552957725813436',
+      //     id: object.id,
+      //   }
+      // ));
+      // console.log("==========gps points?", result)
+      //   for(let i = 0; i < mapResult.length; i++) {
+      //     await this.props.renderPhotos(mapResult[i])
+      //   }
+      }).catch(err => console.log("===========catch", err))
     })
   }
   idToIndex = (id) => {
-    console.log("=====check props when image is clicked", this.props)
+    // console.log("=====check props when image is clicked", this.props)
     let index;
     for(let i = 0; i < this.props.markers.length; i++) {
       if(this.props.markers[i].id === id) index = i
@@ -153,10 +185,10 @@ class MapScreen extends React.Component {
     } 
   }
   onPressImageCard = (id) => {
-    console.log("========id passed when pressing image", id)
+    // console.log("========id passed when pressing image", id)
     this.props.changeCardVisibility(true)
     this.idToIndex(id)
-    console.log("=============selectedImageIndex",this.props.selectedImageIndex)
+    // console.log("=============selectedImageIndex",this.props.selectedImageIndex)
   }
 
 
