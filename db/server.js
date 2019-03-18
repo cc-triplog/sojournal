@@ -28,7 +28,7 @@ let schema = buildSchema(schemas);
 let root = {
   // READ
   ReadUser: (req, res) => {
-    let whereObject = { email: req.input.email };
+    let whereObject = { email: req.type.email };
     return db("users")
       .select(
         "id",
