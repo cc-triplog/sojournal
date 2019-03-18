@@ -1,6 +1,8 @@
 const AWS = require("aws-sdk");
 AWS.config.loadFromPath("./.env.json");
-//console.log(AWS.config.credentials);
+
+var CognitoStrategy = require("passport-cognito");
+
 const uuid = require("uuid");
 const bucketName = "magellansmiles";
 
@@ -26,6 +28,7 @@ let schema = buildSchema(schemas);
 let root = {
   // READ
   ReadUser: (req, res) => {
+    let whereObject = { email: req.input.email };
     return db("users")
       .select(
         "id",
@@ -34,7 +37,7 @@ let root = {
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
-      .where({ id: req.type.id })
+      .where(whereObject)
       .then(data => {
         return data;
       });
