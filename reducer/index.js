@@ -6,6 +6,7 @@ const initialState = {
         latitudeDelta: 0.04864195044303443,
         longitudeDelta: 0.040142817690068,
       },
+      GPS: [],
       visible: false,
       selectedImageIndex: null,
       stateChanged: false,
@@ -64,6 +65,13 @@ const reducer = (state = initialState, action) => {
         }
         case "REPLACE_ALLMARKERS": {
             const stateChanges = { markers: action.photos}
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "RENDER_GPS": {
+            const stateChanges = { GPS: action.GPS }
             return {
                 ...state,
                 ...stateChanges

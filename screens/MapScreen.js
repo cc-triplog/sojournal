@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import ViewOverflow from 'react-native-view-overflow';
 import './styles'
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
@@ -22,7 +23,12 @@ import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
 import PopupCard from './PopupCard';
-import { renderPhotos, changeCardVisibility, selectImageCard } from '../action';
+import { 
+  renderPhotos, 
+  changeCardVisibility, 
+  selectImageCard,
+  renderGPS
+} from '../action';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -109,7 +115,7 @@ class MapScreen extends React.Component {
       for(let i = 0; i < mapResult.length; i++) {
         randomNumber += 1
         mapResult[i].id = randomNumber
-        this.props.renderPhotos(mapResult[i])
+        this.props.renderGPS(mapResult[i])
       }
     }).catch(err => console.log("===========catch", err))
   }
@@ -191,15 +197,28 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker) => {
             return (
-              <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                <Animated.View style={[styles.markerWrap]}>
-                  <Animated.View style={[styles.ring]} />
-                  <View style={styles.marker} />
-                </Animated.View>
-              </MapView.Marker>
+              <View pointerEvents='box-none' backgroundColor ='transparent'>
+                <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
+                  <Animated.View style={[styles.markerWrap]}>
+                    <Animated.View style={[styles.ring]} />
+                    <View style={styles.marker} />
+                  </Animated.View>
+                </MapView.Marker>
+              </View>
             );
           })}
-
+          {this.props.GPS.map((GPS) => {
+            return (
+              <View pointerEvents='box-none' backgroundColor ='transparent'>
+                <MapView.Marker key={GPS.id} coordinate={GPS.coordinate}>
+                  <Animated.View style={[styles.markerWrap]}>
+                    <Animated.View style={[styles.ring]} />
+                    <View style={styles.marker} />
+                  </Animated.View>
+                </MapView.Marker>
+              </View>
+            )
+          })}
         </MapView>
         <Animated.ScrollView
           horizontal
@@ -326,6 +345,10 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  renderGPS: GPS => {
+    const action = renderGPS(GPS);
+    dispatch(action)
+  }
   renderPhotos: photos => {
     const action = renderPhotos(photos);
     dispatch(action)
