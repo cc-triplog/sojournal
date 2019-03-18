@@ -74,8 +74,8 @@ const reducer = (state = initialState, action) => {
             const stateChanges = { GPS: action.GPS }
             return {
                 ...state,
-                ...stateChanges
-            }
+                GPS: [...state.GPS, action.GPS]
+                }
         }
         default: {
             return state;
