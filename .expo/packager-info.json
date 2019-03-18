@@ -1,9 +1,11 @@
 {
-  "expoServerPort": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
+
+  "expoServerPort": 19000,
+  "expoServerNgrokUrl": "https://v8-k68.anonymous.triplog.exp.direct",
+  "packagerNgrokUrl": "https://packager.v8-k68.anonymous.triplog.exp.direct",
+  "ngrokPid": 62908,
   "devToolsPort": 19002,
-  "packagerPort": null,
-  "packagerPid": null
+  "packagerPort": 19001,
+  "packagerPid": 62881
+
 }

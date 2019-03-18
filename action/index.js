@@ -1,19 +1,7 @@
-const renderPhotos = (photos) => {
-    return {
-        type: "RENDER_PHOTOS",
-        photos
-    }
-}
 const changeCardVisibility = (visibility) => {
     return {
         type: "CHANGE_CARDVISIBILITY",
         visibility
-    }
-}
-const selectImageCard = (index) => {
-    return {
-        type: "SELECT_IMAGECARD",
-        index
     }
 }
 const changeTitle = (title) => {
@@ -40,11 +28,37 @@ const deletePhoto = (index) => {
         index
     }
 }
+const renderPhotos = (photos) => {
+    return {
+        type: "RENDER_PHOTOS",
+        photos
+    }
+}
+const selectImageCard = (index) => {
+    return {
+        type: "SELECT_IMAGECARD",
+        index
+    }
+}
+const reflectStateChange = (change) => {
+    return {
+        type: "REFLECT_STATECHANGE",
+        change
+    }
+}
+const replaceAllMarkers = (photos) => {
+    return {
+        type: "REPLACE_ALLMARKERS",
+        photos
+    }
+}
 
 module.exports ={
     renderPhotos,
     changeCardVisibility,
     selectImageCard,
     insertPhotoWithIndex,
-    deletePhoto
+    deletePhoto,
+    reflectStateChange,
+    replaceAllMarkers
 }
