@@ -271,6 +271,8 @@ let root = {
       .catch(err => {
         console.log(err);
       });
+    // Temporary
+    currentUser = 4;
     return true;
   },
   CreateGpsPoint: (req, res) => {
