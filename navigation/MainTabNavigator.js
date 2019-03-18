@@ -33,7 +33,7 @@ const CameraStack = createStackNavigator({
 });
 
 CameraStack.navigationOptions = {
-  tabBarLabel: "Camera",
+  tabBarLabel: "Photo",
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
