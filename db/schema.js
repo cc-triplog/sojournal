@@ -8,6 +8,7 @@ module.exports = `
     }
     type Device {
       id: Int
+      userId: Int
       title: String
       deviceSerial: String
       createdAt: String
@@ -15,6 +16,7 @@ module.exports = `
     }
     type Photo {
       id: Int
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -29,7 +31,8 @@ module.exports = `
       updatedAt: String
     }
     type GpsPoint {
-      id: Int  
+      id: Int
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -42,6 +45,7 @@ module.exports = `
     }
     type Group {
       id: Int
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -53,6 +57,7 @@ module.exports = `
     }
     type IntervalConfig {
         id: Int
+        userId: Int
         title: String
         deviceId: Int
         startMethod: String
@@ -69,6 +74,7 @@ module.exports = `
     }
     type RasppiConfig {
       id: Int
+      userId: Int
       selectedInterval: Int
       gpsInterval: Int
       createdAt: String
@@ -77,6 +83,7 @@ module.exports = `
 
     input InputUser {
       id: Int
+      userId: Int
       name: String
       email: String
       password: String
@@ -85,6 +92,7 @@ module.exports = `
     }
     input InputDevice {
       id: Int
+      userId: Int
       title: String
       deviceSerial: String
       createdAt: String
@@ -92,7 +100,7 @@ module.exports = `
     }
     input InputPhoto {
       id: Int
-      user_id: Int
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -108,6 +116,7 @@ module.exports = `
     }
     input InputGpsPoint {
       id: Int
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -120,6 +129,7 @@ module.exports = `
     }
     input InputGroup {
       id: Int
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -131,6 +141,7 @@ module.exports = `
     }
     input InputIntervalConfig {
       id: Int
+      userId: Int
       title: String
       deviceId: Int
       startMethod: String
@@ -147,6 +158,7 @@ module.exports = `
     }
     input InputRasppiConfig {
       id: Int
+      userId: Int
       selectedInterval: Int
       gpsInterval: Int
       createdAt: String
@@ -156,6 +168,7 @@ module.exports = `
 
     input UpdateUser {
       id: Int!
+      userId: Int
       name: String
       email: String
       password: String
@@ -164,6 +177,7 @@ module.exports = `
     }
     input UpdateDevice {
       id: Int!
+      userId: Int
       title: String
       deviceSerial: String
       createdAt: String
@@ -171,6 +185,7 @@ module.exports = `
     }
     input UpdatePhoto {
       id: Int!
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -186,6 +201,7 @@ module.exports = `
     }
     input UpdateGpsPoint {
       id: Int!
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -198,6 +214,7 @@ module.exports = `
     }
     input UpdateGroup {
       id: Int!
+      userId: Int
       title: String
       longitude: Float
       latitude: Float
@@ -209,6 +226,7 @@ module.exports = `
     }
     input UpdateIntervalConfig {
       id: Int!
+      userId: Int
       title: String
       startMethod: String
       startTimeOfDay: Int
@@ -224,6 +242,7 @@ module.exports = `
     }
     input UpdateRasppiConfig {
       id: Int!
+      userId: Int
       selectedInterval: Int
       gpsInterval: Int
       createdAt: String
