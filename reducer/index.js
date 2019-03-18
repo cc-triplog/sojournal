@@ -6,8 +6,10 @@ const initialState = {
         latitudeDelta: 0.04864195044303443,
         longitudeDelta: 0.040142817690068,
       },
+      GPS: [],
       visible: false,
-      selectedImage: null
+      selectedImageIndex: null,
+      stateChanged: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -27,11 +29,53 @@ const reducer = (state = initialState, action) => {
             }
         }
         case "SELECT_IMAGECARD": {
-            const stateChanges = { selectedImage: action.index }
+            const stateChanges = { selectedImageIndex: action.index }
             return {
                 ...state,
                 ...stateChanges
             }
+        }
+        case "INSERT_PHOTOWITHINDEX": {
+            const stateChanges = { markers: [ 
+                ...state.markers.slice(0, state.selectedImageIndex - 1),
+                action.photo,
+                ...state.markers.slice(state.selectedImageIndex)
+             ] }
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "DELETE_PHOTO": {
+            const stateChanges = { markers: [
+                ...state.markers.slice(0, action.index),
+                ...state.markers.slice(action.index + 2)
+            ] }
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "REFLECT_STATECHANGE": {
+            const stateChanges = { stateChanged: action.change }
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "REPLACE_ALLMARKERS": {
+            const stateChanges = { markers: action.photos}
+            return {
+                ...state,
+                ...stateChanges
+            }
+        }
+        case "RENDER_GPS": {
+            const stateChanges = { GPS: action.GPS }
+            return {
+                ...state,
+                GPS: [...state.GPS, action.GPS]
+                }
         }
         default: {
             return state;
