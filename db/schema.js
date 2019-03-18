@@ -92,6 +92,7 @@ module.exports = `
     }
     input InputPhoto {
       id: Int
+      user_id: Int
       title: String
       longitude: Float
       latitude: Float
