@@ -14,7 +14,7 @@ const axios = require("axios");
 const schemas = require("./schema");
 
 // Current User Needs to be replaced with login
-const currentUser = 4;
+let currentUser = 4;
 
 // Image Hosting Server
 const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
