@@ -3667,10 +3667,6 @@ hoist-non-react-statics@^2.3.1, hoist-non-react-statics@^2.5.0:
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
   integrity sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==
 
-<<<<<<< HEAD
-=======
-
->>>>>>> b09a83b682b26e7fcbc689234e1402ca9b0f3f97
 hoist-non-react-statics@^3.0.1, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.0.tgz#b09178f0122184fb95acf525daaecb4d8f45958b"
@@ -6469,6 +6465,14 @@ react-native-maps@expo/react-native-maps#v0.22.1-exp.0:
   version "0.22.1"
   resolved "https://codeload.github.com/expo/react-native-maps/tar.gz/e6f98ff7272e5d0a7fe974a41f28593af2d77bb2"
 
+react-native-material-kit@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-material-kit/-/react-native-material-kit-0.5.1.tgz#fc05605273bfa0d145c6e36cca755cbde5b8db3a"
+  integrity sha1-/AVgUnO/oNFFxuNsynVcveW42zo=
+  dependencies:
+    prop-types "^15.5.10"
+    ramda "^0.24.1"
+
 react-native-modal-datetime-picker@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/react-native-modal-datetime-picker/-/react-native-modal-datetime-picker-6.0.0.tgz#8018994524122ad48fd6bc66f26f623c75a49fb3"
@@ -6484,13 +6488,6 @@ react-native-modal@^6.2.0:
   dependencies:
     prop-types "^15.6.1"
     react-native-animatable "^1.2.4"
-react-native-material-kit@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/react-native-material-kit/-/react-native-material-kit-0.5.1.tgz#fc05605273bfa0d145c6e36cca755cbde5b8db3a"
-  integrity sha1-/AVgUnO/oNFFxuNsynVcveW42zo=
-  dependencies:
-    prop-types "^15.5.10"
-    ramda "^0.24.1"
 
 react-native-platform-touchable@^1.1.1:
   version "1.1.1"
