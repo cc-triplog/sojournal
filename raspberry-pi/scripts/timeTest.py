@@ -22,8 +22,9 @@ startFlag = False
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 #GRAPHQL_URL = os.environ['URL_LOCAL']
-GRAPHQL_URL = "http://192.168.33.44:4000/graphql"
+GRAPHQL_URL = "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql"
 
+# default timeout is about 1 min.
 socket.setdefaulttimeout(10)
 
 
@@ -31,7 +32,7 @@ def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
     try:
         result = client.execute(
-            """query{ReadIntervalConfig(type:{id: 1}){
+            """query{ReadIntervalConfig(type:{id: 2}){
             id,
             deviceId,
             startMethod,
@@ -44,12 +45,24 @@ def get_interval_config():
         }} """)
 
     except urllib2.URLError as err:
-        if err.reason.message == 'timed out':
-            r.set('foo', 'bar')
-        if err.reason.errno == 51:
-            config = r.get('config')
+        if err.reason.strerror == 'nodename nor servname provided, or not known':
+            config = json.loads(r.get('config'))
+            pass
+        elif err.reason.message == 'timed out':
+            config = json.loads(r.get('config'))
+            pass
+        elif err.reason.errno == 51:
+            config = json.loads(r.get('config'))
+            pass
+
         print(err.reason)
-    config = json.loads(result)["data"]["ReadIntervalConfig"][0]
+    if result is not None:
+        config = json.loads(result)["data"]["ReadIntervalConfig"]
+        if len(config) != 0:
+            config = config[0]
+            r.set('config', json.dumps(config))
+        else:
+            config = r.get('config')
     return config
 
 

@@ -15,13 +15,29 @@ import math
 from pynput import keyboard
 import threading
 import json
+import redis
+import urllib2
+import socket
 
+# redis settings
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 GRAPHQL_URL = os.environ['URL_LOCAL']
+
+# default timeout is about 1 min.
+socket.setdefaulttimeout(10)
+
 today = datetime.now()
 midnight = datetime(year=today.year, month=today.month,
                     day=today.day, hour=0, minute=0, second=0)
 startFlag = False
+
+# store the failed request
+failed = []
+# store the last lat lon
+lastLatLon = None
+# store the last lat lon exif
+lastLatLonExif = None
 
 
 def get_interval_config():
@@ -41,8 +57,23 @@ def get_interval_config():
             }}"""
         )
     except urllib2.URLError as err:
+        if err.reason.strerror == 'nodename nor servname provided, or not known':
+            config = json.loads(r.get('config'))
+            pass
+        elif err.reason.message == 'timed out':
+            config = json.loads(r.get('config'))
+            pass
+        elif err.reason.errno == 51:
+            config = json.loads(r.get('config'))
+            pass
         print(err.reason)
-    config = json.loads(result)["data"]["ReadIntervalConfig"][0]
+    if result is not None:
+        config = json.loads(result)["data"]["ReadIntervalConfig"]
+        if len(config) != 0:
+            config = config[0]
+            r.set('config', json.dumps(config))
+        else:
+            config = r.get('config')
     return config
 
 
@@ -54,7 +85,8 @@ def epoch_to_datetime(epoch):
     return datetime(*time.localtime(epoch)[:6])
 
 
-def take_photo(camera, filename, gps_info, lastLatLonExif):
+def take_photo(camera, filename, gps_info):
+    global lastLatLonExif
     if lastLatLonExif is None:
         camera.exif_tags['GPS.GPSLatitude'] = "35/1,39/1,2905527/100000"
         camera.exif_tags['GPS.GPSLongitude'] = "139/1,43/1,2017163/50000"
@@ -91,7 +123,8 @@ def upload_s3(filename):
     print "done"
 
 
-def get_gps(data_stream, gps_socket, lastLatLon):
+def get_gps(data_stream, gps_socket):
+    global lastLatLon
     gps_info = {}
     counter = 0
     for newdata in gps_socket:
@@ -150,7 +183,9 @@ def change_to_rational(number):
     return str(f.numerator) + "/" + str(f.denominator)
 
 
-def upload_server(filename, timestr, gps_info, lastLatLon):
+def upload_server(filename, timestr, gps_info):
+    global lastLatLon
+    global failed
     with open('./photos/' + filename, 'rb') as f:
         data = f.read()
         base64 = data.encode('base64')
@@ -162,32 +197,65 @@ def upload_server(filename, timestr, gps_info, lastLatLon):
             lastLatLon = (35.657995, 139.727666)
 
         if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None and gps_info['track'] is not None:
-            result = client.execute(
-                "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
-                base64 + "\"\"\", title: \"" + timestr + "\", longitude: " +
-                str(gps_info['lon']) + ", latitude: " +
-                str(gps_info['lat']) + ", deviceId: 2, altitude: " +
-                str(gps_info['alt']) + ", bearing: " +
-                str(gps_info['track']) + "})}"
-            )
+            try:
+                query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' +
+                base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' +
+                str(gps_info['lon']) + ', latitude: ' +
+                str(gps_info['lat']) + ', deviceId: 2, altitude: ' +
+                str(gps_info['alt']) + ', bearing: ' +
+                str(gps_info['track']) + '})}'
+                result = client.execute(
+                    query
+                )
+            except urllib2.URLError as err:
+                if err.reason.strerror == 'nodename nor servname provided, or not known':
+                    failed.append(query)
+                    pass
+                elif err.reason.errno == 51:
+                    failed.append(query)
+                    pass
             print(result)
         else:
-            result = client.execute(
-                "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
+            try:
+                query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
                 base64 + "\"\"\", title: \"" + timestr +
                 "\", latitude: " +
                 str(lastLatLon[0]) + ", longitude: " +
                 str(lastLatLon[1]) + ", deviceId: 2})}"
-            )
+                result = client.execute(
+                    query
+                )
+            except urllib2.URLError as err:
+                if err.reason.strerror == 'nodename nor servname provided, or not known':
+                    failed.append(query)
+                    pass
+                elif err.reason.errno == 51:
+                    failed.append(query)
+                    pass
             print(result)
+
+
+def upload_retry(request):
+    try:
+        result = client.execute(
+            request
+        )
+    except urllib2.URLError as err:
+        if err.reason.strerror == 'nodename nor servname provided, or not known':
+            failed.append(query)
+            pass
+        elif err.reason.errno == 51:
+            failed.append(query)
+            pass
+    print(result)
 
 
 def take_photo_with_gps(interval_config):
     global startFlag
+    global lastLatLon
+    global lastLatLonExif
     starttime = datetime.now()
     count = 0
-    lastLatLon = None
-    lastLatLonExif = None
     gps_socket = gps3.GPSDSocket()
     data_stream = gps3.DataStream()
     gps_socket.connect()
@@ -205,13 +273,13 @@ def take_photo_with_gps(interval_config):
                 timestr = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
                 filename = timestr + '.jpg'
                 print "starting get gps info"
-                gps_info = get_gps(data_stream, gps_socket, lastLatLon)
+                gps_info = get_gps(data_stream, gps_socket)
                 print "finish get gps info"
                 print "starting take photo " + filename
-                take_photo(camera, filename, gps_info, lastLatLonExif)
+                take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 print "starting upload photo " + filename
-                upload_server(filename, timestr, gps_info, lastLatLon)
+                upload_server(filename, timestr, gps_info)
                 # upload_s3(filename)
                 print "finish upload photo " + filename
             if startFlag == False:
@@ -223,18 +291,25 @@ def take_photo_with_gps(interval_config):
                 timestr = datetime.now().strftime('%Y%m%d%H%M%S')
                 filename = timestr + '.jpg'
                 print "starting get gps info"
-                gps_info = get_gps(data_stream, gps_socket, lastLatLon)
+                gps_info = get_gps(data_stream, gps_socket)
                 print "finish get gps info"
                 print "starting take photo " + filename
-                take_photo(camera, filename, gps_info, lastLatLonExif)
+                take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 print "starting upload photo " + filename
-                upload_server(filename, timestr, gps_info, lastLatLon)
+                upload_server(filename, timestr, gps_info)
                 # upload_s3(filename)
                 print "finish upload photo " + filename
             if startFlag == False:
                 break
+        r.set("lastLat", lastLatLon[0])
+        r.set("lastLon", lastLatLon[1])
+        r.set("lastLatExif", lastLatLonExif[0])
+        r.set("lastLonExif", lastLatLonExif[1])
         time.sleep(1)
+    if len(failed) != 0:
+        r.set("requests", json.dumps(failed))
+        print "stored failed requests to redis"
 
 
 def on_press(key):
@@ -270,17 +345,32 @@ class StoppableThread(threading.Thread):
 
 
 if __name__ == "__main__":
+    retries = r.get("requests")
+    if retries is not None:
+        requests = json.loads(retries)
+        for request in requests:
+            upload_retry(request)
+        if len(failed) != 0:
+            r.set("requests", json.dumps(failed))
+    lastLat = r.get("lastLat")
+    lastLon = r.get("lastLon")
+    lastLatExif = r.get("lastLatExif")
+    lastLonExif = r.get("lastLonExif")
+    if lastLat is not None and lastLon is not None:
+        lastLatLon = (lastLat, lastLon)
+        lastLatLonExif = (lastLatExif, lastLonExif)
+
     while True:
         interval_config = get_interval_config()
         thread = StoppableThread(target=take_photo_with_gps,
                                  args=([interval_config]))
-        #print threading.current_thread().name
+        # print threading.current_thread().name
         if interval_config["startMethod"] == "startTimeOfDay":
             starttime = interval_config["startTimeOfDay"]
             endtime = interval_config["stopTimeOfDay"]
             currenttime = datetime.now()
             deltatime = (currenttime - midnight).seconds
-            #print starttime - deltatime
+            # print starttime - deltatime
             if (starttime - deltatime == 0):
                 print "Start Thread"
                 startFlag = True
