@@ -41,7 +41,7 @@ class MapScreen extends React.Component {
     componentWillMount() {
     this.index = 0;
     this.animation = new Animated.Value(0);
-    this.callDatabase();
+    this.callDatabasePhotos();
   }
 
   componentDidMount() {
@@ -76,7 +76,39 @@ class MapScreen extends React.Component {
 
   }
 
-  callDatabase() {
+  callDatabaseGPS() {
+    axios({
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        query {ReadGpsPoint(type: {
+        }) {
+         id,title,latitude,longitude
+        }
+      }
+        `
+      }
+    }).then(result => {
+      const http = "http://"
+      const mapResult = result.data.data.ReadGps.map(object => (
+      {
+        coordinate: {
+          latitude: Number(object.latitude),
+          longitude: Number(object.longitude),
+        },
+        title: 'RP GPS',
+        description: 'GPS Points from Raspberry',
+        id: object.id,
+      }
+    ));
+
+      for(let i = 0; i < mapResult.length; i++) {
+        this.props.renderPhotos(mapResult[i])
+      }
+    })
+  }
+  callDatabasePhotos() {
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',

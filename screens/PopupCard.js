@@ -61,7 +61,6 @@ class PopupCard extends React.Component {
         `
       }
     }).then(result => {
-      console.log("====================whole thing ", result.data.data.ReadPhoto)
       const http = "http://"
       const mapResult = result.data.data.ReadPhoto.map(object => (
       {
@@ -75,7 +74,12 @@ class PopupCard extends React.Component {
         id: object.id,
       }
     ));
-    this.props.replaceAllMarkers(mapResult)
+    return mapResult
+    }).then(result => {
+      this.props.replaceAllMarkers(result)
+    }).then(result => {
+      console.log("===============markers after upload",this.props.markers)
+      this.props.changeCardVisibility(false);
     })
   }
   onChangeTextTitle (text) {
@@ -102,29 +106,29 @@ class PopupCard extends React.Component {
       }
         `
       }
-    })
-    // .then(result => {
-    //   const newPhotoData = {
-    //     coordinate: {
-    //       latitude: this.props.markers[this.props.selectedImageIndex].latitude,
-    //       longitude: this.props.markers[this.props.selectedImageIndex].longitude,
-    //     },
-    //     title: this.changedTitle,
-    //     description: this.changedDescription,
-    //     image: this.props.markers[this.props.selectedImageIndex].image,
-    //     id: this.props.markers[this.props.selectedImageIndex].id
-    //   }
-      // const copyOfNewState = this.props.markers.map(photo => {
-      //   if(photo.id === this.props.markers[this.props.selectedImageIndex].id) {
-      //     photo = newPhotoData
-      //   }
-      // })
-      // this.props.insertPhotoWithIndex(newPhotoData);
-      // this.props.deletePhoto(this.props.selectedImageIndex);
-      // this.props.reflectStateChange(!(this.props.stateChanged))
-    // }).then(console.log("========after axios call", this.props.markers))
-    this.callDatabase()
-    this.props.changeCardVisibility(false);
+    }).then(result => {
+      const newPhotoData = {
+        coordinate: {
+          latitude: this.props.markers[this.props.selectedImageIndex].coordinate.latitude,
+          longitude: this.props.markers[this.props.selectedImageIndex].coordinate.longitude,
+        },
+        title: this.changedTitle,
+        description: this.changedDescription,
+        image: this.props.markers[this.props.selectedImageIndex].image,
+        id: this.props.markers[this.props.selectedImageIndex].id
+      }
+      const copyOfNewState = this.props.markers.map(photo => {
+        if(photo.id === this.props.markers[this.props.selectedImageIndex].id) {
+          photo = newPhotoData
+        }
+      })
+      this.props.insertPhotoWithIndex(newPhotoData);
+      this.props.deletePhoto(this.props.selectedImageIndex);
+      this.props.reflectStateChange(!(this.props.stateChanged))
+      this.props.changeCardVisibility(false)
+    }).then(console.log("========after axios call", this.props.markers))
+    
+    // this.callDatabase()
 }
 
   render() {
