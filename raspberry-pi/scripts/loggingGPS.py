@@ -1,6 +1,7 @@
 import os
 import socket
 from datetime import datetime
+import time
 import urllib2
 import json
 import redis
@@ -11,6 +12,7 @@ from gps3 import gps3
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 GRAPHQL_URL = os.environ['URL_LOCAL']
+#GRAPHQL_URL = 'http://localhost:4000/graphql'
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
 
@@ -19,11 +21,12 @@ def getRaspiConfig():
     client = GraphQLClient(GRAPHQL_URL)
     try:
         result = client.execute(
-            """query{ReadRasppiConfig(type:{id:1}){
-                id,
-                gpsInterval,
-                selectedInterval
-            }}"""
+            """query{
+                ReadRasppiConfig(type: {id:9}){
+                    id,
+                    gpsInterval
+                }
+            }"""
         )
     except urllib2.URLError as err:
         if err.reason.strerror == 'nodename nor servname provided, or not known':
@@ -79,34 +82,41 @@ def get_gps(data_stream, gps_socket, config):
 
 
 def upload_server(timestr, gps_info):
-    if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None and gps_info['track'] is not None:
+    if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None:
         try:
-            query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' +
-            base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' +
-            str(gps_info['lon']) + ', latitude: ' +
-            str(gps_info['lat']) + ', deviceId: 2, altitude: ' +
-            str(gps_info['alt']) + ', bearing: ' +
-            str(gps_info['track']) + '})}'
+            client = GraphQLClient(GRAPHQL_URL)
+            query = "mutation{" + \
+                "CreateGpsPoint(input: {" + \
+                    "title:\"" + timestr + "\"," + \
+                    "longitude:" + str(gps_info['lon']) + "," + \
+                    "latitude:" + str(gps_info['lat']) + "," + \
+                    "altitude:" + str(gps_info['alt']) + \
+                "})}"
             result = client.execute(
                 query
             )
         except urllib2.URLError as err:
-            if err.reason.strerror == 'nodename nor servname provided, or not known':
-                failed.append(query)
-                pass
-            elif err.reason.errno == 51:
-                failed.append(query)
-                pass
-        print(result)
+            print err
+        print result
 
 
 if __name__ == "__main__":
+    # gps_info = {
+    #     'lon': 139.727873128,
+    #     'lat': 35.658070908,
+    #     'alt': 18.638
+    # }
+
+    interval = 0
     gps_socket = gps3.GPSDSocket()
     data_stream = gps3.DataStream()
     gps_socket.connect()
     gps_socket.watch()
     while True:
         config = getRaspiConfig()
+        if config is not None and len(config) != 0:
+            interval = config['gpsInterval']
+
         timestr = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         print "starting get gps info"
         gps_info = get_gps(data_stream, gps_socket, config)
@@ -114,3 +124,4 @@ if __name__ == "__main__":
         print "starting upload photo"
         upload_server(timestr, gps_info)
         print "finish upload gps data"
+        time.sleep(interval)

@@ -3,7 +3,6 @@ import picamera
 import time
 from datetime import datetime
 from gps3 import gps3
-import time
 from urllib import urlencode
 import urllib2
 import boto3
@@ -14,7 +13,6 @@ from fractions import Fraction
 import math
 from pynput import keyboard
 import threading
-import json
 import redis
 import urllib2
 import socket
@@ -42,9 +40,10 @@ lastLatLonExif = None
 
 def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
+    result = None
     try:
         result = client.execute(
-            """query{ReadIntervalConfig(type:{id: 1}){
+            """query{ReadIntervalConfig(type:{id: 2}){
                 id,
                 deviceId,
                 startMethod,
@@ -90,6 +89,8 @@ def take_photo(camera, filename, gps_info):
     if lastLatLonExif is None:
         camera.exif_tags['GPS.GPSLatitude'] = "35/1,39/1,2905527/100000"
         camera.exif_tags['GPS.GPSLongitude'] = "139/1,43/1,2017163/50000"
+        lastLatLonExif = ("35/1,39/1,2905527/100000",
+                          "139/1,43/1,2017163/50000")
     else:
         camera.exif_tags['GPS.GPSLatitude'] = lastLatLonExif[0]
         camera.exif_tags['GPS.GPSLongitude'] = lastLatLonExif[1]
@@ -111,9 +112,12 @@ def take_photo(camera, filename, gps_info):
         camera.exif_tags['GPS.GPSTrack'] = str(gps_info['track'])
         print "lattitude is " + exiv_lat
         print "longitude is " + exiv_lng
+        lastLatLonExif = (exiv_lat, exiv_lng)
     # camera warm-up time
     # time.sleep(2)
     camera.capture('./photos/' + filename)
+    r.set("lastLatExif", lastLatLonExif[0])
+    r.set("lastLonExif", lastLatLonExif[1])
 
 
 def upload_s3(filename):
@@ -191,61 +195,74 @@ def upload_server(filename, timestr, gps_info):
         base64 = data.encode('base64')
 
         client = GraphQLClient(GRAPHQL_URL)
-        print type(base64) is str
+        result = None
 
         if lastLatLon is None:
             lastLatLon = (35.657995, 139.727666)
 
         if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None and gps_info['track'] is not None:
             try:
-                query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' +
-                base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' +
-                str(gps_info['lon']) + ', latitude: ' +
-                str(gps_info['lat']) + ', deviceId: 2, altitude: ' +
-                str(gps_info['alt']) + ', bearing: ' +
-                str(gps_info['track']) + '})}'
+                query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' + \
+                    base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' + \
+                    str(gps_info['lon']) + ', latitude: ' + \
+                    str(gps_info['lat']) + ', deviceId: 2, altitude: ' + \
+                    str(gps_info['alt']) + ', bearing: ' + \
+                    str(gps_info['track']) + '})}'
                 result = client.execute(
                     query
                 )
             except urllib2.URLError as err:
+                print err.reason
                 if err.reason.strerror == 'nodename nor servname provided, or not known':
+                    failed.append(query)
+                    pass
+                elif err.reason.message == 'timed out':
                     failed.append(query)
                     pass
                 elif err.reason.errno == 51:
                     failed.append(query)
                     pass
-            print(result)
+            if result is not None:
+                print result
         else:
             try:
-                query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" +
-                base64 + "\"\"\", title: \"" + timestr +
-                "\", latitude: " +
-                str(lastLatLon[0]) + ", longitude: " +
-                str(lastLatLon[1]) + ", deviceId: 2})}"
+                query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" + \
+                    base64 + "\"\"\", title: \"" + timestr + \
+                    "\", latitude: " + \
+                    str(lastLatLon[0]) + ", longitude: " + \
+                    str(lastLatLon[1]) + ", deviceId: 2})}"
                 result = client.execute(
                     query
                 )
             except urllib2.URLError as err:
+                print err.reason
                 if err.reason.strerror == 'nodename nor servname provided, or not known':
+                    failed.append(query)
+                    pass
+                elif err.reason.message == 'timed out':
                     failed.append(query)
                     pass
                 elif err.reason.errno == 51:
                     failed.append(query)
                     pass
-            print(result)
+            if result is not None:
+                print result
+        r.set("lastLat", lastLatLon[0])
+        r.set("lastLon", lastLatLon[1])
 
 
 def upload_retry(request):
     try:
+        client = GraphQLClient(GRAPHQL_URL)
         result = client.execute(
             request
         )
     except urllib2.URLError as err:
         if err.reason.strerror == 'nodename nor servname provided, or not known':
-            failed.append(query)
+            failed.append(request)
             pass
         elif err.reason.errno == 51:
-            failed.append(query)
+            failed.append(request)
             pass
     print(result)
 
@@ -302,11 +319,9 @@ def take_photo_with_gps(interval_config):
                 print "finish upload photo " + filename
             if startFlag == False:
                 break
-        r.set("lastLat", lastLatLon[0])
-        r.set("lastLon", lastLatLon[1])
-        r.set("lastLatExif", lastLatLonExif[0])
-        r.set("lastLonExif", lastLatLonExif[1])
+
         time.sleep(1)
+    print "failed requests are " + str(len(failed))
     if len(failed) != 0:
         r.set("requests", json.dumps(failed))
         print "stored failed requests to redis"
@@ -366,6 +381,7 @@ if __name__ == "__main__":
                                  args=([interval_config]))
         # print threading.current_thread().name
         if interval_config["startMethod"] == "startTimeOfDay":
+            print "startMethod is startTimeOfDay"
             starttime = interval_config["startTimeOfDay"]
             endtime = interval_config["stopTimeOfDay"]
             currenttime = datetime.now()
@@ -397,6 +413,7 @@ if __name__ == "__main__":
                 print "stop thread"
 
         if interval_config["startMethod"] == "startButton":
+            print "startMethod is startButton"
             print "waiting input"
             with keyboard.Listener(
                     on_press=on_press) as listener:
@@ -426,6 +443,7 @@ if __name__ == "__main__":
                 thread.stop()
                 print "stop thread"
         if interval_config["startMethod"] == "startCountDown":
+            print "startMethod is startCountDown"
             with keyboard.Listener(
                     on_press=on_press) as listener:
                 listener.join()
