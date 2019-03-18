@@ -38,13 +38,14 @@ class MapScreen extends React.Component {
   }
 
 
-    componentWillMount() {
+    componentWillMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
     this.callDatabasePhotos();
+    this.callDatabaseGPS();
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
@@ -72,11 +73,9 @@ class MapScreen extends React.Component {
         }
       }, 10);
     });
-    console.log("========checking markers=====",this.props.markers)
-
   }
 
-  callDatabaseGPS() {
+  callDatabaseGPS = async () => {
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -84,31 +83,33 @@ class MapScreen extends React.Component {
         query: `
         query {ReadGpsPoint(type: {
         }) {
-         id,title,latitude,longitude
+         id,title,comment,latitude,longitude
         }
       }
         `
       }
-    }).then(result => {
-      const http = "http://"
-      const mapResult = result.data.data.ReadGps.map(object => (
-      {
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude),
-        },
-        title: 'RP GPS',
-        description: 'GPS Points from Raspberry',
-        id: object.id,
-      }
-    ));
-
+    }).then(async result => {
+      console.log("============gps call", result)
+    //   const http = "http://"
+    //   const mapResult = result.data.data.ReadGps.map(object => (
+    //   {
+    //     coordinate: {
+    //       latitude: Number(object.latitude),
+    //       longitude: Number(object.longitude),
+    //     },
+    //     title: 'RP GPS',
+    //     description: 'GPS Points from Raspberry',
+    //     image: 'www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi7ksn0wYrhAhUEBKYKHfUKBUIQjRx6BAgBEAU&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F208129%2Fbase_gps_location_map_marker_market_pin_icon&psig=AOvVaw0hWR9bOa2miiidyCcL3Acu&ust=1552957725813436',
+    //     id: object.id,
+    //   }
+    // ));
+    console.log("==========gps points?", result)
       for(let i = 0; i < mapResult.length; i++) {
-        this.props.renderPhotos(mapResult[i])
+        await this.props.renderPhotos(mapResult[i])
       }
     })
   }
-  callDatabasePhotos() {
+  callDatabasePhotos = async () => {
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -121,8 +122,7 @@ class MapScreen extends React.Component {
       }
         `
       }
-    }).then(result => {
-      console.log("====================whole thing ", result.data.data.ReadPhoto)
+    }).then(async result => {
       const http = "http://"
       const mapResult = result.data.data.ReadPhoto.map(object => (
       {
@@ -137,12 +137,14 @@ class MapScreen extends React.Component {
       }
     ));
 
+    console.log("============before await", this.props.markers)
       for(let i = 0; i < mapResult.length; i++) {
-        this.props.renderPhotos(mapResult[i])
+        await this.props.renderPhotos(mapResult[i])
       }
+      console.log("============after await",this.props.markers)
     })
   }
-  idToIndex (id) {
+  idToIndex = (id) => {
     console.log("=====check props when image is clicked", this.props)
     let index;
     for(let i = 0; i < this.props.markers.length; i++) {
@@ -150,7 +152,7 @@ class MapScreen extends React.Component {
       this.props.selectImageCard(index)
     } 
   }
-  onPressImageCard (id) {
+  onPressImageCard = (id) => {
     console.log("========id passed when pressing image", id)
     this.props.changeCardVisibility(true)
     this.idToIndex(id)
