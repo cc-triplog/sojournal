@@ -42,7 +42,7 @@ class MapScreen extends React.Component {
     this.index = 0;
     this.animation = new Animated.Value(0);
     this.callDatabasePhotos();
-    this.callDatabaseGPS();
+    // this.callDatabaseGPS();
   }
 
   componentDidMount = () => {
@@ -75,40 +75,40 @@ class MapScreen extends React.Component {
     });
   }
 
-  callDatabaseGPS = async () => {
-    axios({
-      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
-      method: 'post',
-      data: {
-        query: `
-        query {ReadGpsPoint(type: {
-        }) {
-         id,title,comment,latitude,longitude
-        }
-      }
-        `
-      }
-    }).then(async result => {
-      console.log("============gps call", result)
-    //   const http = "http://"
-    //   const mapResult = result.data.data.ReadGps.map(object => (
-    //   {
-    //     coordinate: {
-    //       latitude: Number(object.latitude),
-    //       longitude: Number(object.longitude),
-    //     },
-    //     title: 'RP GPS',
-    //     description: 'GPS Points from Raspberry',
-    //     image: 'www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi7ksn0wYrhAhUEBKYKHfUKBUIQjRx6BAgBEAU&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F208129%2Fbase_gps_location_map_marker_market_pin_icon&psig=AOvVaw0hWR9bOa2miiidyCcL3Acu&ust=1552957725813436',
-    //     id: object.id,
-    //   }
-    // ));
-    console.log("==========gps points?", result)
-      for(let i = 0; i < mapResult.length; i++) {
-        await this.props.renderPhotos(mapResult[i])
-      }
-    })
-  }
+  // callDatabaseGPS = async () => {
+  //   axios({
+  //     url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+  //     method: 'post',
+  //     data: {
+  //       query: `
+  //       query {ReadGpsPoint(type: {
+  //       }) {
+  //        id,title,comment,latitude,longitude
+  //       }
+  //     }
+  //       `
+  //     }
+  //   }).then(async result => {
+  //     console.log("============gps call", result)
+  //   //   const http = "http://"
+  //   //   const mapResult = result.data.data.ReadGps.map(object => (
+  //   //   {
+  //   //     coordinate: {
+  //   //       latitude: Number(object.latitude),
+  //   //       longitude: Number(object.longitude),
+  //   //     },
+  //   //     title: 'RP GPS',
+  //   //     description: 'GPS Points from Raspberry',
+  //   //     image: 'www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi7ksn0wYrhAhUEBKYKHfUKBUIQjRx6BAgBEAU&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F208129%2Fbase_gps_location_map_marker_market_pin_icon&psig=AOvVaw0hWR9bOa2miiidyCcL3Acu&ust=1552957725813436',
+  //   //     id: object.id,
+  //   //   }
+  //   // ));
+  //   console.log("==========gps points?", result)
+  //     for(let i = 0; i < mapResult.length; i++) {
+  //       await this.props.renderPhotos(mapResult[i])
+  //     }
+  //   })
+  // }
   callDatabasePhotos = async () => {
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
