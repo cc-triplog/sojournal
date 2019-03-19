@@ -6,24 +6,20 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex("users").insert([
         {
-          name: "Bri Bri",
-          email: "llbribri@naver.co.kr",
-          password: "gullible"
+          name: "Brian",
+          cognito_id: "1"
         },
         {
-          name: "Omarlicious",
-          email: "unoccupied@palestine.com",
-          password: "bumblebee"
+          name: "Omar",
+          cognito_id: "2"
         },
         {
-          name: "Kei Love",
-          email: "Iliketo@yahoo.co.jp",
-          password: "brokencamera"
+          name: "Keisuke",
+          cognito_id: "3"
         },
         {
-          name: "Chaz Spazism",
-          email: "IllSpazYou@gmail.com",
-          password: "spazzy"
+          name: "Chaz",
+          cognito_id: "4"
         }
       ]);
     });
