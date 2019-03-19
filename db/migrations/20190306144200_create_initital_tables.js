@@ -2,9 +2,9 @@ exports.up = function(knex, Promise) {
   return Promise.all([
     knex.schema.createTable("users", function(table) {
       table.increments();
-      table.string("name").notNullable();
-      table.string("email");
-      table.string("password").notNullable();
+      table.string("name");
+      table.string("cognito_id");
+      table.string("password");
       table.string("created_at").defaultTo(knex.fn.now());
       table.string("updated_at").defaultTo(knex.fn.now());
     }),

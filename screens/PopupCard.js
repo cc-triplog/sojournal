@@ -93,8 +93,8 @@ class PopupCard extends React.Component {
     console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload () {
-    const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props[selectedImageIndex].title
-    const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props[selectedImageIndex].description
+    const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
+    const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -193,9 +193,11 @@ const styles = StyleSheet.create({
   },
   buttonExit: {
     flex: 1,
+    marginHorizontal: 5,
   },
   buttonUpload: {
     flex:1,
+    marginHorizontal: 5,
   },
   container: {
     flex: 1,
