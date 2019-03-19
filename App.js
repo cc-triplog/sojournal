@@ -1,14 +1,21 @@
 import React from "react";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
-import { Platform, StatusBar, StyleSheet, View } from "react-native";
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+  AsyncStorage
+} from "react-native";
 import reducer from "./reducer/index";
 import { AppLoading, Asset, Font, Icon } from "expo";
 import AppNavigator from "./navigation/AppNavigator";
+import axios from "axios";
 
 import { withAuthenticator } from "aws-amplify-react-native";
-
 import Amplify from "@aws-amplify/core";
+import { Auth } from "aws-amplify";
 import config from "./aws-exports";
 Amplify.configure(config);
 
@@ -18,6 +25,67 @@ class App extends React.Component {
   state = {
     isLoadingComplete: false
   };
+
+  getUser = async user => {
+    let exists = false;
+    let id = null;
+    await axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `query
+        {
+          ReadUser(type: {cognitoId: "${user}"}) {
+          id
+          }
+      }`
+      }
+    }).then(res => {
+      if (res.data.data.ReadUser.length > 0) {
+        exists = true;
+        id = res.data.data.ReadUser[0]["id"];
+      }
+    });
+    return { exists, id };
+  };
+
+  createUser = async cognitoId => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation
+          {CreateUser(
+            input:{
+              cognitoId:"${cognitoId}"
+          })}`
+      }
+    });
+  };
+
+  createUserAndGetId = async cognitoId => {
+    let id;
+    await this.createUser(cognitoId)
+      .then(async () => {
+        const response = await this.getUser(cognitoId);
+        return response.id;
+      })
+      .then(async res => {
+        await AsyncStorage.setItem("id", JSON.stringify(res));
+      });
+  };
+
+  async componentWillMount() {
+    const currentUserInfo = await Auth.currentUserInfo();
+    if (this.props.authState === "signedIn") {
+      const loggedInUser = await this.getUser(currentUserInfo.attributes.sub);
+      loggedInUser["exists"]
+        ? await AsyncStorage.setItem("id", JSON.stringify(loggedInUser["id"]))
+        : this.createUserAndGetId(this.props.authData.attributes.sub);
+    }
+  }
 
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
