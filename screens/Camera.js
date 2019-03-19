@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Platform,
-  AsyncStorage
-} from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
 import { AntDesign } from "react-native-vector-icons";
 
@@ -131,7 +125,6 @@ export default class CameraPage extends React.Component {
         query: `mutation
           {CreatePhoto(
             input:{
-              id: "${this.state.user}"
               imageFile:${JSON.stringify(capture.base64)}
               longitude:${capture.longitude}
               latitude: ${capture.latitude}
@@ -155,17 +148,7 @@ export default class CameraPage extends React.Component {
     this.setModalVisible();
   };
 
-  async componentDidMount() {
-    await AsyncStorage.getItem(
-      "@MemoryStorage:CognitoIdentityServiceProvider.7p7dis2ifq8g52eqj3ok3ar7gb.test.userData"
-    )
-      .then(res => {
-        const parsed = JSON.parse(res);
-        const sub = parsed["UserAttributes"][4]["Value"];
-        this.setState({ user: sub });
-      })
-      .then(() => console.log(this.state));
-  }
+  async componentDidMount() {}
 
   render() {
     const { capture, imageView, modalVisible } = this.state;
