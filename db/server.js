@@ -28,12 +28,12 @@ let schema = buildSchema(schemas);
 let root = {
   // READ
   ReadUser: (req, res) => {
-    let whereObject = { email: req.type.email };
+    let whereObject = { cognito_id: req.type.cognitoId };
     return db("users")
       .select(
         "id",
         "name",
-        "email",
+        "cognito_id as cognitoId",
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
@@ -204,7 +204,7 @@ let root = {
     db("users")
       .insert({
         name: req.input.name,
-        email: req.input.email,
+        cognito_id: req.input.cognitoId,
         password: "fake"
       })
       .then(res => {
@@ -386,7 +386,7 @@ let root = {
     db("users")
       .update({
         name: req.input.name,
-        email: req.input.email,
+        cognito_id: req.input.cognitoId,
         password: "fake"
       })
       .then(res => {

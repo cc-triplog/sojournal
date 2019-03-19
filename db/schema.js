@@ -2,7 +2,7 @@ module.exports = `
     type User {
       id: Int
       name: String
-      email: String
+      cognitoId: String
       createdAt: String
       updatedAt: String
     }
@@ -85,7 +85,7 @@ module.exports = `
       id: Int
       userId: Int
       name: String
-      email: String
+      cognitoId: String
       password: String
       createdAt: String
       updatedAt: String
@@ -170,7 +170,7 @@ module.exports = `
       id: Int!
       userId: Int
       name: String
-      email: String
+      cognitoId: String
       password: String
       createdAt: String
       updatedAt: String
