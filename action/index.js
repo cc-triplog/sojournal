@@ -28,6 +28,12 @@ const deletePhoto = (index) => {
         index
     }
 }
+const renderGPS = (GPS) => {
+    return {
+        type: "RENDER_GPS",
+        GPS
+    }
+}
 const renderPhotos = (photos) => {
     return {
         type: "RENDER_PHOTOS",
@@ -60,5 +66,6 @@ module.exports ={
     insertPhotoWithIndex,
     deletePhoto,
     reflectStateChange,
-    replaceAllMarkers
+    replaceAllMarkers,
+    renderGPS
 }
