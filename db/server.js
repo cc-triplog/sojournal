@@ -33,7 +33,7 @@ let root = {
       .select(
         "id",
         "name",
-        "email",
+        "cognito_id as cognitoId",
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
