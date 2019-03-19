@@ -93,6 +93,8 @@ class PopupCard extends React.Component {
     console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload () {
+    const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props[selectedImageIndex].title
+    const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props[selectedImageIndex].description
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -100,8 +102,8 @@ class PopupCard extends React.Component {
         query: `
         mutation {UpdatePhoto(input: {
           id:${this.props.markers[this.props.selectedImageIndex].id}
-          title: "${this.changedTitle}",
-          comment: "${this.changedDescription}"
+          title: "${updateTitle}",
+          comment: "${updateDescription}"
         })
       }
         `
@@ -183,10 +185,11 @@ const theme = getTheme();
 
 const styles = StyleSheet.create({
   alignButtons: {
+    display: 'flex',
     flex:1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: "center",
+    justifyContent: "space-between",
   },
   buttonExit: {
     flex: 1,
@@ -201,16 +204,15 @@ const styles = StyleSheet.create({
   card: {
     display: "flex",
     flexDirection:"column",
+    justifyContent: 'space-between',
     padding: 10,
     elevation: 2,
-    marginBottom: 80,
-    marginHorizontal: 10,
     shadowColor: "#000",
     shadowRadius: 5,
     shadowOpacity: 0.3,
     shadowOffset: { x: 2, y: -2 },
-    height: CARD_HEIGHT * 2,
-    width: CARD_WIDTH * 2,
+    height: '100%',
+    width: '100%',
   },
   cardImage: {
     flex: 3,
@@ -219,6 +221,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   popUpImage: {
+    maxWidth:"100%",
+    height: "100%",
     flex: 1,
   },
   popUpModal: {
@@ -235,13 +239,13 @@ const styles = StyleSheet.create({
     overflow: "visible",
   },
   popupContent: {
-    flex: 4,
+    flex: 6,
   },
   textTitle: {
     flex: 1,
   },
   textDescription: {
-    flex: 6,
+    flex: 4,
   },
 })
 
