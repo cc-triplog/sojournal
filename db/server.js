@@ -48,8 +48,8 @@ let root = {
       whereObject.id = req.type.id;
     }
     // Temporary Multiuser - INSECURE
-    if (req.type.userId) {
-      whereObject.user_id = req.type.userId;
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("devices")
       .select(
@@ -70,8 +70,8 @@ let root = {
       whereObject.id = req.type.id;
     }
     // Temporary Multiuser - INSECURE
-    if (req.type.userId) {
-      whereObject.user_id = req.type.userId;
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("photos")
       .select(
@@ -102,8 +102,8 @@ let root = {
       whereObject.id = req.type.id;
     }
     // Temporary Multiuser - INSECURE
-    if (req.type.userId) {
-      whereObject.user_id = req.type.userId;
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("gps_points")
       .select(
@@ -128,8 +128,8 @@ let root = {
       whereObject.id = req.type.id;
     }
     // Temporary Multiuser - INSECURE
-    if (req.type.userId) {
-      whereObject.user_id = req.type.userId;
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("groups")
       .select(
@@ -154,8 +154,8 @@ let root = {
       whereObject.id = req.type.id;
     }
     // Temporary Multiuser - INSECURE
-    if (req.type.userId) {
-      whereObject.user_id = req.type.userId;
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("interval_configs")
       .select(
@@ -185,8 +185,8 @@ let root = {
       whereObject.id = req.type.id;
     }
     // Temporary Multiuser - INSECURE
-    if (req.type.userId) {
-      whereObject.user_id = req.type.userId;
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("rasppi_configs")
       .select(
@@ -299,8 +299,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   CreateGroup: (req, res) => {
@@ -324,8 +322,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   CreateIntervalConfig: (req, res) => {
@@ -356,8 +352,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   CreateRasppiConfig: (req, res) => {
@@ -376,8 +370,7 @@ let root = {
       })
       .catch(err => {
         console.log(err);
-      }); // Temporary
-    currentUser = 4;
+      });
     return true;
   },
   // UPDATE - not working
@@ -394,8 +387,7 @@ let root = {
       })
       .catch(err => {
         console.log(err);
-      }); // Temporary
-    currentUser = 4;
+      });
     return updatedUser;
   },
   UpdateDevice: (req, res) => {
@@ -419,8 +411,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   UpdatePhoto: (req, res) => {
@@ -462,8 +452,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   UpdateGpsPoint: (req, res) => {
@@ -530,8 +518,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   UpdateIntervalConfig: (req, res) => {
@@ -582,8 +568,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   UpdateRasppiConfig: (req, res) => {
@@ -607,8 +591,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   //DESTROY
@@ -638,8 +620,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   DestroyPhoto: (req, res) => {
@@ -657,8 +637,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   DestroyGpsPoint: (req, res) => {
@@ -675,8 +653,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   DestroyGroup: (req, res) => {
@@ -693,8 +669,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   DestroyIntervalConfig: (req, res) => {
@@ -711,8 +685,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   },
   DestroyRasppiConfig: (req, res) => {
@@ -729,8 +701,6 @@ let root = {
       .catch(err => {
         console.log(err);
       });
-    // Temporary
-    currentUser = 4;
     return true;
   }
 };
