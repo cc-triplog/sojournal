@@ -144,10 +144,7 @@ class MapScreen extends React.Component {
       for(let i = 0; i < mapResult.length / 10; i++) {
         this.props.renderPhotos(mapResult[i])
       }
-<<<<<<< HEAD
       console.log("==================photos========", this.props.markers)
-=======
->>>>>>> 9b09500c72fe2c560dcfe62067d20ac0df01baed
     })
   }
   idToIndex = (id) => {
