@@ -135,19 +135,85 @@ class PopupCard extends React.Component {
 
     return (
       <Overlay
-      key={this.props.selectedImageIndex}
       isVisible={this.props.visible} 
       windowBackgroundColor="rgba(255,255,255, .5)"
       overlayBackgroundColor="#fff"
       fullScreen={false}
       style={styles.overlay}
       >
-        <View style={styles.card}>
-            <View style={styles.popupContent}>
+      {
+        this.props.stateChanged
+        ? <View style={styles.card}>
+        <View style={[theme.cardImageStyle, styles.popupContent]}>
+                <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
+        </View>
+        <TextInput 
+        style={[theme.cardContentStyle, styles.textTitle]}
+        onChangeText={(text) => {this.onChangeTextTitle(text)}} 
+        defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+        <View style={styles.textDescription}>
+          <TextInput 
+          multiline={true}
+          style={theme.cardContentStyle}
+          onChangeText={(text) => {this.onChangeTextDescription(text)}} 
+          defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+        </View>
+        <View style={styles.alignButtons}>
+        <View style={styles.buttonUpload}>
+          <Button 
+            onPress={() => {this.onPressUpload()}} 
+            title="UPLOAD"
+            type="outline"  
+            accessibilityLabel="upload" />
+        </View>
+        <View style={styles.buttonExit}>
+          <Button 
+            onPress={() => {this.onPressExit()}} 
+            title="EXIT" 
+            type="outline"
+            accessibilityLabel="exit" />
+        </View>
+        </View>
+    </View>
+    : <View style={styles.card}>
+    <View style={[theme.cardImageStyle, styles.popupContent]}>
+            <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
+    </View>
+    <TextInput 
+    style={[theme.cardContentStyle, styles.textTitle]}
+    onChangeText={(text) => {this.onChangeTextTitle(text)}} 
+    defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+    <View style={styles.textDescription}>
+      <TextInput 
+      multiline={true}
+      style={theme.cardContentStyle}
+      onChangeText={(text) => {this.onChangeTextDescription(text)}} 
+      defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+    </View>
+    <View style={styles.alignButtons}>
+    <View style={styles.buttonUpload}>
+      <Button 
+        onPress={() => {this.onPressUpload()}} 
+        title="UPLOAD"
+        type="outline"  
+        accessibilityLabel="upload" />
+    </View>
+    <View style={styles.buttonExit}>
+      <Button 
+        onPress={() => {this.onPressExit()}} 
+        title="EXIT" 
+        type="outline"
+        accessibilityLabel="exit" />
+    </View>
+    </View>
+</View>
+      }
+        {/* <View style={styles.card}>
+            <View style={[theme.cardImageStyle, styles.popupContent]}>
                     <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
             </View>
             <TextInput 
-            style={styles.textTitle}
+            style={[theme.cardContentStyle, styles.textTitle]}
             onChangeText={(text) => {this.onChangeTextTitle(text)}} 
             defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
             <View style={styles.textDescription}>
@@ -158,22 +224,22 @@ class PopupCard extends React.Component {
               defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
             </View>
             <View style={styles.alignButtons}>
-              <View style={styles.buttonUpload}>
-                <Button 
-                  onPress={() => {this.onPressUpload()}} 
-                  title="UPLOAD"
-                  type="outline"  
-                  accessibilityLabel="upload" />
-              </View>
-              <View style={styles.buttonExit}>
-                <Button 
-                  onPress={() => {this.onPressExit()}} 
-                  title="EXIT" 
-                  type="outline"
-                  accessibilityLabel="exit" />
-              </View>
+            <View style={styles.buttonUpload}>
+              <Button 
+                onPress={() => {this.onPressUpload()}} 
+                title="UPLOAD"
+                type="outline"  
+                accessibilityLabel="upload" />
             </View>
-        </View>
+            <View style={styles.buttonExit}>
+              <Button 
+                onPress={() => {this.onPressExit()}} 
+                title="EXIT" 
+                type="outline"
+                accessibilityLabel="exit" />
+            </View>
+            </View>
+        </View> */}
       </Overlay>
     );
   }
@@ -187,6 +253,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: "center",
+    position: "absolute",
+    bottom: 20
   },
   buttonExit: {
     flex: 1,
@@ -199,10 +267,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff"
   },
   card: {
-    display: "flex",
-    flexDirection:"column",
     padding: 10,
     elevation: 2,
+    backgroundColor: "transparent",
     marginBottom: 80,
     marginHorizontal: 10,
     shadowColor: "#000",
@@ -211,12 +278,22 @@ const styles = StyleSheet.create({
     shadowOffset: { x: 2, y: -2 },
     height: CARD_HEIGHT * 2,
     width: CARD_WIDTH * 2,
+    overflow: "visible",
   },
   cardImage: {
     flex: 3,
     width: "100%",
     height: "100%",
     alignSelf: "center",
+  },
+  marker: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(130,4,150, 0.9)",
+  },
+  popUpCard: {
+    marginTop: 30,
   },
   popUpImage: {
     flex: 1,
@@ -234,14 +311,12 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT * 2,
     overflow: "visible",
   },
-  popupContent: {
-    flex: 4,
+  overlay: {
+    height: 60
   },
-  textTitle: {
-    flex: 1,
-  },
-  textDescription: {
-    flex: 6,
+  textInputPopup: {
+    width: "100%",
+    height: "50%"
   },
 })
 
