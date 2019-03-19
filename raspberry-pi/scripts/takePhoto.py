@@ -5,7 +5,6 @@ from datetime import datetime
 from gps3 import gps3
 from urllib import urlencode
 import urllib2
-import boto3
 from graphqlclient import GraphQLClient
 import json
 import pyexif
@@ -20,7 +19,7 @@ import socket
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_LOCAL']
+GRAPHQL_URL = os.environ['URL_PROD']
 
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
@@ -32,15 +31,20 @@ startFlag = False
 
 # store the failed request
 failed = []
-# store the last lat lon
+# store the last lat
 lastLatLon = None
 # store the last lat lon exif
 lastLatLonExif = None
+# store the last time
+lasttime = None
+# gps info
+gps_info = {}
 
 
 def get_interval_config():
     client = GraphQLClient(GRAPHQL_URL)
     result = None
+    config = None
     try:
         result = client.execute(
             """query{ReadIntervalConfig(type:{id: 2}){
@@ -65,11 +69,16 @@ def get_interval_config():
         elif err.reason.errno == 51:
             config = json.loads(r.get('config'))
             pass
+        else:
+            config = json.loads(r.get('config'))
+            pass
         print(err.reason)
     if result is not None:
         config = json.loads(result)["data"]["ReadIntervalConfig"]
         if len(config) != 0:
             config = config[0]
+            # temporary setting
+            config["interval"] = 0.5
             r.set('config', json.dumps(config))
         else:
             config = r.get('config')
@@ -120,16 +129,13 @@ def take_photo(camera, filename, gps_info):
     r.set("lastLonExif", lastLatLonExif[1])
 
 
-def upload_s3(filename):
-    bucket_name = 'trip-logger-bucket'
-    s3 = boto3.resource('s3')
-    s3.Bucket(bucket_name).upload_file('./photos/'+filename, filename)
-    print "done"
-
-
-def get_gps(data_stream, gps_socket):
+def get_gps():
     global lastLatLon
-    gps_info = {}
+    global gps_info
+    gps_socket = gps3.GPSDSocket()
+    data_stream = gps3.DataStream()
+    gps_socket.connect()
+    gps_socket.watch()
     counter = 0
     for newdata in gps_socket:
         print(newdata)
@@ -138,24 +144,21 @@ def get_gps(data_stream, gps_socket):
             continue
         if newdata:
             data_stream.unpack(newdata)
-
-        if data_stream.TPV['time'] != 'n/a':
-            print 'time : ', data_stream.TPV['time']
-            gps_info['time'] = data_stream.TPV['time']
-        if data_stream.TPV['lat'] != 'n/a' and data_stream.TPV['lon'] != 'n/a':
-            print 'lat : ', data_stream.TPV['lat']
-            gps_info['lat'] = data_stream.TPV['lat']
-            print 'lon : ', data_stream.TPV['lon']
-            gps_info['lon'] = data_stream.TPV['lon']
-            lastLatLon = (gps_info['lat'], gps_info['lon'])
-        if data_stream.TPV['alt'] != 'n/a':
-            print 'alt : ', data_stream.TPV['alt']
-            gps_info['alt'] = data_stream.TPV['alt']
-        if data_stream.TPV['track'] != 'n/a':
-            print 'track : ', data_stream.TPV['track']
-            gps_info['track'] = data_stream.TPV['track']
-            break
-        break
+            if data_stream.TPV['time'] is not None:
+                print 'time : ', data_stream.TPV['time']
+                gps_info['time'] = data_stream.TPV['time']
+            if data_stream.TPV['lat'] is not None and data_stream.TPV['lon'] is not None:
+                print 'lat : ', data_stream.TPV['lat']
+                gps_info['lat'] = data_stream.TPV['lat']
+                print 'lon : ', data_stream.TPV['lon']
+                gps_info['lon'] = data_stream.TPV['lon']
+                lastLatLon = (gps_info['lat'], gps_info['lon'])
+            if data_stream.TPV['alt'] is not None:
+                print 'alt : ', data_stream.TPV['alt']
+                gps_info['alt'] = data_stream.TPV['alt']
+            if data_stream.TPV['track'] is not None:
+                print 'track : ', data_stream.TPV['track']
+                gps_info['track'] = data_stream.TPV['track']
     return gps_info
 
 
@@ -222,6 +225,9 @@ def upload_server(filename, timestr, gps_info):
                 elif err.reason.errno == 51:
                     failed.append(query)
                     pass
+                else:
+                    failed.append(query)
+                    pass
             if result is not None:
                 print result
         else:
@@ -245,6 +251,9 @@ def upload_server(filename, timestr, gps_info):
                 elif err.reason.errno == 51:
                     failed.append(query)
                     pass
+                else:
+                    failed.append(query)
+                    pass
             if result is not None:
                 print result
         r.set("lastLat", lastLatLon[0])
@@ -254,44 +263,50 @@ def upload_server(filename, timestr, gps_info):
 def upload_retry(request):
     try:
         client = GraphQLClient(GRAPHQL_URL)
+        result = None
         result = client.execute(
             request
         )
     except urllib2.URLError as err:
+        print err.reason
         if err.reason.strerror == 'nodename nor servname provided, or not known':
+            failed.append(request)
+            pass
+        elif err.reason.message == 'timed out':
             failed.append(request)
             pass
         elif err.reason.errno == 51:
             failed.append(request)
             pass
-    print(result)
+        else:
+            failed.append(request)
+            pass
+    if result is not None:
+        print(result)
 
 
 def take_photo_with_gps(interval_config):
     global startFlag
     global lastLatLon
     global lastLatLonExif
-    starttime = datetime.now()
     count = 0
-    gps_socket = gps3.GPSDSocket()
-    data_stream = gps3.DataStream()
-    gps_socket.connect()
-    gps_socket.watch()
     camera = picamera.PiCamera()
-    camera.resolution = (1024, 768)
-    camera.start_preview()
     camera.led = False
+
+    if interval_config["startMethod"] == "startTimeOfDay":
+        lasttime = interval_config["startTimeOfDay"]
+    else:
+        lasttime = datetime.now()
+
     while True:
         currenttime = datetime.now()
         deltatime = (currenttime - midnight).seconds
         if interval_config["startMethod"] == "startTimeOfDay":
-            if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
+            if (deltatime - lasttime) >= interval_config["interval"]:
                 count += 1
-                timestr = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                lasttime = deltatime
+                timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
-                print "starting get gps info"
-                gps_info = get_gps(data_stream, gps_socket)
-                print "finish get gps info"
                 print "starting take photo " + filename
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
@@ -303,28 +318,26 @@ def take_photo_with_gps(interval_config):
                 print "uploaded: " + str(count)
                 break
         else:
-            if (currenttime - starttime).seconds % interval_config["interval"] == 0:
+            if (deltatime - lasttime) >= interval_config["interval"]:
                 count += 1
-                timestr = datetime.now().strftime('%Y%m%d%H%M%S')
+                timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
-                print "starting get gps info"
-                gps_info = get_gps(data_stream, gps_socket)
-                print "finish get gps info"
                 print "starting take photo " + filename
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 print "starting upload photo " + filename
                 upload_server(filename, timestr, gps_info)
-                # upload_s3(filename)
                 print "finish upload photo " + filename
             if startFlag == False:
                 break
 
-        time.sleep(1)
+        # time.sleep(0.5)
     print "failed requests are " + str(len(failed))
     if len(failed) != 0:
         r.set("requests", json.dumps(failed))
         print "stored failed requests to redis"
+    # camera.stop_preview()
+    camera.close()
 
 
 def on_press(key):
@@ -363,6 +376,7 @@ if __name__ == "__main__":
     retries = r.get("requests")
     if retries is not None:
         requests = json.loads(retries)
+        r.delete('requests')
         for request in requests:
             upload_retry(request)
         if len(failed) != 0:
@@ -375,10 +389,13 @@ if __name__ == "__main__":
         lastLatLon = (lastLat, lastLon)
         lastLatLonExif = (lastLatExif, lastLonExif)
 
+    thread_gps = StoppableThread(target=get_gps)
+    thread_gps.start()
+
     while True:
         interval_config = get_interval_config()
-        thread = StoppableThread(target=take_photo_with_gps,
-                                 args=([interval_config]))
+        thread_photo = StoppableThread(target=take_photo_with_gps,
+                                       args=([interval_config]))
         # print threading.current_thread().name
         if interval_config["startMethod"] == "startTimeOfDay":
             print "startMethod is startTimeOfDay"
@@ -390,12 +407,12 @@ if __name__ == "__main__":
             if (starttime - deltatime == 0):
                 print "Start Thread"
                 startFlag = True
-                thread.start()
+                thread_photo.start()
             if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
                     startFlag = False
                     print "startflag is " + str(startFlag)
-                    thread.stop_timeofday()
+                    thread_photo.stop_timeofday()
                     print "Stop Thread"
             if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
@@ -403,13 +420,13 @@ if __name__ == "__main__":
                     listener.join()
                 print "startflag is " + str(startFlag)
                 if (startFlag == False):
-                    thread.stop()
+                    thread_photo.stop()
                     print "stop thread"
             if (interval_config["stopMethod"] == "stopCountDown"):
                 time.sleep(interval_config["stopCountdown"])
                 print startFlag
                 startFlag = False
-                thread.stop()
+                thread_photo.stop()
                 print "stop thread"
 
         if interval_config["startMethod"] == "startButton":
@@ -420,13 +437,13 @@ if __name__ == "__main__":
                 listener.join()
             print "startflag is " + str(startFlag)
             if (startFlag):
-                thread.start()
+                thread_photo.start()
                 print "start thread"
             if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
                     startFlag = False
                     print "startflag is " + str(startFlag)
-                    thread.stop()
+                    thread_photo.stop()
                     print "Stop Thread"
             if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
@@ -434,13 +451,13 @@ if __name__ == "__main__":
                     listener.join()
                 print "startflag is " + str(startFlag)
                 if (startFlag == False):
-                    thread.stop()
+                    thread_photo.stop()
                     print "stop thread"
             if (interval_config["stopMethod"] == "stopCountDown"):
                 time.sleep(interval_config["stopCountdown"])
                 print startFlag
                 startFlag = False
-                thread.stop()
+                thread_photo.stop()
                 print "stop thread"
         if interval_config["startMethod"] == "startCountDown":
             print "startMethod is startCountDown"
@@ -452,13 +469,13 @@ if __name__ == "__main__":
                 print "waiting :" + \
                     str(interval_config["startCountdown"]) + " seconds..."
                 time.sleep(interval_config["startCountdown"])
-                thread.start()
+                thread_photo.start()
                 print "start thread"
             if (interval_config["stopMethod"] == "stopTimeOfDay"):
                 if (deltatime - endtime == 0):
                     startFlag = False
                     print "startflag is " + str(startFlag)
-                    thread.stop()
+                    thread_photo.stop()
                     print "Stop Thread"
             if (interval_config["stopMethod"] == "stopButton"):
                 with keyboard.Listener(
@@ -466,12 +483,12 @@ if __name__ == "__main__":
                     listener.join()
                 print "startflag is " + str(startFlag)
                 if (startFlag == False):
-                    thread.stop()
+                    thread_photo.stop()
                     print "stop thread"
             if (interval_config["stopMethod"] == "stopCountDown"):
                 time.sleep(interval_config["stopCountdown"])
                 print startFlag
                 startFlag = False
-                thread.stop()
+                thread_photo.stop()
                 print "stop thread"
-        time.sleep(1)
+        # time.sleep(0.5)
