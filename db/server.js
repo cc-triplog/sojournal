@@ -1,6 +1,8 @@
 const AWS = require("aws-sdk");
 AWS.config.loadFromPath("./.env.json");
-//console.log(AWS.config.credentials);
+
+var CognitoStrategy = require("passport-cognito");
+
 const uuid = require("uuid");
 const bucketName = "magellansmiles";
 
@@ -14,7 +16,7 @@ const axios = require("axios");
 const schemas = require("./schema");
 
 // Current User Needs to be replaced with login
-const currentUser = 4;
+let currentUser = 4;
 
 // Image Hosting Server
 const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
@@ -26,6 +28,7 @@ let schema = buildSchema(schemas);
 let root = {
   // READ
   ReadUser: (req, res) => {
+    let whereObject = { email: req.type.email };
     return db("users")
       .select(
         "id",
@@ -34,7 +37,7 @@ let root = {
         "created_at as createdAt",
         "updated_at as updatedAt"
       )
-      .where({ id: req.type.id })
+      .where(whereObject)
       .then(data => {
         return data;
       });
@@ -43,6 +46,10 @@ let root = {
     let whereObject = { user_id: currentUser };
     if (req.type.id) {
       whereObject.id = req.type.id;
+    }
+    // Temporary Multiuser - INSECURE
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("devices")
       .select(
@@ -61,6 +68,10 @@ let root = {
     let whereObject = { user_id: currentUser };
     if (req.type.id) {
       whereObject.id = req.type.id;
+    }
+    // Temporary Multiuser - INSECURE
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("photos")
       .select(
@@ -90,6 +101,10 @@ let root = {
     if (req.type.id) {
       whereObject.id = req.type.id;
     }
+    // Temporary Multiuser - INSECURE
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
+    }
     return db("gps_points")
       .select(
         "id",
@@ -112,6 +127,10 @@ let root = {
     if (req.type.id) {
       whereObject.id = req.type.id;
     }
+    // Temporary Multiuser - INSECURE
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
+    }
     return db("groups")
       .select(
         "id",
@@ -133,6 +152,10 @@ let root = {
     let whereObject = { user_id: currentUser };
     if (req.type.id) {
       whereObject.id = req.type.id;
+    }
+    // Temporary Multiuser - INSECURE
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("interval_configs")
       .select(
@@ -160,6 +183,10 @@ let root = {
     let whereObject = { user_id: currentUser };
     if (req.type.id) {
       whereObject.id = req.type.id;
+    }
+    // Temporary Multiuser - INSECURE
+    if (req.type.user_id) {
+      whereObject.user_id = req.type.user_id;
     }
     return db("rasppi_configs")
       .select(
@@ -204,6 +231,10 @@ let root = {
     return true;
   },
   CreatePhoto: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     const keyName = currentUser + "/" + uuid.v4() + ".jpg";
     const objectParams = {
       Bucket: bucketName,
@@ -211,7 +242,7 @@ let root = {
       ContentType: "image/jpeg",
       Body: Buffer.from(req.input.imageFile, "base64")
     };
-    var uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+    let uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
       .putObject(objectParams)
       .promise();
     uploadPromise
@@ -243,19 +274,38 @@ let root = {
       .catch(err => {
         console.log(err);
       });
+    // Temporary
+    currentUser = 4;
     return true;
   },
   CreateGpsPoint: (req, res) => {
-    db("gps_points").insert({
-      title: req.input.title,
-      longitude: req.input.longitude,
-      latitude: req.input.latitude,
-      group_id: req.input.groupId,
-      order_in_group: req.input.orderInGroup,
-      comment: req.input.comment
-    });
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
+    db("gps_points")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        comment: req.input.comment,
+        user_id: currentUser
+      })
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    return true;
   },
   CreateGroup: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("groups")
       .insert({
         title: req.input.title,
@@ -275,6 +325,10 @@ let root = {
     return true;
   },
   CreateIntervalConfig: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("interval_configs")
       .insert({
         title: req.input.title,
@@ -301,10 +355,23 @@ let root = {
     return true;
   },
   CreateRasppiConfig: (req, res) => {
-    db("rasppi_configs").insert({
-      selected_interval: req.input.selectedInterval,
-      gps_interval: req.input.gpsInterval
-    });
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
+    db("rasppi_configs")
+      .insert({
+        selected_interval: req.input.selectedInterval,
+        gps_interval: req.input.gpsInterval,
+        user_id: currentUser
+      })
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    return true;
   },
   // UPDATE - not working
   UpdateUser: (req, res) => {
@@ -324,6 +391,10 @@ let root = {
     return updatedUser;
   },
   UpdateDevice: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
       updateObject.title = req.input.title;
@@ -343,6 +414,10 @@ let root = {
     return true;
   },
   UpdatePhoto: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
       updateObject.title = req.input.title;
@@ -380,6 +455,10 @@ let root = {
     return true;
   },
   UpdateGpsPoint: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
       updateObject.title = req.input.title;
@@ -404,6 +483,10 @@ let root = {
     }
   },
   UpdateGroup: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
       updateObject.title = req.input.title;
@@ -438,6 +521,10 @@ let root = {
     return true;
   },
   UpdateIntervalConfig: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
       updateObject.title = req.input.title;
@@ -484,6 +571,10 @@ let root = {
     return true;
   },
   UpdateRasppiConfig: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     let updateObject = { user_id: currentUser };
     if (req.input.selectedInterval) {
       updateObject.selected_interval = req.input.selectedInterval;
@@ -516,6 +607,10 @@ let root = {
     return true;
   },
   DestroyDevice: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("devices")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
@@ -528,6 +623,10 @@ let root = {
     return true;
   },
   DestroyPhoto: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     // Post MVP - delete files from S3
     db("photos")
       .where({ id: req.input.id, user_id: currentUser })
@@ -541,6 +640,10 @@ let root = {
     return true;
   },
   DestroyGpsPoint: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("gps_points")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
@@ -553,6 +656,10 @@ let root = {
     return true;
   },
   DestroyGroup: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("groups")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
@@ -565,6 +672,10 @@ let root = {
     return true;
   },
   DestroyIntervalConfig: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("interval_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
@@ -577,6 +688,10 @@ let root = {
     return true;
   },
   DestroyRasppiConfig: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.user_id) {
+      currentUser = req.input.user_id;
+    }
     db("rasppi_configs")
       .where({ id: req.input.id, user_id: currentUser })
       .del()
