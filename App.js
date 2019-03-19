@@ -5,9 +5,9 @@ import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import reducer from "./reducer/index";
 import { AppLoading, Asset, Font, Icon } from "expo";
 import AppNavigator from "./navigation/AppNavigator";
+import axios from "axios";
 
 import { withAuthenticator } from "aws-amplify-react-native";
-
 import Amplify from "@aws-amplify/core";
 import config from "./aws-exports";
 Amplify.configure(config);
@@ -18,6 +18,56 @@ class App extends React.Component {
   state = {
     isLoadingComplete: false
   };
+
+  userExists = async user => {
+    let exists = null;
+    await axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `query
+        {
+          ReadUser(type: {email: "${user}"}) {
+          id
+          }
+      }`
+      }
+    }).then(res => {
+      exists = res.data.data.ReadUser.length > 0;
+    });
+    return exists;
+  };
+
+  createUser = async (email, name) => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation
+          {CreateUser(
+            input:{
+              email:"${email}"
+              name:"${name}"
+          })}`
+      }
+    });
+  };
+
+  async componentDidMount() {
+    if (this.props.authState === "signedIn") {
+      const exists = await this.userExists(
+        this.props.authData.attributes.email
+      );
+      if (!exists) {
+        await this.createUser(
+          this.props.authData.attributes.email,
+          this.props.authData.attributes.sub
+        );
+      } else return;
+    }
+  }
 
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
