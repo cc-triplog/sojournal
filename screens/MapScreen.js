@@ -148,10 +148,11 @@ class MapScreen extends React.Component {
       }
     ));
 
-      for(let i = 0; i < mapResult.length; i++) {
+      for(let i = 0; i < mapResult.length / 10; i++) {
         this.props.renderPhotos(mapResult[i])
       }
-    }).then(i => console.log("========markers",this.props.markers))
+      console.log("==================photos========", this.props.markers)
+    })
   }
   idToIndex = (id) => {
     let index;
