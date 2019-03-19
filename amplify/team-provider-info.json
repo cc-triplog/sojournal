@@ -1,0 +1,19 @@
+{
+    "okalouti": {
+        "awscloudformation": {
+            "AuthRoleName": "sojournal-20190319145648-authRole",
+            "UnauthRoleArn": "arn:aws:iam::812245489460:role/sojournal-20190319145648-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::812245489460:role/sojournal-20190319145648-authRole",
+            "Region": "ap-northeast-1",
+            "DeploymentBucketName": "sojournal-20190319145648-deployment",
+            "UnauthRoleName": "sojournal-20190319145648-unauthRole",
+            "StackName": "sojournal-20190319145648",
+            "StackId": "arn:aws:cloudformation:ap-northeast-1:812245489460:stack/sojournal-20190319145648/c9287bc0-4a0b-11e9-947c-0e83df3f8cd0"
+        },
+        "categories": {
+            "auth": {
+                "cognito0d8b6cd7": {}
+            }
+        }
+    }
+}
