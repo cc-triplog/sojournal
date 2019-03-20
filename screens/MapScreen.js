@@ -24,10 +24,10 @@ import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
 import PopupCard from './PopupCard';
-import { 
+import {
   renderPhoto,
-  renderPhotos, 
-  changeCardVisibility, 
+  renderPhotos,
+  changeCardVisibility,
   selectImageCard,
   setUserId,
   renderGPS
@@ -79,19 +79,22 @@ class MapScreen extends React.Component {
       }, 10);
     });
   }
+  componentWillUpdate() {
+    // if(this.props.stateChanged) this.callDatabasePhotos
+  }
   componentWillUnmount() {
 
   }
 
-  async loadById () {
+  async loadById() {
     await AsyncStorage.getItem("id")
-    .then(res => {
-      this.props.setUserId(res)
-    })
-    .then(a => {
-      this.callDatabasePhotos();
-      this.callDatabaseGPS();
-    })
+      .then(res => {
+        this.props.setUserId(res)
+      })
+      .then(a => {
+        this.callDatabasePhotos();
+        this.callDatabaseGPS();
+      })
   }
 
   callDatabaseGPS = async () => {
@@ -111,29 +114,30 @@ class MapScreen extends React.Component {
       const http = "http://"
       const gpsImage = "https://cdn4.iconfinder.com/data/icons/peppyicons/512/660011-location-512.png"
       let randomNumber = 487
-      
+
 
       const mapResult = result.data.data.ReadGpsPoint.map(object => (
-      {
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude),
-        },
-        title: 'RP GPS',
-        description: 'GPS Points from Raspberry',
-        image: { uri:`${gpsImage}` },
-        id: `gps-${object.id}`,
-      }
-    ));
-      for(let i = 0; i < mapResult.length; i++) {
+        {
+          coordinate: {
+            latitude: Number(object.latitude),
+            longitude: Number(object.longitude),
+          },
+          title: 'RP GPS',
+          description: 'GPS Points from Raspberry',
+          image: { uri: `${gpsImage}` },
+          id: `gps-${object.id}`,
+        }
+      ));
+      for (let i = 0; i < mapResult.length; i++) {
         randomNumber += 1
         mapResult[i].id = randomNumber
         this.props.renderGPS(mapResult[i])
       }
     }).catch(err => console.log("===========catch", err))
-    .then(o => console.log("=================GPS",this.props.GPS))
+      .then(o => console.log("=================GPS", this.props.GPS))
   }
   callDatabasePhotos = async () => {
+    console.log("----------", this.props.userId)
     await axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -150,27 +154,27 @@ class MapScreen extends React.Component {
     }).then(result => {
       const http = "http://"
       const mapResult = result.data.data.ReadPhoto.map(object => (
-      {
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude),
-        },
-        title: `${object.title}`,
-        description: `${object.comment}`,
-        image: { uri: `${http + object.imageFile}` },
-        id: Number(object.id),
-      }
-    ));
-    this.props.renderPhotos(mapResult)
-    // this.props.renderPhotos(result);
-    }).then(i => console.log("==================markers",this.props.markers))
+        {
+          coordinate: {
+            latitude: Number(object.latitude),
+            longitude: Number(object.longitude),
+          },
+          title: `${object.title}`,
+          description: `${object.comment}`,
+          image: { uri: `${http + object.imageFile}` },
+          id: Number(object.id),
+        }
+      ));
+      this.props.renderPhotos(mapResult)
+      // this.props.renderPhotos(result);
+    }).then(i => console.log("==================markers", this.props.markers))
   }
   idToIndex = (id) => {
     let index;
-    for(let i = 0; i < this.props.markers.length; i++) {
-      if(this.props.markers[i].id === id) index = i
+    for (let i = 0; i < this.props.markers.length; i++) {
+      if (this.props.markers[i].id === id) index = i
       this.props.selectImageCard(index)
-    } 
+    }
   }
   onPressImageCard = (id) => {
     this.props.changeCardVisibility(true)
@@ -201,8 +205,8 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        {this.props.visible 
-          ? <PopupCard /> 
+        {this.props.visible
+          ? <PopupCard />
           : <View />}
         <MapView
           ref={map => this.map = map}
@@ -223,7 +227,7 @@ class MapScreen extends React.Component {
           })}
           {this.props.GPS.map((gps) => {
             return (
-              <View key={gps.id} pointerEvents='box-none' backgroundColor ='transparent'>
+              <View key={gps.id} pointerEvents='box-none' backgroundColor='transparent'>
                 <MapView.Marker coordinate={gps.coordinate}>
                   <Animated.View style={[styles.markerWrap]}>
                     <Animated.View style={[styles.ringGps]} />
@@ -254,23 +258,23 @@ class MapScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-        {this.props.markers.map((marker) => (
-          <TouchableOpacity key={marker.id} onPress={() =>this.onPressImageCard(marker.id)}>
-            <View style={styles.card}>
-              <Image
-                source={marker.image}
-                style={styles.cardImage}
-                resizeMode="cover"
-              />
-              <View style={styles.textContent}>
-                <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
-                <Text numberOfLines={1} style={styles.cardDescription}>
-                  {marker.description}
-                </Text>
-              </View>              
-            </View>
-          </TouchableOpacity>
-        ))}     
+          {this.props.markers.map((marker) => (
+            <TouchableOpacity key={marker.id} onPress={() => this.onPressImageCard(marker.id)}>
+              <View style={styles.card}>
+                <Image
+                  source={marker.image}
+                  style={styles.cardImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.textContent}>
+                  <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
+                  <Text numberOfLines={1} style={styles.cardDescription}>
+                    {marker.description}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
         </Animated.ScrollView>
       </View>
     );
