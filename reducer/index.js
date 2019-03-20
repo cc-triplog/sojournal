@@ -14,11 +14,18 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case "RENDER_PHOTOS": {
-            const stateChanges = { markers: action.photos };
+        case "RENDER_PHOTO": {
+            const stateChanges = { markers: action.photo };
         return {
             ...state,
-            markers: [...state.markers, action.photos]
+            markers: [...state.markers, action.photo]
+            };
+        }
+        case "RENDER_PHOTOS": {
+            const stateChanges = { markers: action.photos }
+            return {
+                ...state,
+                ...stateChanges
             };
         }
         case "CHANGE_CARDVISIBILITY": {
@@ -49,7 +56,7 @@ const reducer = (state = initialState, action) => {
         case "DELETE_PHOTO": {
             const stateChanges = { markers: [
                 ...state.markers.slice(0, action.index),
-                ...state.markers.slice(action.index + 2)
+                ...state.markers.slice(action.index + 1)
             ] }
             return {
                 ...state,

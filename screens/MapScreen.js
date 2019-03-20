@@ -24,6 +24,7 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import PopupCard from './PopupCard';
 import { 
+  renderPhoto,
   renderPhotos, 
   changeCardVisibility, 
   selectImageCard,
@@ -42,16 +43,12 @@ class MapScreen extends React.Component {
   constructor(props) {
     super(props);
   }
-
-
-    componentWillMount = () => {
+  
+  componentDidMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
     this.callDatabasePhotos();
     this.callDatabaseGPS();
-  }
-
-  componentDidMount = () => {
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
@@ -147,11 +144,8 @@ class MapScreen extends React.Component {
         id: object.id,
       }
     ));
-
-      for(let i = 0; i < mapResult.length / 10; i++) {
-        this.props.renderPhotos(mapResult[i])
-      }
-    }).then(i => console.log("========markers",this.props.markers))
+    this.props.renderPhotos(mapResult)
+    }).then(i => console.log("==================markers",this.props.markers))
   }
   idToIndex = (id) => {
     let index;
@@ -198,7 +192,7 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker) => {
             return (
-              <View key={marker.id} pointerEvents='box-none' backgroundColor ='transparent'>
+              <View key={marker.id} style={styles.markerWrap}>
                 <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                   <Animated.View style={[styles.markerWrap]}>
                     <Animated.View style={[styles.ring]} />
@@ -317,6 +311,10 @@ const styles = StyleSheet.create({
     color: "#444",
   },
   markerWrap: {
+    width: 50,
+    height: 50,
+    borderRadius: 50 / 2,
+    zIndex: 2,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -364,6 +362,10 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   renderGPS: GPS => {
     const action = renderGPS(GPS);
+    dispatch(action)
+  },
+  renderPhoto: photo => {
+    const action = renderPhoto(photo);
     dispatch(action)
   },
   renderPhotos: photos => {

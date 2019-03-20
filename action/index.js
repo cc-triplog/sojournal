@@ -40,6 +40,12 @@ const renderPhotos = (photos) => {
         photos
     }
 }
+const renderPhoto = (photo) => {
+    return {
+        type: "RENDER_PHOTOS",
+        photo
+    }
+}
 const selectImageCard = (index) => {
     return {
         type: "SELECT_IMAGECARD",
@@ -60,6 +66,7 @@ const replaceAllMarkers = (photos) => {
 }
 
 module.exports ={
+    renderPhoto,
     renderPhotos,
     changeCardVisibility,
     selectImageCard,

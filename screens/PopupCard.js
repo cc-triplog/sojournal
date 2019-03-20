@@ -47,41 +47,6 @@ class PopupCard extends React.Component {
     super(props);
   }
 
-  callDatabase() {
-    axios({
-      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
-      method: 'post',
-      data: {
-        query: `
-        query {ReadPhoto(type: {
-        }) {
-         title, latitude, longitude, comment, imageFile, id
-        }
-      }
-        `
-      }
-    }).then(result => {
-      const http = "http://"
-      const mapResult = result.data.data.ReadPhoto.map(object => (
-      {
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude),
-        },
-        title: `${object.title}`,
-        description: `${object.comment}`,
-        image: { uri: `${http + object.imageFile}` },
-        id: object.id,
-      }
-    ));
-    return mapResult
-    }).then(result => {
-      this.props.replaceAllMarkers(result)
-    }).then(result => {
-      console.log("===============markers after upload",this.props.markers)
-      this.props.changeCardVisibility(false);
-    })
-  }
   onChangeTextTitle (text) {
     this.changedTitle = text
   }
@@ -124,11 +89,12 @@ class PopupCard extends React.Component {
           photo = newPhotoData
         }
       })
-      this.props.insertPhotoWithIndex(newPhotoData);
       this.props.deletePhoto(this.props.selectedImageIndex);
+      this.props.insertPhotoWithIndex(newPhotoData);
       this.props.reflectStateChange(!(this.props.stateChanged))
       this.props.changeCardVisibility(false)
-    }).then(console.log("========after axios call", this.props.markers))
+      console.log("======================markers after update",this.props.markers)
+    })
     
     // this.callDatabase()
 }
