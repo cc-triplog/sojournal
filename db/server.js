@@ -256,6 +256,8 @@ let root = {
       .catch(function(err) {
         console.error(err, err.stack);
       });
+    // UPLOAD THUMB
+    console.log("uploading thumbs...maybe");
     objectParams = {
       Bucket: bucketName,
       Key: thumbKeyName,
@@ -289,7 +291,7 @@ let root = {
         bearing: req.input.bearing
       })
       .then(res => {
-        //console.log(res);
+        console.log(res);
       })
       .catch(err => {
         console.log(err);
