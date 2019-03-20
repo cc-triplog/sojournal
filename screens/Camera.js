@@ -9,6 +9,7 @@ import styles from "../components/styles";
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
 import CommentModal from "../components/CommentModal";
+import { AsyncStorage } from "@aws-amplify/core";
 
 export default class CameraPage extends React.Component {
   camera = null;
@@ -16,6 +17,7 @@ export default class CameraPage extends React.Component {
     header: null
   };
   state = {
+    userID: null,
     capture: null,
     imageView: false,
     modalVisible: false
@@ -125,6 +127,7 @@ export default class CameraPage extends React.Component {
         query: `mutation
           {CreatePhoto(
             input:{
+              id: "${this.state.userID}"
               imageFile:${JSON.stringify(capture.base64)}
               longitude:${capture.longitude}
               latitude: ${capture.latitude}
@@ -148,7 +151,11 @@ export default class CameraPage extends React.Component {
     this.setModalVisible();
   };
 
-  async componentDidMount() {}
+  async componentDidMount() {
+    await AsyncStorage.getItem("id").then(res => {
+      this.setState({ userID: res });
+    });
+  }
 
   render() {
     const { capture, imageView, modalVisible } = this.state;
