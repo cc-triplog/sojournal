@@ -327,6 +327,7 @@ let root = {
       });
     // UPLOAD THUMB
     sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
       .resize(200, 200, {
         fit: "outside"
       })
