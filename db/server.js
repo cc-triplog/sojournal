@@ -260,9 +260,7 @@ let root = {
       Bucket: bucketName,
       Key: thumbKeyName,
       ContentType: "image/jpeg",
-      Body: sharp(Buffer.from(req.input.imageFile, "base64")).resize(200, 200, {
-        fit: outside
-      })
+      Body: Buffer.from(req.input.imageFile, "base64")
     };
     uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
       .putObject(objectParams)
@@ -270,7 +268,7 @@ let root = {
     uploadPromise
       .then(function(data) {
         console.log(
-          "Successfully uploaded thumbnail " + bucketName + "/" + keyName
+          "Successfully uploaded thumbnail " + bucketName + "/" + thumbKeyName
         );
       })
       .catch(function(err) {
