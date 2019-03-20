@@ -43,7 +43,7 @@ class MapScreen extends React.Component {
   constructor(props) {
     super(props);
   }
-  
+
   componentDidMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
@@ -141,7 +141,7 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
-        id: object.id,
+        id: Number(object.id),
       }
     ));
     this.props.renderPhotos(mapResult)
@@ -157,6 +157,7 @@ class MapScreen extends React.Component {
   onPressImageCard = (id) => {
     this.props.changeCardVisibility(true)
     this.idToIndex(id)
+    console.log("==============imageIndex", this.props.selectedImageIndex)
   }
 
 
@@ -205,7 +206,7 @@ class MapScreen extends React.Component {
           {this.props.GPS.map((gps) => {
             return (
               <View key={gps.id} pointerEvents='box-none' backgroundColor ='transparent'>
-                <MapView.Marker key={gps.id} coordinate={gps.coordinate}>
+                <MapView.Marker coordinate={gps.coordinate}>
                   <Animated.View style={[styles.markerWrap]}>
                     <Animated.View style={[styles.ringGps]} />
                     <View style={styles.markerGps} />

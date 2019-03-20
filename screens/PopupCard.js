@@ -39,12 +39,16 @@ let changedTitle
 let changedDescription
 
 
+
 class PopupCard extends React.Component {
   static navigationOptions = {
     header: null
   };
   constructor(props) {
     super(props);
+  }
+  componentDidMount () {
+    console.log("===============selectedImageIndex when popup", this.props.selectedImageIndex)
   }
 
   onChangeTextTitle (text) {
@@ -74,13 +78,16 @@ class PopupCard extends React.Component {
         `
       }
     }).then(result => {
+      const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title;
+      const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description;
+    
       const newPhotoData = {
         coordinate: {
           latitude: this.props.markers[this.props.selectedImageIndex].coordinate.latitude,
           longitude: this.props.markers[this.props.selectedImageIndex].coordinate.longitude,
         },
-        title: this.changedTitle,
-        description: this.changedDescription,
+        title: updateTitle,
+        description: updateDescription,
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }

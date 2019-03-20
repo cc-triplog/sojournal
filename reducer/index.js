@@ -55,7 +55,7 @@ const reducer = (state = initialState, action) => {
         }
         case "DELETE_PHOTO": {
             const stateChanges = { markers: [
-                ...state.markers.slice(0, action.index),
+                ...state.markers.slice(0, action.index - 1),
                 ...state.markers.slice(action.index + 1)
             ] }
             return {
