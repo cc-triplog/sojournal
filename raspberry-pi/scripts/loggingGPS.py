@@ -85,7 +85,7 @@ def get_gps(data_stream, gps_socket, config):
 
 
 def upload_server(timestr, gps_info):
-    if if gps_info.viewkeys() >= {'lon', 'lat', 'alt'}:
+    if gps_info.viewkeys() >= {'lon', 'lat', 'alt'}:
         try:
             client = GraphQLClient(GRAPHQL_URL)
             result = None
