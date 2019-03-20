@@ -13,6 +13,8 @@
   "dependencies": {
     "@expo/samples": "2.1.1",
     "@expo/vector-icons": "^9.0.0",
+    "aws-amplify": "^1.1.22",
+    "aws-amplify-react-native": "^2.1.8",
     "aws-sdk": "^2.422.0",
     "axios": "^0.18.0",
     "expo": "^32.0.0",
@@ -37,6 +39,7 @@
     "react-navigation": "^3.0.9",
     "react-redux": "^6.0.1",
     "redux": "^4.0.1",
+    "sharp": "^0.22.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

@@ -39,6 +39,7 @@ let changedTitle
 let changedDescription
 
 
+
 class PopupCard extends React.Component {
   static navigationOptions = {
     header: null
@@ -46,42 +47,10 @@ class PopupCard extends React.Component {
   constructor(props) {
     super(props);
   }
-
-  callDatabase() {
-    axios({
-      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
-      method: 'post',
-      data: {
-        query: `
-        query {ReadPhoto(type: {
-        }) {
-         title, latitude, longitude, comment, imageFile, id
-        }
-      }
-        `
-      }
-    }).then(result => {
-      const http = "http://"
-      const mapResult = result.data.data.ReadPhoto.map(object => (
-      {
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude),
-        },
-        title: `${object.title}`,
-        description: `${object.comment}`,
-        image: { uri: `${http + object.imageFile}` },
-        id: object.id,
-      }
-    ));
-    return mapResult
-    }).then(result => {
-      this.props.replaceAllMarkers(result)
-    }).then(result => {
-      console.log("===============markers after upload",this.props.markers)
-      this.props.changeCardVisibility(false);
-    })
+  componentDidMount () {
+    console.log("===============selectedImageIndex when popup", this.props.selectedImageIndex)
   }
+
   onChangeTextTitle (text) {
     this.changedTitle = text
   }
@@ -93,6 +62,8 @@ class PopupCard extends React.Component {
     console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload () {
+    const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
+    const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -100,20 +71,23 @@ class PopupCard extends React.Component {
         query: `
         mutation {UpdatePhoto(input: {
           id:${this.props.markers[this.props.selectedImageIndex].id}
-          title: "${this.changedTitle}",
-          comment: "${this.changedDescription}"
+          title: "${updateTitle}",
+          comment: "${updateDescription}"
         })
       }
         `
       }
     }).then(result => {
+      const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title;
+      const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description;
+    
       const newPhotoData = {
         coordinate: {
           latitude: this.props.markers[this.props.selectedImageIndex].coordinate.latitude,
           longitude: this.props.markers[this.props.selectedImageIndex].coordinate.longitude,
         },
-        title: this.changedTitle,
-        description: this.changedDescription,
+        title: updateTitle,
+        description: updateDescription,
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
@@ -122,11 +96,12 @@ class PopupCard extends React.Component {
           photo = newPhotoData
         }
       })
-      this.props.insertPhotoWithIndex(newPhotoData);
       this.props.deletePhoto(this.props.selectedImageIndex);
+      this.props.insertPhotoWithIndex(newPhotoData);
       this.props.reflectStateChange(!(this.props.stateChanged))
       this.props.changeCardVisibility(false)
-    }).then(console.log("========after axios call", this.props.markers))
+      console.log("======================markers after update",this.props.markers)
+    })
     
     // this.callDatabase()
 }
@@ -135,85 +110,19 @@ class PopupCard extends React.Component {
 
     return (
       <Overlay
+      key={this.props.selectedImageIndex}
       isVisible={this.props.visible} 
       windowBackgroundColor="rgba(255,255,255, .5)"
       overlayBackgroundColor="#fff"
       fullScreen={false}
       style={styles.overlay}
       >
-      {
-        this.props.stateChanged
-        ? <View style={styles.card}>
-        <View style={[theme.cardImageStyle, styles.popupContent]}>
-                <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
-        </View>
-        <TextInput 
-        style={[theme.cardContentStyle, styles.textTitle]}
-        onChangeText={(text) => {this.onChangeTextTitle(text)}} 
-        defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
-        <View style={styles.textDescription}>
-          <TextInput 
-          multiline={true}
-          style={theme.cardContentStyle}
-          onChangeText={(text) => {this.onChangeTextDescription(text)}} 
-          defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
-        </View>
-        <View style={styles.alignButtons}>
-        <View style={styles.buttonUpload}>
-          <Button 
-            onPress={() => {this.onPressUpload()}} 
-            title="UPLOAD"
-            type="outline"  
-            accessibilityLabel="upload" />
-        </View>
-        <View style={styles.buttonExit}>
-          <Button 
-            onPress={() => {this.onPressExit()}} 
-            title="EXIT" 
-            type="outline"
-            accessibilityLabel="exit" />
-        </View>
-        </View>
-    </View>
-    : <View style={styles.card}>
-    <View style={[theme.cardImageStyle, styles.popupContent]}>
-            <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
-    </View>
-    <TextInput 
-    style={[theme.cardContentStyle, styles.textTitle]}
-    onChangeText={(text) => {this.onChangeTextTitle(text)}} 
-    defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
-    <View style={styles.textDescription}>
-      <TextInput 
-      multiline={true}
-      style={theme.cardContentStyle}
-      onChangeText={(text) => {this.onChangeTextDescription(text)}} 
-      defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
-    </View>
-    <View style={styles.alignButtons}>
-    <View style={styles.buttonUpload}>
-      <Button 
-        onPress={() => {this.onPressUpload()}} 
-        title="UPLOAD"
-        type="outline"  
-        accessibilityLabel="upload" />
-    </View>
-    <View style={styles.buttonExit}>
-      <Button 
-        onPress={() => {this.onPressExit()}} 
-        title="EXIT" 
-        type="outline"
-        accessibilityLabel="exit" />
-    </View>
-    </View>
-</View>
-      }
-        {/* <View style={styles.card}>
-            <View style={[theme.cardImageStyle, styles.popupContent]}>
+        <View style={styles.card}>
+            <View style={styles.popupContent}>
                     <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
             </View>
             <TextInput 
-            style={[theme.cardContentStyle, styles.textTitle]}
+            style={styles.textTitle}
             onChangeText={(text) => {this.onChangeTextTitle(text)}} 
             defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
             <View style={styles.textDescription}>
@@ -224,22 +133,22 @@ class PopupCard extends React.Component {
               defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
             </View>
             <View style={styles.alignButtons}>
-            <View style={styles.buttonUpload}>
-              <Button 
-                onPress={() => {this.onPressUpload()}} 
-                title="UPLOAD"
-                type="outline"  
-                accessibilityLabel="upload" />
+              <View style={styles.buttonUpload}>
+                <Button 
+                  onPress={() => {this.onPressUpload()}} 
+                  title="UPLOAD"
+                  type="outline"  
+                  accessibilityLabel="upload" />
+              </View>
+              <View style={styles.buttonExit}>
+                <Button 
+                  onPress={() => {this.onPressExit()}} 
+                  title="EXIT" 
+                  type="outline"
+                  accessibilityLabel="exit" />
+              </View>
             </View>
-            <View style={styles.buttonExit}>
-              <Button 
-                onPress={() => {this.onPressExit()}} 
-                title="EXIT" 
-                type="outline"
-                accessibilityLabel="exit" />
-            </View>
-            </View>
-        </View> */}
+        </View>
       </Overlay>
     );
   }
@@ -249,36 +158,36 @@ const theme = getTheme();
 
 const styles = StyleSheet.create({
   alignButtons: {
+    display: 'flex',
     flex:1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: "center",
-    position: "absolute",
-    bottom: 20
+    justifyContent: "space-between",
   },
   buttonExit: {
     flex: 1,
+    marginHorizontal: 5,
   },
   buttonUpload: {
     flex:1,
+    marginHorizontal: 5,
   },
   container: {
     flex: 1,
     backgroundColor: "#fff"
   },
   card: {
+    display: "flex",
+    flexDirection:"column",
+    justifyContent: 'space-between',
     padding: 10,
     elevation: 2,
-    backgroundColor: "transparent",
-    marginBottom: 80,
-    marginHorizontal: 10,
     shadowColor: "#000",
     shadowRadius: 5,
     shadowOpacity: 0.3,
     shadowOffset: { x: 2, y: -2 },
-    height: CARD_HEIGHT * 2,
-    width: CARD_WIDTH * 2,
-    overflow: "visible",
+    height: '100%',
+    width: '100%',
   },
   cardImage: {
     flex: 3,
@@ -286,16 +195,9 @@ const styles = StyleSheet.create({
     height: "100%",
     alignSelf: "center",
   },
-  marker: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "rgba(130,4,150, 0.9)",
-  },
-  popUpCard: {
-    marginTop: 30,
-  },
   popUpImage: {
+    maxWidth:"100%",
+    height: "100%",
     flex: 1,
   },
   popUpModal: {
@@ -311,12 +213,14 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT * 2,
     overflow: "visible",
   },
-  overlay: {
-    height: 60
+  popupContent: {
+    flex: 6,
   },
-  textInputPopup: {
-    width: "100%",
-    height: "50%"
+  textTitle: {
+    flex: 1,
+  },
+  textDescription: {
+    flex: 4,
   },
 })
 

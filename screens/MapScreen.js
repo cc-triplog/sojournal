@@ -2,6 +2,7 @@ import React from "react";
 import {
   AppRegistry,
   Animated,
+  AsyncStorage,
   Button,
   Dimensions,
   Image,
@@ -14,6 +15,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import ViewOverflow from 'react-native-view-overflow';
 import './styles'
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
@@ -22,7 +24,14 @@ import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
 import PopupCard from './PopupCard';
-import { renderPhotos, changeCardVisibility, selectImageCard } from '../action';
+import { 
+  renderPhoto,
+  renderPhotos, 
+  changeCardVisibility, 
+  selectImageCard,
+  setUserId,
+  renderGPS
+} from '../action';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
@@ -37,15 +46,11 @@ class MapScreen extends React.Component {
     super(props);
   }
 
-
-    componentWillMount = () => {
+  componentDidMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
-    this.callDatabasePhotos();
-    this.callDatabaseGPS();
-  }
 
-  componentDidMount = () => {
+    this.loadById()
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
@@ -73,6 +78,20 @@ class MapScreen extends React.Component {
         }
       }, 10);
     });
+  }
+  componentWillUnmount() {
+
+  }
+
+  async loadById () {
+    await AsyncStorage.getItem("id")
+    .then(res => {
+      this.props.setUserId(res)
+    })
+    .then(a => {
+      this.callDatabasePhotos();
+      this.callDatabaseGPS();
+    })
   }
 
   callDatabaseGPS = async () => {
@@ -103,15 +122,16 @@ class MapScreen extends React.Component {
         title: 'RP GPS',
         description: 'GPS Points from Raspberry',
         image: { uri:`${gpsImage}` },
-        id: object.id,
+        id: `gps-${object.id}`,
       }
     ));
       for(let i = 0; i < mapResult.length; i++) {
         randomNumber += 1
         mapResult[i].id = randomNumber
-        this.props.renderPhotos(mapResult[i])
+        this.props.renderGPS(mapResult[i])
       }
     }).catch(err => console.log("===========catch", err))
+    .then(o => console.log("=================GPS",this.props.GPS))
   }
   callDatabasePhotos = async () => {
     await axios({
@@ -120,6 +140,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {ReadPhoto(type: {
+          userId: ${this.props.userId}
         }) {
          title, latitude, longitude, comment, imageFile, id
         }
@@ -137,14 +158,12 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
-        id: object.id,
+        id: Number(object.id),
       }
     ));
-
-      for(let i = 0; i < mapResult.length; i++) {
-        this.props.renderPhotos(mapResult[i])
-      }
-    })
+    this.props.renderPhotos(mapResult)
+    // this.props.renderPhotos(result);
+    }).then(i => console.log("==================markers",this.props.markers))
   }
   idToIndex = (id) => {
     let index;
@@ -156,6 +175,7 @@ class MapScreen extends React.Component {
   onPressImageCard = (id) => {
     this.props.changeCardVisibility(true)
     this.idToIndex(id)
+    console.log("==============imageIndex", this.props.selectedImageIndex)
   }
 
 
@@ -191,15 +211,28 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker) => {
             return (
-              <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                <Animated.View style={[styles.markerWrap]}>
-                  <Animated.View style={[styles.ring]} />
-                  <View style={styles.marker} />
-                </Animated.View>
-              </MapView.Marker>
+              <View key={marker.id} style={styles.markerWrap}>
+                <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
+                  <Animated.View style={[styles.markerWrap]}>
+                    <Animated.View style={[styles.ring]} />
+                    <View style={styles.marker} />
+                  </Animated.View>
+                </MapView.Marker>
+              </View>
             );
           })}
-
+          {this.props.GPS.map((gps) => {
+            return (
+              <View key={gps.id} pointerEvents='box-none' backgroundColor ='transparent'>
+                <MapView.Marker coordinate={gps.coordinate}>
+                  <Animated.View style={[styles.markerWrap]}>
+                    <Animated.View style={[styles.ringGps]} />
+                    <View style={styles.markerGps} />
+                  </Animated.View>
+                </MapView.Marker>
+              </View>
+            )
+          })}
         </MapView>
         <Animated.ScrollView
           horizontal
@@ -297,6 +330,10 @@ const styles = StyleSheet.create({
     color: "#444",
   },
   markerWrap: {
+    width: 50,
+    height: 50,
+    borderRadius: 50 / 2,
+    zIndex: 2,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -304,28 +341,53 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "rgba(130,4,150, 0.9)",
+    backgroundColor: "#C71585",
+  },
+  markerGps: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FF1493",
   },
   ring: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "rgba(130,4,150, 0.3)",
+    backgroundColor: "#C71585",
     position: "absolute",
     borderWidth: 1,
-    borderColor: "rgba(130,4,150, 0.5)",
+    borderColor: "#C71585",
+  },
+  ringGps: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#FF1493",
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "#FF1493",
   },
 })
 
 const mapStateToProps = state => ({
+  GPS: state.GPS,
   markers: state.markers,
   region: state.region,
   visible: state.visible,
   selectedImageIndex: state.selectedImageIndex,
-  stateChanged: state.stateChanged
+  stateChanged: state.stateChanged,
+  userId: state.userId
 })
 
 const mapDispatchToProps = dispatch => ({
+  renderGPS: GPS => {
+    const action = renderGPS(GPS);
+    dispatch(action)
+  },
+  renderPhoto: photo => {
+    const action = renderPhoto(photo);
+    dispatch(action)
+  },
   renderPhotos: photos => {
     const action = renderPhotos(photos);
     dispatch(action)
@@ -336,6 +398,10 @@ const mapDispatchToProps = dispatch => ({
   },
   selectImageCard: index => {
     const action = selectImageCard(index)
+    dispatch(action)
+  },
+  setUserId: id => {
+    const action = setUserId(id)
     dispatch(action)
   }
 })
