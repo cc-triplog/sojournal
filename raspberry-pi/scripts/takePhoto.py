@@ -20,7 +20,7 @@ import psutil
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_PROD']
+GRAPHQL_URL = os.environ['URL_LOCAL']
 
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
@@ -79,7 +79,7 @@ def get_interval_config():
         if len(config) != 0:
             config = config[0]
             # temporary setting
-            config["interval"] = 0.5
+            config["interval"] = 2
             r.set('config', json.dumps(config))
         else:
             config = r.get('config')
@@ -104,7 +104,7 @@ def take_photo(camera, filename, gps_info):
     else:
         camera.exif_tags['GPS.GPSLatitude'] = lastLatLonExif[0]
         camera.exif_tags['GPS.GPSLongitude'] = lastLatLonExif[1]
-    if gps_info != {}:
+    if gps_info != {} and len(gps_info) > 1:
         lat_deg = to_deg(gps_info['lat'], ["S", "N"])
         lng_deg = to_deg(gps_info['lon'], ["W", "E"])
 
@@ -130,35 +130,31 @@ def take_photo(camera, filename, gps_info):
     r.set("lastLonExif", lastLatLonExif[1])
 
 
-def get_gps():
+def get_gps(data_stream, gps_socket):
     global lastLatLon
     global gps_info
-    gps_socket = gps3.GPSDSocket()
-    data_stream = gps3.DataStream()
-    gps_socket.connect()
-    gps_socket.watch()
+
     counter = 0
     for newdata in gps_socket:
-        print(newdata)
         if counter <= 5:
             counter += 1
             continue
-        if newdata:
+        if newdata is not None:
             data_stream.unpack(newdata)
-            if data_stream.TPV['time'] is not None or data_stream.TPV['time'] != 'n/a':
-                print 'time : ', data_stream.TPV['time']
+            if data_stream.TPV['time'] != 'n/a':
+                #print 'time : ', data_stream.TPV['time']
                 gps_info['time'] = data_stream.TPV['time']
-            if data_stream.TPV['lat'] is not None and data_stream.TPV['lon'] is not None or data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a':
-                print 'lat : ', data_stream.TPV['lat']
+            if (data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a'):
+                #print 'lat : ', data_stream.TPV['lat']
                 gps_info['lat'] = data_stream.TPV['lat']
-                print 'lon : ', data_stream.TPV['lon']
+                #print 'lon : ', data_stream.TPV['lon']
                 gps_info['lon'] = data_stream.TPV['lon']
                 lastLatLon = (gps_info['lat'], gps_info['lon'])
-            if data_stream.TPV['alt'] is not None or data_stream.TPV['alt'] != 'n/a':
-                print 'alt : ', data_stream.TPV['alt']
+            if data_stream.TPV['alt'] != 'n/a':
+                #print 'alt : ', data_stream.TPV['alt']
                 gps_info['alt'] = data_stream.TPV['alt']
-            if data_stream.TPV['track'] is not None or data_stream.TPV['alt'] != 'n/a':
-                print 'track : ', data_stream.TPV['track']
+            if data_stream.TPV['track'] != 'n/a':
+                #print 'track : ', data_stream.TPV['track']
                 gps_info['track'] = data_stream.TPV['track']
     return gps_info
 
@@ -204,33 +200,34 @@ def upload_server(filename, timestr, gps_info):
         if lastLatLon is None:
             lastLatLon = (35.657995, 139.727666)
 
-        if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None and gps_info['track'] is not None:
-            try:
-                query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' + \
-                    base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' + \
-                    str(gps_info['lon']) + ', latitude: ' + \
-                    str(gps_info['lat']) + ', deviceId: 2, altitude: ' + \
-                    str(gps_info['alt']) + ', bearing: ' + \
-                    str(gps_info['track']) + '})}'
-                result = client.execute(
-                    query
-                )
-            except urllib2.URLError as err:
-                print err.reason
-                if err.reason.strerror == 'nodename nor servname provided, or not known':
-                    failed.append(query)
-                    pass
-                elif err.reason.message == 'timed out':
-                    failed.append(query)
-                    pass
-                elif err.reason.errno == 51:
-                    failed.append(query)
-                    pass
-                else:
-                    failed.append(query)
-                    pass
-            if result is not None:
-                print result
+        if gps_info != {}:
+            if gps_info.viewkeys() >= {'lon', 'lat', 'alt', 'track'}:
+                try:
+                    query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' + \
+                        base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' + \
+                        str(gps_info['lon']) + ', latitude: ' + \
+                        str(gps_info['lat']) + ', deviceId: 2, altitude: ' + \
+                        str(gps_info['alt']) + ', bearing: ' + \
+                        str(gps_info['track']) + '})}'
+                    result = client.execute(
+                        query
+                    )
+                except urllib2.URLError as err:
+                    print err.reason
+                    if err.reason.strerror == 'nodename nor servname provided, or not known':
+                        failed.append(query)
+                        pass
+                    elif err.reason.message == 'timed out':
+                        failed.append(query)
+                        pass
+                    elif err.reason.errno == 51:
+                        failed.append(query)
+                        pass
+                    else:
+                        failed.append(query)
+                        pass
+                if result is not None:
+                    print result
         else:
             try:
                 query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" + \
@@ -297,7 +294,7 @@ def take_photo_with_gps(interval_config):
     if interval_config["startMethod"] == "startTimeOfDay":
         lasttime = interval_config["startTimeOfDay"]
     else:
-        lasttime = datetime.now()
+        lasttime = (datetime.now() - midnight).seconds
 
     while True:
         currenttime = datetime.now()
@@ -308,6 +305,7 @@ def take_photo_with_gps(interval_config):
                 lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
+                print "gps_infomation: " + str(gps_info)
                 print "starting take photo " + filename
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
@@ -315,6 +313,10 @@ def take_photo_with_gps(interval_config):
                 upload_server(filename, timestr, gps_info)
                 # upload_s3(filename)
                 print "finish upload photo " + filename
+                disk_usage = psutil.disk_usage('/home/')
+                print disk_usage
+                if disk_usage.percent >= 95:
+                    raise Exception
             if startFlag == False:
                 print "uploaded: " + str(count)
                 break
@@ -324,18 +326,19 @@ def take_photo_with_gps(interval_config):
                 lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
+                print "gps_infomation: " + str(gps_info)
                 print "starting take photo " + filename
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 print "starting upload photo " + filename
                 upload_server(filename, timestr, gps_info)
                 print "finish upload photo " + filename
+                disk_usage = psutil.disk_usage('/')
+                print disk_usage
+                if disk_usage.percent >= 95:
+                    raise Exception
             if startFlag == False:
                 break
-        disk_usage = psutil.disk_usage('/')
-        print disk_usage
-        if disk_usage.percent >= 95:
-            raise Exception
         # time.sleep(0.5)
     print "failed requests are " + str(len(failed))
     if len(failed) != 0:
@@ -378,6 +381,11 @@ class StoppableThread(threading.Thread):
 
 
 if __name__ == "__main__":
+    gps_socket = gps3.GPSDSocket()
+    data_stream = gps3.DataStream()
+    gps_socket.connect()
+    gps_socket.watch()
+
     retries = r.get("requests")
     if retries is not None:
         requests = json.loads(retries)
@@ -394,7 +402,8 @@ if __name__ == "__main__":
         lastLatLon = (lastLat, lastLon)
         lastLatLonExif = (lastLatExif, lastLonExif)
 
-    thread_gps = StoppableThread(target=get_gps)
+    thread_gps = StoppableThread(
+        target=get_gps, args=(data_stream, gps_socket))
     thread_gps.start()
 
     while True:

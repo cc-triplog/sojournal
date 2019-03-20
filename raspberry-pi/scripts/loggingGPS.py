@@ -60,33 +60,32 @@ def get_gps(data_stream, gps_socket, config):
     global gps_info
     counter = 0
     for newdata in gps_socket:
-        print(newdata)
         if counter <= 5:
             counter += 1
             continue
         if newdata:
             data_stream.unpack(newdata)
 
-        if data_stream.TPV['time'] is not None or data_stream.TPV['time'] != 'n/a':
-            print 'time : ', data_stream.TPV['time']
+        if data_stream.TPV['time'] != 'n/a':
+            #print 'time : ', data_stream.TPV['time']
             gps_info['time'] = data_stream.TPV['time']
-        if data_stream.TPV['lat'] is not None and data_stream.TPV['lon'] is not None or data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a':
-            print 'lat : ', data_stream.TPV['lat']
+        if data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a':
+            #print 'lat : ', data_stream.TPV['lat']
             gps_info['lat'] = data_stream.TPV['lat']
-            print 'lon : ', data_stream.TPV['lon']
+            #print 'lon : ', data_stream.TPV['lon']
             gps_info['lon'] = data_stream.TPV['lon']
             lastLatLon = (gps_info['lat'], gps_info['lon'])
-        if data_stream.TPV['alt'] is not None or data_stream.TPV['alt'] != 'n/a':
-            print 'alt : ', data_stream.TPV['alt']
+        if data_stream.TPV['alt'] != 'n/a':
+            #print 'alt : ', data_stream.TPV['alt']
             gps_info['alt'] = data_stream.TPV['alt']
-        if data_stream.TPV['track'] is not None or data_stream.TPV['alt'] != 'n/a':
-            print 'track : ', data_stream.TPV['track']
+        if data_stream.TPV['track'] != 'n/a':
+            #print 'track : ', data_stream.TPV['track']
             gps_info['track'] = data_stream.TPV['track']
     return gps_info
 
 
 def upload_server(timestr, gps_info):
-    if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None:
+    if if gps_info.viewkeys() >= {'lon', 'lat', 'alt'}:
         try:
             client = GraphQLClient(GRAPHQL_URL)
             result = None
@@ -114,7 +113,6 @@ if __name__ == "__main__":
     # }
 
     # default interval
-    global gps_info
     interval = 1
     gps_socket = gps3.GPSDSocket()
     data_stream = gps3.DataStream()
@@ -128,9 +126,12 @@ if __name__ == "__main__":
 
     thread = threading.Thread(target=get_gps, args=(
         data_stream, gps_socket, config))
+    thread.start()
 
-    timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
-    print "starting upload photo"
-    upload_server(timestr, gps_info)
-    print "finish upload gps data"
-    time.sleep(interval)
+    while True:
+        timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
+        print "gps_infomation: " + str(gps_info)
+        print "starting upload photo"
+        upload_server(timestr, gps_info)
+        print "finish upload gps data"
+        time.sleep(interval)
