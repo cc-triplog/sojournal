@@ -2,6 +2,7 @@ import React from "react";
 import {
   AppRegistry,
   Animated,
+  AsyncStorage,
   Button,
   Dimensions,
   Image,
@@ -28,6 +29,7 @@ import {
   renderPhotos, 
   changeCardVisibility, 
   selectImageCard,
+  setUserId,
   renderGPS
 } from '../action';
 
@@ -47,8 +49,8 @@ class MapScreen extends React.Component {
   componentDidMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
-    this.callDatabasePhotos();
-    this.callDatabaseGPS();
+
+    this.loadById()
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
@@ -76,6 +78,20 @@ class MapScreen extends React.Component {
         }
       }, 10);
     });
+  }
+  componentWillUnmount() {
+
+  }
+
+  async loadById () {
+    await AsyncStorage.getItem("id")
+    .then(res => {
+      this.props.setUserId(res)
+    })
+    .then(a => {
+      this.callDatabasePhotos();
+      this.callDatabaseGPS();
+    })
   }
 
   callDatabaseGPS = async () => {
@@ -124,6 +140,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {ReadPhoto(type: {
+          userId: ${this.props.userId}
         }) {
          title, latitude, longitude, comment, imageFile, id
         }
@@ -145,6 +162,7 @@ class MapScreen extends React.Component {
       }
     ));
     this.props.renderPhotos(mapResult)
+    // this.props.renderPhotos(result);
     }).then(i => console.log("==================markers",this.props.markers))
   }
   idToIndex = (id) => {
@@ -357,7 +375,8 @@ const mapStateToProps = state => ({
   region: state.region,
   visible: state.visible,
   selectedImageIndex: state.selectedImageIndex,
-  stateChanged: state.stateChanged
+  stateChanged: state.stateChanged,
+  userId: state.userId
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -379,6 +398,10 @@ const mapDispatchToProps = dispatch => ({
   },
   selectImageCard: index => {
     const action = selectImageCard(index)
+    dispatch(action)
+  },
+  setUserId: id => {
+    const action = setUserId(id)
     dispatch(action)
   }
 })
