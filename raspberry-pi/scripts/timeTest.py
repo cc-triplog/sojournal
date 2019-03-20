@@ -10,13 +10,13 @@ import json
 import redis
 import urllib2
 import socket
+import psutil
 
-global startFlag
-global midnight
 today = datetime.now()
 midnight = datetime(year=today.year, month=today.month,
                     day=today.day, hour=0, minute=0, second=0)
 startFlag = False
+escapeFlag = False
 
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
@@ -77,35 +77,51 @@ def epoch_to_datetime(epoch):
 def take_photo_with_gps(interval_config):
     global startFlag
     count = 0
-    starttime = datetime.now()
+    if interval_config["startMethod"] == "startTimeOfDay":
+        lasttime = interval_config["startTimeOfDay"]
+    else:
+        lasttime = (datetime.now() - midnight).seconds
+
     while True:
         currenttime = datetime.now()
         deltatime = (currenttime - midnight).seconds
         if interval_config["startMethod"] == "startTimeOfDay":
-            if (deltatime - interval_config["startTimeOfDay"]) % interval_config["interval"] == 0:
+            if (deltatime - lasttime) >= interval_config["interval"]:
                 print "Try taking photo"
                 count += 1
             if startFlag == False:
                 break
         else:
-            if (currenttime - starttime).seconds % interval_config["interval"] == 0:
-                print "Try taking photo"
+            if (deltatime - lasttime) >= interval_config["interval"]:
+                print "Try taking() photo"
                 count += 1
             if startFlag == False:
                 break
+        disk_usage = psutil.disk_usage('/')
+        print disk_usage
+        if disk_usage.percent >= 95:
+            raise Exception
+
         time.sleep(1)
 
 
 def on_press(key):
     print threading.current_thread().name
     global startFlag
+    global escapeFlag
     if startFlag == False:
         if key == keyboard.Key.tab:
             startFlag = True
             return False
+        if key == keyboard.Key.esc:
+            escapeFlag = True
+            return False
     else:
         if key == keyboard.Key.tab:
             startFlag = False
+            return False
+        if key == keyboard.Key.esc:
+            escapeFlag = True
             return False
 
 
@@ -241,7 +257,8 @@ if __name__ == "__main__":
                 startFlag = False
                 thread.stop()
                 print "stop thread"
-
+        if escapeFlag == True:
+            break
         time.sleep(1)
 
         # if interval_config["intervalStartMethod"] == "DATETIME":

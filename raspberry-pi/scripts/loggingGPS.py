@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import urllib2
 import json
+import threading
 import redis
 from graphqlclient import GraphQLClient
 from gps3 import gps3
@@ -12,13 +13,18 @@ from gps3 import gps3
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 GRAPHQL_URL = os.environ['URL_LOCAL']
-#GRAPHQL_URL = 'http://localhost:4000/graphql'
+# GRAPHQL_URL = 'http://localhost:4000/graphql'
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
+
+# gps info
+gps_info = {}
 
 
 def getRaspiConfig():
     client = GraphQLClient(GRAPHQL_URL)
+    result = None
+    config = None
     try:
         result = client.execute(
             """query{
@@ -51,7 +57,7 @@ def getRaspiConfig():
 
 def get_gps(data_stream, gps_socket, config):
     global lastLatLon
-    gps_info = {}
+    global gps_info
     counter = 0
     for newdata in gps_socket:
         print(newdata)
@@ -61,23 +67,21 @@ def get_gps(data_stream, gps_socket, config):
         if newdata:
             data_stream.unpack(newdata)
 
-        if data_stream.TPV['time'] != 'n/a':
+        if data_stream.TPV['time'] is not None or data_stream.TPV['time'] != 'n/a':
             print 'time : ', data_stream.TPV['time']
             gps_info['time'] = data_stream.TPV['time']
-        if data_stream.TPV['lat'] != 'n/a' and data_stream.TPV['lon'] != 'n/a':
+        if data_stream.TPV['lat'] is not None and data_stream.TPV['lon'] is not None or data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a':
             print 'lat : ', data_stream.TPV['lat']
             gps_info['lat'] = data_stream.TPV['lat']
             print 'lon : ', data_stream.TPV['lon']
             gps_info['lon'] = data_stream.TPV['lon']
             lastLatLon = (gps_info['lat'], gps_info['lon'])
-        if data_stream.TPV['alt'] != 'n/a':
+        if data_stream.TPV['alt'] is not None or data_stream.TPV['alt'] != 'n/a':
             print 'alt : ', data_stream.TPV['alt']
             gps_info['alt'] = data_stream.TPV['alt']
-        if data_stream.TPV['track'] != 'n/a':
+        if data_stream.TPV['track'] is not None or data_stream.TPV['alt'] != 'n/a':
             print 'track : ', data_stream.TPV['track']
             gps_info['track'] = data_stream.TPV['track']
-            break
-        break
     return gps_info
 
 
@@ -85,6 +89,7 @@ def upload_server(timestr, gps_info):
     if gps_info != {} and gps_info['lon'] is not None and gps_info['lat'] is not None and gps_info['alt'] is not None:
         try:
             client = GraphQLClient(GRAPHQL_URL)
+            result = None
             query = "mutation{" + \
                 "CreateGpsPoint(input: {" + \
                     "title:\"" + timestr + "\"," + \
@@ -97,7 +102,8 @@ def upload_server(timestr, gps_info):
             )
         except urllib2.URLError as err:
             print err
-        print result
+        if result is not None:
+            print result
 
 
 if __name__ == "__main__":
@@ -107,21 +113,24 @@ if __name__ == "__main__":
     #     'alt': 18.638
     # }
 
-    interval = 0
+    # default interval
+    global gps_info
+    interval = 1
     gps_socket = gps3.GPSDSocket()
     data_stream = gps3.DataStream()
     gps_socket.connect()
     gps_socket.watch()
-    while True:
-        config = getRaspiConfig()
-        if config is not None and len(config) != 0:
-            interval = config['gpsInterval']
 
-        timestr = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        print "starting get gps info"
-        gps_info = get_gps(data_stream, gps_socket, config)
-        print "finish get gps info"
-        print "starting upload photo"
-        upload_server(timestr, gps_info)
-        print "finish upload gps data"
-        time.sleep(interval)
+    config = getRaspiConfig()
+
+    if config is not None and len(config) != 0:
+        interval = config['gpsInterval']
+
+    thread = threading.Thread(target=get_gps, args=(
+        data_stream, gps_socket, config))
+
+    timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
+    print "starting upload photo"
+    upload_server(timestr, gps_info)
+    print "finish upload gps data"
+    time.sleep(interval)

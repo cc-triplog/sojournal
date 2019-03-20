@@ -15,6 +15,7 @@ import threading
 import redis
 import urllib2
 import socket
+import psutil
 
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
@@ -144,19 +145,19 @@ def get_gps():
             continue
         if newdata:
             data_stream.unpack(newdata)
-            if data_stream.TPV['time'] is not None:
+            if data_stream.TPV['time'] is not None or data_stream.TPV['time'] != 'n/a':
                 print 'time : ', data_stream.TPV['time']
                 gps_info['time'] = data_stream.TPV['time']
-            if data_stream.TPV['lat'] is not None and data_stream.TPV['lon'] is not None:
+            if data_stream.TPV['lat'] is not None and data_stream.TPV['lon'] is not None or data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a':
                 print 'lat : ', data_stream.TPV['lat']
                 gps_info['lat'] = data_stream.TPV['lat']
                 print 'lon : ', data_stream.TPV['lon']
                 gps_info['lon'] = data_stream.TPV['lon']
                 lastLatLon = (gps_info['lat'], gps_info['lon'])
-            if data_stream.TPV['alt'] is not None:
+            if data_stream.TPV['alt'] is not None or data_stream.TPV['alt'] != 'n/a':
                 print 'alt : ', data_stream.TPV['alt']
                 gps_info['alt'] = data_stream.TPV['alt']
-            if data_stream.TPV['track'] is not None:
+            if data_stream.TPV['track'] is not None or data_stream.TPV['alt'] != 'n/a':
                 print 'track : ', data_stream.TPV['track']
                 gps_info['track'] = data_stream.TPV['track']
     return gps_info
@@ -320,6 +321,7 @@ def take_photo_with_gps(interval_config):
         else:
             if (deltatime - lasttime) >= interval_config["interval"]:
                 count += 1
+                lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
                 print "starting take photo " + filename
@@ -330,7 +332,10 @@ def take_photo_with_gps(interval_config):
                 print "finish upload photo " + filename
             if startFlag == False:
                 break
-
+        disk_usage = psutil.disk_usage('/')
+        print disk_usage
+        if disk_usage.percent >= 95:
+            raise Exception
         # time.sleep(0.5)
     print "failed requests are " + str(len(failed))
     if len(failed) != 0:
@@ -491,4 +496,5 @@ if __name__ == "__main__":
                 startFlag = False
                 thread_photo.stop()
                 print "stop thread"
+            print psutil.disk_usage('/')
         # time.sleep(0.5)
