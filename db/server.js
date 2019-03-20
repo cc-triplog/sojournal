@@ -151,6 +151,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("created_at", "desc")
       .then(data => {
         for (let i in data) {
           data[i].imageFile = imageLocation + data[i].imageFile;
@@ -180,6 +181,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("created_at", "desc")
       .then(data => {
         return data;
       });
@@ -208,6 +210,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("start_time", "desc")
       .then(data => {
         return data;
       });
