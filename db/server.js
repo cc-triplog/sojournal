@@ -260,7 +260,7 @@ let root = {
       Bucket: bucketName,
       Key: thumbKeyName,
       ContentType: "image/jpeg",
-      Body: sharp(uffer.from(req.input.imageFile, "base64")).resize(200, 200, {
+      Body: sharp(Buffer.from(req.input.imageFile, "base64")).resize(200, 200, {
         fit: outside
       })
     };
@@ -270,7 +270,7 @@ let root = {
     uploadPromise
       .then(function(data) {
         console.log(
-          "Successfully uploaded data to " + bucketName + "/" + keyName
+          "Successfully uploaded thumbnail " + bucketName + "/" + keyName
         );
       })
       .catch(function(err) {
