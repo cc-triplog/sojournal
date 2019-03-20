@@ -210,7 +210,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
-      .orderBy("created_at", "desc")
+      .orderBy("start_time", "desc")
       .then(data => {
         return data;
       });
