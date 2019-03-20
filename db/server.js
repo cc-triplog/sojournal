@@ -52,8 +52,8 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
-      .where("createdAt", ">=", req.type.startTime)
-      .where("createdAt", "<=", req.type.endTime)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
       .then(data => {
         for (let i in data) {
           data[i].imageFile = imageLocation + data[i].imageFile;
@@ -82,8 +82,8 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
-      .where("createdAt", ">=", req.type.startTime)
-      .where("createdAt", "<=", req.type.endTime)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
       .then(data => {
         return data;
       });
