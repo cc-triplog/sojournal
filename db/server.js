@@ -233,11 +233,13 @@ let root = {
   },
   CreatePhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
+    let uuidNumber = uuid.v4();
+    const keyName = currentUser + "/" + uuidNumber + ".jpg";
+    const thumbKeyName = currentUser + "/" + uuidNumber + "-xs.jpg";
     if (req.input.userId) {
       currentUser = req.input.userId;
     }
-    const keyName = currentUser + "/" + uuid.v4() + ".jpg";
-    const thumbKeyName = currentUser + "/" + uuid.v4() + "-xs.jpg";
+
     let objectParams = {
       Bucket: bucketName,
       Key: keyName,
@@ -257,13 +259,18 @@ let root = {
         console.error(err, err.stack);
       });
     // UPLOAD THUMB
-    console.log("uploading thumbs...maybe");
+    // sharp(Buffer.from(req.input.imageFile, "base64"))
+    // .toBuffer()
+    // .then(data => {
+    //   thumb = data;
+    // });
     objectParams = {
       Bucket: bucketName,
       Key: thumbKeyName,
       ContentType: "image/jpeg",
       Body: Buffer.from(req.input.imageFile, "base64")
     };
+    console.log("uploading thumbs...maybe");
     uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
       .putObject(objectParams)
       .promise();
