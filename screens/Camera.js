@@ -1,15 +1,23 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  StyleSheet,
+  AsyncStorage,
+  Dimensions
+} from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
 import { AntDesign } from "react-native-vector-icons";
 
 import axios from "axios";
 
-import styles from "../components/styles";
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
 import CommentModal from "../components/CommentModal";
-import { AsyncStorage } from "@aws-amplify/core";
+
+const { width: winWidth, height: winHeight } = Dimensions.get("window");
 
 export default class CameraPage extends React.Component {
   camera = null;
@@ -198,3 +206,24 @@ export default class CameraPage extends React.Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  choicePage: {
+    backgroundColor: "purple",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-around",
+    flexDirection: "column",
+    height: winHeight,
+    width: winWidth
+  },
+  choiceButtons: {
+    justifyContent: "center",
+    backgroundColor: "white",
+    width: 150,
+    height: 150,
+    opacity: 0.5,
+    alignItems: "center",
+    borderRadius: 50
+  }
+});
