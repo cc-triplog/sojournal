@@ -22,7 +22,7 @@ import CommentModal from "../components/CommentModal";
 
 //Redux
 import { connect } from "react-redux";
-import { setCapture, setUserId } from "../action";
+import { setCapture, setUserId, reflectStateChange } from "../action";
 
 class CameraPage extends React.Component {
   camera = null;
@@ -58,24 +58,16 @@ class CameraPage extends React.Component {
           }).then(async res => {
             let capture;
             if (!res.cancelled) {
-              if (Platform.OS === "ios") {
-                const location = await Location.getCurrentPositionAsync({});
+              const location = await Location.getCurrentPositionAsync({});
+              latitude = res.exif.GPSLatitude || location.coords.latitude;
+              longitude = res.exif.GPSLongitude || location.coords.longitude;
                 capture = {
-                  latitude: location.coords.latitude,
-                  longitude: location.coords.longitude,
-                  base64: res.base64,
-                  timestamp: this.getDateFromCamera(res.exif.DateTimeDigitized),
-                  uri: res.uri
-                };
-              } else {
-                capture = {
-                  latitude: res.exif.GPSLatitude,
-                  longitude: res.exif.GPSLongitude,
+                  latitude: res.exif.GPSLatitude || location.coords.latitude,
+                  longitude: res.exif.GPSLongitude || location.coords.latitude,
                   base64: res.base64,
                   timestamp: this.getDateFromCamera(res.exif.DateTime),
                   uri: res.uri
                 };
-              }
               this.props.setCapture(capture);
               this.setState({ imageView: true });
             }
@@ -149,7 +141,10 @@ class CameraPage extends React.Component {
               comment: "${capture.comment}"
           })}`
       }
-    }).then(() => this.setState({ imageView: false }));
+    }).then(() => {
+      this.setState({ imageView: false })
+      // this.props.reflectStateChange(true);
+    });
   };
 
   addStory = () => {
@@ -188,7 +183,6 @@ class CameraPage extends React.Component {
             modalVisible={modalVisible}
             setModalVisible={this.setModalVisible}
             setComment={this.setComment}
-            saved={this.state.capture.comment}
           />
         ) : null}
       </React.Fragment>
@@ -248,6 +242,10 @@ const mapDispatchToProps = dispatch => ({
   },
   setUserId: id => {
     const action = setUserId(id);
+    dispatch(action);
+  },
+  reflectStateChange: change => {
+    const action = reflectStateChange(change);
     dispatch(action);
   }
 });

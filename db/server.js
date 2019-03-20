@@ -52,8 +52,8 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
-      .where("createdAt", ">=", req.type.startTime)
-      .where("createdAt", "<=", req.type.endTime)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
       .then(data => {
         for (let i in data) {
           data[i].imageFile = imageLocation + data[i].imageFile;
@@ -82,8 +82,8 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
-      .where("createdAt", ">=", req.type.startTime)
-      .where("createdAt", "<=", req.type.endTime)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
       .then(data => {
         return data;
       });
@@ -300,6 +300,7 @@ let root = {
   CreatePhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
     let uuidNumber = uuid.v4();
+    let thumb;
     const keyName = currentUser + "/" + uuidNumber + ".jpg";
     const thumbKeyName = currentUser + "/" + uuidNumber + "-xs.jpg";
     if (req.input.userId) {
@@ -325,30 +326,37 @@ let root = {
         console.error(err, err.stack);
       });
     // UPLOAD THUMB
-    // sharp(Buffer.from(req.input.imageFile, "base64"))
-    // .toBuffer()
-    // .then(data => {
-    //   thumb = data;
-    // });
-    objectParams = {
-      Bucket: bucketName,
-      Key: thumbKeyName,
-      ContentType: "image/jpeg",
-      Body: Buffer.from(req.input.imageFile, "base64")
-    };
-    console.log("uploading thumbs...maybe");
-    uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
-      .putObject(objectParams)
-      .promise();
-    uploadPromise
-      .then(function(data) {
-        console.log(
-          "Successfully uploaded thumbnail " + bucketName + "/" + thumbKeyName
-        );
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .resize(200, 200, {
+        fit: "outside"
       })
-      .catch(function(err) {
-        console.error(err, err.stack);
+      .toBuffer()
+      .then(data => {
+        let objectThumbParams = {
+          Bucket: bucketName,
+          Key: thumbKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectThumbParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded thumbnail " +
+                bucketName +
+                "/" +
+                thumbKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
       });
+
+    console.log("uploading thumbs...maybe");
+
     db("photos")
       .insert({
         title: req.input.title,

@@ -82,13 +82,13 @@ module.exports = `
       createdAt: String
       updatedAt: String
     }
-    type GetPhotoByDate {
+    input GetPhotoByDate {
       userId: Int
       startTime: String
       endTime: String
     }
 
-    type GetGpsByDate {
+    input GetGpsByDate {
       userId: Int
       startTime: String
       endTime: String
