@@ -300,9 +300,8 @@ let root = {
   CreatePhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
     let uuidNumber = uuid.v4();
-    let thumb;
-    const keyName = currentUser + "/" + uuidNumber + ".jpg";
-    const thumbKeyName = currentUser + "/" + uuidNumber + "-xs.jpg";
+    const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
     if (req.input.userId) {
       currentUser = req.input.userId;
     }
@@ -368,7 +367,7 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        image_file: keyName,
+        image_file: thumbKeyName,
         altitude: req.input.altitude,
         bearing: req.input.bearing
       })
