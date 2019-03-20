@@ -9,24 +9,27 @@ import {
   Dimensions
 } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
+
+//Styling
 import { AntDesign } from "react-native-vector-icons";
 
 import axios from "axios";
 
+//Components
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
 import CommentModal from "../components/CommentModal";
 
-const { width: winWidth, height: winHeight } = Dimensions.get("window");
+//Redux
+import { connect } from "react-redux";
+import { setCapture, setUserId } from "../action";
 
-export default class CameraPage extends React.Component {
+class CameraPage extends React.Component {
   camera = null;
   static navigationOptions = {
     header: null
   };
   state = {
-    userID: null,
-    capture: null,
     imageView: false,
     modalVisible: false
   };
@@ -73,7 +76,8 @@ export default class CameraPage extends React.Component {
                   uri: res.uri
                 };
               }
-              this.setState({ capture, imageView: true });
+              this.props.setCapture(capture);
+              this.setState({ imageView: true });
             }
           });
         }
@@ -111,7 +115,8 @@ export default class CameraPage extends React.Component {
                 uri: res.uri
               };
             }
-            this.setState({ capture, imageView: true });
+            this.props.setCapture(capture);
+            this.setState({ imageView: true });
           }
         });
       } else {
@@ -121,11 +126,12 @@ export default class CameraPage extends React.Component {
   };
 
   trashPicture = () => {
-    this.setState({ imageView: false, capture: {} });
+    this.props.setCapture({});
+    this.setState({ imageView: false });
   };
 
   uploadPicture = async () => {
-    const { capture } = this.state;
+    const { capture } = this.props;
 
     axios({
       url:
@@ -135,7 +141,7 @@ export default class CameraPage extends React.Component {
         query: `mutation
           {CreatePhoto(
             input:{
-              id: "${this.state.userID}"
+              userId: ${this.props.userId}
               imageFile:${JSON.stringify(capture.base64)}
               longitude:${capture.longitude}
               latitude: ${capture.latitude}
@@ -153,20 +159,21 @@ export default class CameraPage extends React.Component {
     this.setState({ modalVisible: !this.state.modalVisible });
   };
   setComment = comment => {
-    const current = this.state.capture;
+    const current = this.props.capture;
     current.comment = comment;
-    this.setState({ capture: current });
+    this.props.setCapture(current);
     this.setModalVisible();
   };
 
   async componentDidMount() {
     await AsyncStorage.getItem("id").then(res => {
-      this.setState({ userID: res });
+      this.props.setUserId(res);
     });
   }
 
   render() {
-    const { capture, imageView, modalVisible } = this.state;
+    const { capture } = this.props;
+    const { imageView, modalVisible } = this.state;
     return imageView === true ? (
       <React.Fragment>
         <CaptureView capture={capture} />
@@ -207,6 +214,7 @@ export default class CameraPage extends React.Component {
   }
 }
 
+const { width: winWidth, height: winHeight } = Dimensions.get("window");
 const styles = StyleSheet.create({
   choicePage: {
     backgroundColor: "purple",
@@ -227,3 +235,24 @@ const styles = StyleSheet.create({
     borderRadius: 50
   }
 });
+
+const mapStateToProps = state => ({
+  capture: state.capture,
+  userId: state.userId
+});
+
+const mapDispatchToProps = dispatch => ({
+  setCapture: capture => {
+    const action = setCapture(capture);
+    dispatch(action);
+  },
+  setUserId: id => {
+    const action = setUserId(id);
+    dispatch(action);
+  }
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CameraPage);
