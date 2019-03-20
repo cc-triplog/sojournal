@@ -327,6 +327,9 @@ let root = {
       });
     // UPLOAD THUMB
     sharp(Buffer.from(req.input.imageFile, "base64"))
+      .resize(200, 200, {
+        fit: "outside"
+      })
       .toBuffer()
       .then(data => {
         let objectThumbParams = {
