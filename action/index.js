@@ -34,17 +34,17 @@ const renderGPS = GPS => {
     GPS
   };
 };
-const renderPhotos = (photos) => {
-    return {
-        type: "RENDER_PHOTOS",
-        photos
-    }
+const renderPhotos = photos => {
+  return {
+    type: "RENDER_PHOTOS",
+    photos
+  };
 };
-const renderPhoto = (photo) => {
-    return {
-        type: "RENDER_PHOTOS",
-        photo
-    }
+const renderPhoto = photo => {
+  return {
+    type: "RENDER_PHOTOS",
+    photo
+  };
 };
 const selectImageCard = index => {
   return {
@@ -79,6 +79,12 @@ const setUserId = id => {
   };
 };
 
+const toggleCreateGroupVisible = () => {
+  return {
+    type: "TOGGLE_CREATE_GROUP_VISIBLE"
+  };
+};
+
 module.exports = {
   renderPhotos,
   changeCardVisibility,
@@ -89,5 +95,6 @@ module.exports = {
   replaceAllMarkers,
   renderGPS,
   setCapture,
-  setUserId
+  setUserId,
+  toggleCreateGroupVisible
 };
