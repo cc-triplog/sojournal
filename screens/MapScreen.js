@@ -169,8 +169,13 @@ class MapScreen extends React.Component {
           id: Number(object.id),
         }
       ));
+      console.log("=====================mapResult", mapResult)
+      mapResult.forEach(photo => {
+        if (photo.title == "null") photo.title = "Please Add Title"
+        if (photo.description == "undefined") photo.description = "Please Add Comment"
+      })
+
       this.props.renderPhotos(mapResult)
-      // this.props.renderPhotos(result);
     }).then(i => console.log("==================markers", this.props.markers))
   }
   idToIndex = (id) => {
