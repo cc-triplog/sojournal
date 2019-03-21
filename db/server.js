@@ -4,7 +4,7 @@ AWS.config.loadFromPath("./.env.json");
 //var CognitoStrategy = require("passport-cognito");
 
 const uuid = require("uuid");
-const bucketName = "magellansmiles";
+const bucketName = "sojournal";
 const sharp = require("sharp");
 
 const express = require("express");
@@ -20,7 +20,7 @@ const schemas = require("./schema");
 let currentUser = 4;
 
 // Image Hosting Server
-const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
+const imageLocation = "s3-ap-northeast-1.amazonaws.com/sojournal/";
 
 // GraphQL schema
 let schema = buildSchema(schemas);
