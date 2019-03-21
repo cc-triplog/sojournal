@@ -47,9 +47,9 @@ const reducer = (state = initialState, action) => {
         case "INSERT_PHOTOWITHINDEX": {
             const stateChanges = {
                 markers: [
-                    ...state.markers.slice(0, state.selectedImageIndex - 1),
+                    ...state.markers.slice(0, state.selectedImageIndex + 1),
                     action.photo,
-                    ...state.markers.slice(state.selectedImageIndex)
+                    ...state.markers.slice(state.selectedImageIndex + 1)
                 ]
             }
             return {
