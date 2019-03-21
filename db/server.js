@@ -301,6 +301,7 @@ let root = {
     // Temporary Multiuser - INSECURE
     let uuidNumber = uuid.v4();
     const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const midKeyName = currentUser + "/" + uuidNumber + "-mid.jpg";
     const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
     if (req.input.userId) {
       currentUser = req.input.userId;
@@ -317,9 +318,7 @@ let root = {
       .promise();
     uploadPromise
       .then(function(data) {
-        console.log(
-          "Successfully uploaded data to " + bucketName + "/" + keyName
-        );
+        console.log("Successfully uploaded" + bucketName + "/" + keyName);
       })
       .catch(function(err) {
         console.error(err, err.stack);
@@ -327,7 +326,7 @@ let root = {
     // UPLOAD THUMB
     sharp(Buffer.from(req.input.imageFile, "base64"))
       .rotate()
-      .resize(300, 300, {
+      .resize(200, 200, {
         fit: "outside"
       })
       .toBuffer()
@@ -344,18 +343,40 @@ let root = {
         uploadPromise
           .then(function(data) {
             console.log(
-              "Successfully uploaded thumbnail " +
-                bucketName +
-                "/" +
-                thumbKeyName
+              "Successfully uploaded" + bucketName + "/" + thumbKeyName
             );
           })
           .catch(function(err) {
             console.error(err, err.stack);
           });
       });
-
-    console.log("uploading thumbs...maybe");
+    // UPLOAD thumbKeyNameMID
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(800, 800, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectMidParams = {
+          Bucket: bucketName,
+          Key: midKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectMidParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + midKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
 
     db("photos")
       .insert({
