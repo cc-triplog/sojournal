@@ -45,29 +45,30 @@ class PopupCard extends React.Component {
   };
   constructor(props) {
     super(props);
+    this.state = {
+      title: this.props.markers[this.props.selectedImageIndex].title,
+      description: this.props.markers[this.props.selectedImageIndex].description,
+    }
   }
   componentDidMount() {
     this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].title)
     this.saveOriginalDescription = JSON.stringify(this.props.markers[this.props.selectedImageIndex].description)
-    console.log("===============selectedImageIndex when popup", this.props.selectedImageIndex)
     this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].image)
   }
 
   onChangeTextTitle(text) {
-    this.changedTitle = text
+    this.setState({ title: text })
   }
   onChangeTextDescription(text) {
-    this.changedDescription = text
+    this.setState({ descriptio: text })
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
-    console.log("=======is the prop changing", this.props.visible)
   }
   onPressUpload() {
     const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
     const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
-    console.log("================updateTitle", updateTitle)
-    console.log("======================updateDescription", updateDescription)
+
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -75,8 +76,8 @@ class PopupCard extends React.Component {
         query: `
         mutation {UpdatePhoto(input: {
           id:${this.props.markers[this.props.selectedImageIndex].id}
-          title: "${updateTitle}",
-          comment: "${updateDescription}"
+          title: "${this.state.title}",
+          comment: "${this.state.description}"
         })
       }
         `
@@ -95,12 +96,10 @@ class PopupCard extends React.Component {
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
-      console.log("================newPhotoData", newPhotoData)
       this.props.insertPhotoWithIndex(newPhotoData);
-      this.props.deletePhoto(this.props.selectedImageIndex);
-      this.props.reflectStateChange(!(this.props.stateChanged))
-      this.props.changeCardVisibility(false)
-      console.log("======================markers after update", this.props.markers)
+      // this.props.deletePhoto(this.props.selectedImageIndex);
+      // this.props.reflectStateChange(!(this.props.stateChanged))
+      // this.props.changeCardVisibility(false)
     })
 
     // this.callDatabase()

@@ -23,13 +23,10 @@ Amplify.configure(config);
 const logger = createLogger({
   predicate,
   collapsed,
-  duration = false,
-  timestamp= true,
   level = 'console',
   colors = ColorsObject,
   titleFomatter,
   logger = console,
-  logErrors = true
 })
 const store = createStore(reducer, applyMiddleware(logger));
 
