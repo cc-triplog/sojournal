@@ -103,7 +103,10 @@ class MapScreen extends React.Component {
       method: 'post',
       data: {
         query: `
-        query {ReadGpsPoint(type: {
+        query {GetGpsByDate(type: {
+          userId: 4
+          startTime: "2000-03-20"
+          endTime: "2019-04-20"
         }) {
          id,title,comment,latitude,longitude
         }
@@ -115,8 +118,7 @@ class MapScreen extends React.Component {
       const gpsImage = "https://cdn4.iconfinder.com/data/icons/peppyicons/512/660011-location-512.png"
       let randomNumber = 487
 
-
-      const mapResult = result.data.data.ReadGpsPoint.map(object => (
+      const mapResult = result.data.data.GetGpsByDate.map(object => (
         {
           coordinate: {
             latitude: Number(object.latitude),
@@ -143,8 +145,10 @@ class MapScreen extends React.Component {
       method: 'post',
       data: {
         query: `
-        query {ReadPhoto(type: {
-          userId: ${this.props.userId}
+        query {GetPhotoByDate(type: {
+          userId: 4
+          startTime: "2000-01-01"
+          endTime: "2019-04-28"
         }) {
          title, latitude, longitude, comment, imageFile, id
         }
@@ -153,7 +157,7 @@ class MapScreen extends React.Component {
       }
     }).then(result => {
       const http = "http://"
-      const mapResult = result.data.data.ReadPhoto.map(object => (
+      const mapResult = result.data.data.GetPhotoByDate.map(object => (
         {
           coordinate: {
             latitude: Number(object.latitude),

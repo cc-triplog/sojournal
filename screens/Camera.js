@@ -61,13 +61,13 @@ class CameraPage extends React.Component {
               const location = await Location.getCurrentPositionAsync({});
               latitude = res.exif.GPSLatitude || location.coords.latitude;
               longitude = res.exif.GPSLongitude || location.coords.longitude;
-                capture = {
-                  latitude: res.exif.GPSLatitude || location.coords.latitude,
-                  longitude: res.exif.GPSLongitude || location.coords.latitude,
-                  base64: res.base64,
-                  timestamp: this.getDateFromCamera(res.exif.DateTime),
-                  uri: res.uri
-                };
+              capture = {
+                latitude: res.exif.GPSLatitude || location.coords.latitude,
+                longitude: res.exif.GPSLongitude || location.coords.latitude,
+                base64: res.base64,
+                timestamp: this.getDateFromCamera(res.exif.DateTime),
+                uri: res.uri
+              };
               this.props.setCapture(capture);
               this.setState({ imageView: true });
             }
@@ -187,24 +187,24 @@ class CameraPage extends React.Component {
         ) : null}
       </React.Fragment>
     ) : (
-      <View style={styles.choicePage}>
-        <TouchableOpacity
-          style={styles.choiceButtons}
-          onPress={this.launchCamera}
-        >
-          <AntDesign name="camera" color="white" size={100} />
-          <Text>Take Photo</Text>
-        </TouchableOpacity>
+        <View style={styles.choicePage}>
+          <TouchableOpacity
+            style={styles.choiceButtons}
+            onPress={this.launchCamera}
+          >
+            <AntDesign name="camera" color="white" size={100} />
+            <Text>Take Photo</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.choiceButtons}
-          onPress={this.launchLibrary}
-        >
-          <AntDesign name="picture" color="white" size={100} />
-          <Text>Pick Photo</Text>
-        </TouchableOpacity>
-      </View>
-    );
+          <TouchableOpacity
+            style={styles.choiceButtons}
+            onPress={this.launchLibrary}
+          >
+            <AntDesign name="picture" color="white" size={100} />
+            <Text>Pick Photo</Text>
+          </TouchableOpacity>
+        </View>
+      );
   }
 }
 
