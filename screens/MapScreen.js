@@ -23,7 +23,7 @@ import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
-import PopupCard from './PopupCard';
+import PopupCard from '../components/PopupCard';
 import {
   renderPhoto,
   renderPhotos,
@@ -104,7 +104,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetGpsByDate(type: {
-          userId: 4
+          userId: ${this.props.userId}
           startTime: "2000-03-20"
           endTime: "2019-04-20"
         }) {
@@ -146,7 +146,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetPhotoByDate(type: {
-          userId: 4
+          userId: ${this.props.userId}
           startTime: "2000-01-01"
           endTime: "2019-04-28"
         }) {
