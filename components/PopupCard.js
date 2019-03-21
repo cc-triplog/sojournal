@@ -66,6 +66,8 @@ class PopupCard extends React.Component {
   onPressUpload() {
     const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
     const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
+    console.log("================updateTitle", updateTitle)
+    console.log("======================updateDescription", updateDescription)
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -93,13 +95,7 @@ class PopupCard extends React.Component {
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
-      const copyOfNewState = this.props.markers.map(photo => {
-        if (photo.id === this.props.markers[this.props.selectedImageIndex].id) {
-          photo = newPhotoData
-        }
-      })
-      const imageCardToDelete = React.findDOM
-
+      console.log("================newPhotoData", newPhotoData)
       this.props.insertPhotoWithIndex(newPhotoData);
       this.props.deletePhoto(this.props.selectedImageIndex);
       this.props.reflectStateChange(!(this.props.stateChanged))

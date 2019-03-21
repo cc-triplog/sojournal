@@ -269,7 +269,7 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker) => (
             <TouchableOpacity
-              key={marker.id}
+              key={this.props.markers.indexOf(marker)}
               onPress={() => this.onPressImageCard(marker.id)}
               ref={marker.id}
             >
