@@ -27,6 +27,67 @@ let schema = buildSchema(schemas);
 
 // Root resolver
 let root = {
+  // PHOTO AND GPS BY DATE RANGE
+  GetPhotoByDate: (req, res) => {
+    let whereObject = {
+      user_id: currentUser
+    };
+    // Temporary Multiuser - INSECURE
+    if (req.type.userId) {
+      whereObject.user_id = req.type.userId;
+    }
+    return db("photos")
+      .select(
+        "id",
+        "title",
+        "longitude",
+        "latitude",
+        "device_id as deviceId",
+        "group_id as groupId",
+        "comment",
+        "image_file as imageFile",
+        "altitude",
+        "bearing",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
+      .where(whereObject)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
+      .then(data => {
+        for (let i in data) {
+          data[i].imageFile = imageLocation + data[i].imageFile;
+        }
+        return data;
+      });
+  },
+  GetGpsByDate: (req, res) => {
+    let whereObject = {
+      user_id: currentUser
+    };
+    // Temporary Multiuser - INSECURE
+    if (req.type.userId) {
+      whereObject.user_id = req.type.userId;
+    }
+    return db("gps_points")
+      .select(
+        "id",
+        "title",
+        "longitude",
+        "latitude",
+        "group_id as groupId",
+        "comment",
+        "altitude",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
+      .where(whereObject)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
+      .then(data => {
+        return data;
+      });
+  },
   // READ
   ReadUser: (req, res) => {
     let whereObject = { cognito_id: req.type.cognitoId };
@@ -90,6 +151,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("created_at", "desc")
       .then(data => {
         for (let i in data) {
           data[i].imageFile = imageLocation + data[i].imageFile;
@@ -119,6 +181,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("created_at", "desc")
       .then(data => {
         return data;
       });
@@ -138,6 +201,8 @@ let root = {
         "title",
         "longitude",
         "latitude",
+        "start_time as startTime",
+        "end_time as endTime",
         "group_id as groupId",
         "order_in_group as orderInGroup",
         "altitude",
@@ -145,6 +210,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("start_time", "desc")
       .then(data => {
         return data;
       });
@@ -233,11 +299,13 @@ let root = {
   },
   CreatePhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
+    let uuidNumber = uuid.v4();
+    const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
     if (req.input.userId) {
       currentUser = req.input.userId;
     }
-    const keyName = currentUser + "/" + uuid.v4() + ".jpg";
-    const thumbKeyName = currentUser + "/" + uuid.v4() + "-xs.jpg";
+
     let objectParams = {
       Bucket: bucketName,
       Key: keyName,
@@ -257,25 +325,38 @@ let root = {
         console.error(err, err.stack);
       });
     // UPLOAD THUMB
-    console.log("uploading thumbs...maybe");
-    objectParams = {
-      Bucket: bucketName,
-      Key: thumbKeyName,
-      ContentType: "image/jpeg",
-      Body: Buffer.from(req.input.imageFile, "base64")
-    };
-    uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
-      .putObject(objectParams)
-      .promise();
-    uploadPromise
-      .then(function(data) {
-        console.log(
-          "Successfully uploaded thumbnail " + bucketName + "/" + thumbKeyName
-        );
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(200, 200, {
+        fit: "outside"
       })
-      .catch(function(err) {
-        console.error(err, err.stack);
+      .toBuffer()
+      .then(data => {
+        let objectThumbParams = {
+          Bucket: bucketName,
+          Key: thumbKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectThumbParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded thumbnail " +
+                bucketName +
+                "/" +
+                thumbKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
       });
+
+    console.log("uploading thumbs...maybe");
+
     db("photos")
       .insert({
         title: req.input.title,
@@ -286,7 +367,7 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        image_file: keyName,
+        image_file: thumbKeyName,
         altitude: req.input.altitude,
         bearing: req.input.bearing
       })
@@ -336,6 +417,8 @@ let root = {
         longitude: req.input.longitude,
         latitude: req.input.latitude,
         altitude: req.input.altitude,
+        start_time: req.input.startTime,
+        end_time: req.input.endTime,
         user_id: currentUser,
         group_id: req.input.groupId,
         order_in_group: req.input.orderInGroup
@@ -530,6 +613,12 @@ let root = {
     }
     if (req.input.latitude) {
       updateObject.latitude = req.input.latitude;
+    }
+    if (req.input.startTime) {
+      updateObject.start_time = req.input.startTime;
+    }
+    if (req.input.endTime) {
+      updateObject.end_time = req.input.endTime;
     }
     if (req.input.groupId) {
       updateObject.group_id = req.input.groupId;

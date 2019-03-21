@@ -50,6 +50,8 @@ module.exports = `
       longitude: Float
       latitude: Float
       altitude: Float
+      startTime: String
+      endTime: String
       groupId: Int
       orderInGroup: Int
       createdAt: String
@@ -79,6 +81,17 @@ module.exports = `
       gpsInterval: Int
       createdAt: String
       updatedAt: String
+    }
+    input GetPhotoByDate {
+      userId: Int
+      startTime: String
+      endTime: String
+    }
+
+    input GetGpsByDate {
+      userId: Int
+      startTime: String
+      endTime: String
     }
 
     input InputUser {
@@ -134,6 +147,8 @@ module.exports = `
       longitude: Float
       latitude: Float
       altitude: Float
+      startTime: String
+      endTime: String
       groupId: Int
       orderInGroup: Int
       createdAt: String
@@ -219,6 +234,8 @@ module.exports = `
       longitude: Float
       latitude: Float
       altitude: Float
+      startTime: String
+      endTime: String
       groupId: Int
       orderInGroup: Int
       createdAt: String
@@ -280,6 +297,8 @@ module.exports = `
       ReadGroup(type: InputGroup): [Group]
       ReadIntervalConfig(type: InputIntervalConfig): [IntervalConfig]
       ReadRasppiConfig(type: InputRasppiConfig): [RasppiConfig]
+      GetPhotoByDate(type: GetPhotoByDate): [Photo]
+      GetGpsByDate(type: GetGpsByDate): [GpsPoint]
     }
 
     type Mutation {
