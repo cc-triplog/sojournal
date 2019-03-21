@@ -268,7 +268,11 @@ class MapScreen extends React.Component {
           contentContainerStyle={styles.endPadding}
         >
           {this.props.markers.map((marker) => (
-            <TouchableOpacity key={marker.id} onPress={() => this.onPressImageCard(marker.id)}>
+            <TouchableOpacity
+              key={marker.id}
+              onPress={() => this.onPressImageCard(marker.id)}
+              ref={marker.id}
+            >
               <View style={styles.card}>
                 <Image
                   source={marker.image}

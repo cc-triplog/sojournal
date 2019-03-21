@@ -35,16 +35,16 @@ const renderGPS = GPS => {
   };
 };
 const renderPhotos = (photos) => {
-    return {
-        type: "RENDER_PHOTOS",
-        photos
-    }
+  return {
+    type: "RENDER_PHOTOS",
+    photos
+  }
 };
 const renderPhoto = (photo) => {
-    return {
-        type: "RENDER_PHOTOS",
-        photo
-    }
+  return {
+    type: "RENDER_PHOTOS",
+    photo
+  }
 };
 const selectImageCard = index => {
   return {

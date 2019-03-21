@@ -34,7 +34,6 @@ import {
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
-
 let changedTitle
 let changedDescription
 
@@ -48,7 +47,10 @@ class PopupCard extends React.Component {
     super(props);
   }
   componentDidMount() {
+    this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].title)
+    this.saveOriginalDescription = JSON.stringify(this.props.markers[this.props.selectedImageIndex].description)
     console.log("===============selectedImageIndex when popup", this.props.selectedImageIndex)
+    this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].image)
   }
 
   onChangeTextTitle(text) {
@@ -78,8 +80,8 @@ class PopupCard extends React.Component {
         `
       }
     }).then(result => {
-      const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title;
-      const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description;
+      const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.saveOriginalTitle;
+      const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.saveOriginalDescription;
 
       const newPhotoData = {
         coordinate: {
@@ -96,8 +98,10 @@ class PopupCard extends React.Component {
           photo = newPhotoData
         }
       })
-      this.props.deletePhoto(this.props.selectedImageIndex);
+      const imageCardToDelete = React.findDOM
+
       this.props.insertPhotoWithIndex(newPhotoData);
+      this.props.deletePhoto(this.props.selectedImageIndex);
       this.props.reflectStateChange(!(this.props.stateChanged))
       this.props.changeCardVisibility(false)
       console.log("======================markers after update", this.props.markers)
