@@ -19,7 +19,7 @@ import led
 from logging import basicConfig, getLogger, DEBUG
 
 # logging
-basicConfig(filename='/home/pi/scripts/initTest.log', level=DEBUG)
+basicConfig(filename='/home/pi/scripts/logs/initTest.log', level=DEBUG)
 logger = getLogger(__name__)
 
 # redis settings
