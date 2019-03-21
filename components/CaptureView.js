@@ -5,7 +5,6 @@ import CaptureToolbar from "./CaptureToolbar";
 import styles from "./styles";
 
 export default ({ capture, trashPicture, uploadPicture, addStory }) => (
-  //   <React.Fragment>
   <View>
     <Image source={{ uri: capture.uri }} style={styles.preview} />
   </View>
