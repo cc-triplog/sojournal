@@ -1,6 +1,7 @@
 import React from "react";
 import { Provider } from "react-redux";
-import { createStore } from "redux";
+import { applyMiddleware, createStore } from "redux";
+import { createLogger } from "redux-logger";
 import {
   Platform,
   StatusBar,
@@ -19,7 +20,18 @@ import { Auth } from "aws-amplify";
 import config from "./aws-exports";
 Amplify.configure(config);
 
-const store = createStore(reducer);
+const logger = createLogger({
+  predicate,
+  collapsed,
+  duration = false,
+  timestamp= true,
+  level = 'console',
+  colors = ColorsObject,
+  titleFomatter,
+  logger = console,
+  logErrors = true
+})
+const store = createStore(reducer, applyMiddleware(logger));
 
 class App extends React.Component {
   state = {
@@ -135,7 +147,7 @@ class App extends React.Component {
   };
 }
 
-export default withAuthenticator(App, { includeGreetings: true });
+export default withAuthenticator(App);
 
 const styles = StyleSheet.create({
   container: {

@@ -23,7 +23,7 @@ import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
-import PopupCard from './PopupCard';
+import PopupCard from '../components/PopupCard';
 import {
   renderPhoto,
   renderPhotos,
@@ -104,7 +104,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetGpsByDate(type: {
-          userId: 4
+          userId: ${this.props.userId}
           startTime: "2000-03-20"
           endTime: "2019-04-20"
         }) {
@@ -146,7 +146,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetPhotoByDate(type: {
-          userId: 4
+          userId: ${this.props.userId}
           startTime: "2000-01-01"
           endTime: "2019-04-28"
         }) {
@@ -169,8 +169,13 @@ class MapScreen extends React.Component {
           id: Number(object.id),
         }
       ));
+      console.log("=====================mapResult", mapResult)
+      mapResult.forEach(photo => {
+        if (photo.title == "null") photo.title = "Please Add Title"
+        if (photo.description == "undefined") photo.description = "Please Add Comment"
+      })
+
       this.props.renderPhotos(mapResult)
-      // this.props.renderPhotos(result);
     }).then(i => console.log("==================markers", this.props.markers))
   }
   idToIndex = (id) => {
@@ -263,7 +268,11 @@ class MapScreen extends React.Component {
           contentContainerStyle={styles.endPadding}
         >
           {this.props.markers.map((marker) => (
-            <TouchableOpacity key={marker.id} onPress={() => this.onPressImageCard(marker.id)}>
+            <TouchableOpacity
+              key={this.props.markers.indexOf(marker)}
+              onPress={() => this.onPressImageCard(marker.id)}
+              ref={marker.id}
+            >
               <View style={styles.card}>
                 <Image
                   source={marker.image}

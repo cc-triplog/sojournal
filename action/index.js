@@ -34,6 +34,7 @@ const renderGPS = GPS => {
     GPS
   };
 };
+<<<<<<< HEAD
 const renderPhotos = photos => {
   return {
     type: "RENDER_PHOTOS",
@@ -45,6 +46,19 @@ const renderPhoto = photo => {
     type: "RENDER_PHOTOS",
     photo
   };
+=======
+const renderPhotos = (photos) => {
+  return {
+    type: "RENDER_PHOTOS",
+    photos
+  }
+};
+const renderPhoto = (photo) => {
+  return {
+    type: "RENDER_PHOTOS",
+    photo
+  }
+>>>>>>> 8c74ee60e42c0010650c392db679d422062ebb0b
 };
 const selectImageCard = index => {
   return {
