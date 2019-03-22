@@ -21,7 +21,7 @@ import led
 from logging import basicConfig, getLogger, DEBUG
 
 # logging
-basicConfig(filename='/home/pi/scripts/logs/takePhoto.log', level=DEBUG)
+basicConfig(filename='/home/pi/scripts/logs/takePhotoGPS.log', level=DEBUG)
 logger = getLogger(__name__)
 
 # redis settings
@@ -449,21 +449,21 @@ class StoppableThread(threading.Thread):
 
 
 if __name__ == "__main__":
-    # gps_socket = gps3.GPSDSocket()
-    # data_stream = gps3.DataStream()
-    # gps_socket.connect()
-    # gps_socket.watch()
+    gps_socket = gps3.GPSDSocket()
+    data_stream = gps3.DataStream()
+    gps_socket.connect()
+    gps_socket.watch()
 
-    # retries = r.get("requests")
-    # if retries is not None:
-    #     requests = json.loads(retries)
-    #     r.delete('requests')
-    #     led.control("green", "flash")
-    #     for request in requests:
-    #         upload_retry(request)
-    #     if len(failed) != 0:
-    #         r.set("requests", json.dumps(failed))
-    #     led.control("green", "off")
+    retries = r.get("requests")
+    if retries is not None:
+        requests = json.loads(retries)
+        r.delete('requests')
+        led.control("green", "flash")
+        for request in requests:
+            upload_retry(request)
+        if len(failed) != 0:
+            r.set("requests", json.dumps(failed))
+        led.control("green", "off")
     lastLat = r.get("lastLat")
     lastLon = r.get("lastLon")
     lastLatExif = r.get("lastLatExif")
@@ -472,9 +472,9 @@ if __name__ == "__main__":
         lastLatLon = (lastLat, lastLon)
         lastLatLonExif = (lastLatExif, lastLonExif)
 
-    # thread_gps = StoppableThread(
-    #     target=get_gps, args=(data_stream, gps_socket))
-    # thread_gps.start()
+    thread_gps = StoppableThread(
+        target=get_gps, args=(data_stream, gps_socket))
+    thread_gps.start()
 
     try:
         while True:
