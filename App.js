@@ -1,7 +1,6 @@
 import React from "react";
 import { Provider } from "react-redux";
-import { applyMiddleware, createStore } from "redux";
-import { createLogger } from "redux-logger";
+import { createStore } from "redux";
 import {
   Platform,
   StatusBar,
