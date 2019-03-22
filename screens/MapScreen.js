@@ -80,7 +80,6 @@ class MapScreen extends React.Component {
     });
   }
   componentWillUpdate() {
-    // if(this.props.stateChanged) this.callDatabasePhotos
   }
   componentWillUnmount() {
 
@@ -135,11 +134,9 @@ class MapScreen extends React.Component {
         mapResult[i].id = randomNumber
         this.props.renderGPS(mapResult[i])
       }
-    }).catch(err => console.log("===========catch", err))
-      .then(o => console.log("=================GPS", this.props.GPS))
+    })
   }
   callDatabasePhotos = async () => {
-    console.log("----------", this.props.userId)
     await axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -169,14 +166,13 @@ class MapScreen extends React.Component {
           id: Number(object.id),
         }
       ));
-      console.log("=====================mapResult", mapResult)
       mapResult.forEach(photo => {
         if (photo.title == "null") photo.title = "Please Add Title"
         if (photo.description == "undefined") photo.description = "Please Add Comment"
       })
 
       this.props.renderPhotos(mapResult)
-    }).then(i => console.log("==================markers", this.props.markers))
+    })
   }
   idToIndex = (id) => {
     let index;
@@ -188,7 +184,6 @@ class MapScreen extends React.Component {
   onPressImageCard = (id) => {
     this.props.changeCardVisibility(true)
     this.idToIndex(id)
-    console.log("==============imageIndex", this.props.selectedImageIndex)
   }
 
 
