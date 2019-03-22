@@ -85,6 +85,20 @@ const toggleCreateGroupVisible = () => {
   };
 };
 
+const setTitle = title => {
+  return {
+    type: "SET_IMAGE_TITLE",
+    title
+  };
+};
+
+const setComment = comment => {
+  return {
+    type: "SET_IMAGE_COMMENT",
+    comment
+  };
+};
+
 module.exports = {
   renderPhotos,
   changeCardVisibility,
@@ -96,5 +110,7 @@ module.exports = {
   renderGPS,
   setCapture,
   setUserId,
-  toggleCreateGroupVisible
+  toggleCreateGroupVisible,
+  setComment,
+  setTitle
 };
