@@ -139,10 +139,11 @@ class CameraPage extends React.Component {
               latitude: ${capture.latitude}
               createdAt: "${capture.timestamp}"
               comment: "${capture.comment}"
+              title: "${capture.title}"
           })}`
       }
     }).then(() => {
-      this.setState({ imageView: false })
+      this.setState({ imageView: false });
       // this.props.reflectStateChange(true);
     });
   };
@@ -182,29 +183,28 @@ class CameraPage extends React.Component {
           <CommentModal
             modalVisible={modalVisible}
             setModalVisible={this.setModalVisible}
-            setComment={this.setComment}
           />
         ) : null}
       </React.Fragment>
     ) : (
-        <View style={styles.choicePage}>
-          <TouchableOpacity
-            style={styles.choiceButtons}
-            onPress={this.launchCamera}
-          >
-            <AntDesign name="camera" color="white" size={100} />
-            <Text>Take Photo</Text>
-          </TouchableOpacity>
+      <View style={styles.choicePage}>
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={this.launchCamera}
+        >
+          <AntDesign name="camera" color="white" size={100} />
+          <Text>Take Photo</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.choiceButtons}
-            onPress={this.launchLibrary}
-          >
-            <AntDesign name="picture" color="white" size={100} />
-            <Text>Pick Photo</Text>
-          </TouchableOpacity>
-        </View>
-      );
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={this.launchLibrary}
+        >
+          <AntDesign name="picture" color="white" size={100} />
+          <Text>Pick Photo</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 }
 

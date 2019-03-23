@@ -1,6 +1,6 @@
 import React from "react";
 import { Provider } from "react-redux";
-import { createStore } from "redux";
+import { applyMiddleware, createStore } from "redux";
 import {
   Platform,
   StatusBar,
@@ -135,7 +135,7 @@ class App extends React.Component {
   };
 }
 
-export default withAuthenticator(App, { includeGreetings: true });
+export default withAuthenticator(App);
 
 const styles = StyleSheet.create({
   container: {

@@ -69,6 +69,7 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("groups", function(table) {
       table.increments();
       table.string("title");
+      table.text("comment");
       table.double("longitude");
       table.double("latitude");
       table.timestamp("start_time");

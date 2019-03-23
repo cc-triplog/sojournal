@@ -4,7 +4,7 @@ AWS.config.loadFromPath("./.env.json");
 //var CognitoStrategy = require("passport-cognito");
 
 const uuid = require("uuid");
-const bucketName = "magellansmiles";
+const bucketName = "sojournal";
 const sharp = require("sharp");
 
 const express = require("express");
@@ -20,7 +20,7 @@ const schemas = require("./schema");
 let currentUser = 4;
 
 // Image Hosting Server
-const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
+const imageLocation = "s3-ap-northeast-1.amazonaws.com/sojournal/";
 
 // GraphQL schema
 let schema = buildSchema(schemas);
@@ -199,6 +199,7 @@ let root = {
       .select(
         "id",
         "title",
+        "comment",
         "longitude",
         "latitude",
         "start_time as startTime",
@@ -301,6 +302,7 @@ let root = {
     // Temporary Multiuser - INSECURE
     let uuidNumber = uuid.v4();
     const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const midKeyName = currentUser + "/" + uuidNumber + "-mid.jpg";
     const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
     if (req.input.userId) {
       currentUser = req.input.userId;
@@ -317,9 +319,7 @@ let root = {
       .promise();
     uploadPromise
       .then(function(data) {
-        console.log(
-          "Successfully uploaded data to " + bucketName + "/" + keyName
-        );
+        console.log("Successfully uploaded" + bucketName + "/" + keyName);
       })
       .catch(function(err) {
         console.error(err, err.stack);
@@ -344,18 +344,40 @@ let root = {
         uploadPromise
           .then(function(data) {
             console.log(
-              "Successfully uploaded thumbnail " +
-                bucketName +
-                "/" +
-                thumbKeyName
+              "Successfully uploaded" + bucketName + "/" + thumbKeyName
             );
           })
           .catch(function(err) {
             console.error(err, err.stack);
           });
       });
-
-    console.log("uploading thumbs...maybe");
+    // UPLOAD thumbKeyNameMID
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(800, 800, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectMidParams = {
+          Bucket: bucketName,
+          Key: midKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectMidParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + midKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
 
     db("photos")
       .insert({
@@ -414,6 +436,7 @@ let root = {
     db("groups")
       .insert({
         title: req.input.title,
+        comment: req.input.comment,
         longitude: req.input.longitude,
         latitude: req.input.latitude,
         altitude: req.input.altitude,
