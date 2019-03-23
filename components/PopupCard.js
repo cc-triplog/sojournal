@@ -46,8 +46,8 @@ class PopupCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: this.props.markers[this.props.selectedImageIndex].title,
-      description: this.props.markers[this.props.selectedImageIndex].description,
+      title: null,
+      description: null
     }
   }
   componentDidMount() {
@@ -59,14 +59,21 @@ class PopupCard extends React.Component {
     this.setState({ title: text })
   }
   onChangeTextDescription(text) {
-    this.setState({ descriptio: text })
+    this.setState({ description: text })
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
   }
   onPressUpload() {
-    const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
-    const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
+    const updateTitle = this.changedTitle === null ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
+    const updateDescription = this.changedDescription === null ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
+
+    const userIdNumber = Number(this.props.userId)
+
+    console.log("======================userID number", this.props.userId)
+    console.log("=================title content", this.state.title)
+    console.log("========================description", this.state.description)
+
 
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
@@ -74,28 +81,27 @@ class PopupCard extends React.Component {
       data: {
         query: `
         mutation {UpdatePhoto(input: {
+          userId:${userIdNumber}
           id:${this.props.markers[this.props.selectedImageIndex].id}
-          title: "${this.state.title}",
-          comment: "${this.state.description}"
+          title: "${updateTitle}"
+          comment: "${updateDescription}"
         })
       }
         `
       }
     }).then(result => {
-      const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.saveOriginalTitle;
-      const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.saveOriginalDescription;
-
       const newPhotoData = {
         coordinate: {
           latitude: this.props.markers[this.props.selectedImageIndex].coordinate.latitude,
           longitude: this.props.markers[this.props.selectedImageIndex].coordinate.longitude,
         },
-        title: updateTitle,
-        description: updateDescription,
+        title: this.state.title,
+        description: this.state.description,
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
       this.props.insertPhotoWithIndex(newPhotoData);
+      this.props.changeCardVisibility(false)
     })
   }
 
@@ -222,7 +228,8 @@ const mapStateToProps = state => ({
   region: state.region,
   visible: state.visible,
   selectedImageIndex: state.selectedImageIndex,
-  stateChanged: state.stateChanged
+  stateChanged: state.stateChanged,
+  userId: state.userId
 })
 
 const mapDispatchToProps = dispatch => ({
