@@ -97,12 +97,7 @@ class PopupCard extends React.Component {
         id: this.props.markers[this.props.selectedImageIndex].id
       }
       this.props.insertPhotoWithIndex(newPhotoData);
-      // this.props.deletePhoto(this.props.selectedImageIndex);
-      // this.props.reflectStateChange(!(this.props.stateChanged))
-      // this.props.changeCardVisibility(false)
     })
-
-    // this.callDatabase()
   }
 
   render() {
