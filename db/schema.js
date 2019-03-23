@@ -47,6 +47,7 @@ module.exports = `
       id: Int
       userId: Int
       title: String
+      comment: String
       longitude: Float
       latitude: Float
       altitude: Float
@@ -144,6 +145,7 @@ module.exports = `
       id: Int
       userId: Int
       title: String
+      comment: String
       longitude: Float
       latitude: Float
       altitude: Float
@@ -231,6 +233,7 @@ module.exports = `
       id: Int!
       userId: Int
       title: String
+      comment: String
       longitude: Float
       latitude: Float
       altitude: Float
