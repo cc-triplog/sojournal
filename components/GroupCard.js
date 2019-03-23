@@ -10,9 +10,16 @@ import { Card, Button } from "react-native-elements";
 
 export default class GroupCard extends React.Component {
   render() {
+    const {
+      groupTitle,
+      groupDescription,
+      groupStartDate,
+      groupEndDate
+    } = this.props;
+
     return (
       <View>
-        <Card containerStyle={styles.card} title="Trip to North Korea">
+        <Card containerStyle={styles.card} title={groupTitle}>
           <View style={styles.dateContainer}>
             <Text style={styles.date}>Mar 12, 2015 to Mar 19, 2015</Text>
             <TouchableOpacity onPress={() => console.log("change date")}>
@@ -21,7 +28,7 @@ export default class GroupCard extends React.Component {
           </View>
           <TextInput
             style={styles.description}
-            defaultValue={"I was not deported"}
+            defaultValue={groupDescription}
             onChangeText={text => {
               console.log("state is being updated");
             }}
