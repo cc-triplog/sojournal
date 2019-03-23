@@ -34,11 +34,7 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("groups");
       table.integer("order_in_group");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
+      table.integer("user_id");
       table.text("comment");
       table.text("image_file");
       table.double("altitude");
