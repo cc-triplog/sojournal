@@ -181,6 +181,23 @@ module.exports = `
       createdAt: String
       updatedAt: String
     }
+    input CamInputPhoto {
+      deviceSerial: String
+      imageFile: String
+      longitude: Float
+      latitude: Float
+      altitude: Float
+      createdAt: String
+      updatedAt: String
+    }
+    input CamInputGps {
+      deviceSerial: String
+      longitude: Float
+      latitude: Float
+      altitude: Float
+      createdAt: String
+      updatedAt: String
+    }
 
 
     input UpdateUser {
@@ -324,6 +341,8 @@ module.exports = `
       CreateGroup(input: InputGroup): Boolean
       CreateIntervalConfig(input: InputIntervalConfig): Boolean
       CreateRasppiConfig(input: InputRasppiConfig): Boolean
+      CamCreatePhoto(input: CamInputPhoto): Boolean
+      CamCreateGps(input: CamInputGps): Boolean
 
       UpdateUser(input: UpdateUser): Boolean
       UpdateDevice(input: UpdateDevice): Boolean
