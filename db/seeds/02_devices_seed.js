@@ -6,34 +6,29 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex("devices").insert([
         {
-          title: "Not a Device",
-          device_serial: "fake_serial",
-          user_id: "4"
-        },
-        {
-          title: "Keisuke's Raspberry Pi",
+          title: "Keisuke's FrankenCam",
           device_serial: "0000000076a55e56",
-          user_id: "4"
+          user_id: "5"
         },
         {
-          title: "Omar's iPhone",
-          device_serial: "fake_serial",
-          user_id: "4"
+          title: "Alien's iPhone",
+          device_serial: "fake_serial_1",
+          user_id: "1"
         },
         {
-          title: "Brian's Android",
-          device_serial: "fake_serial",
-          user_id: "4"
+          title: "Zombie's Android",
+          device_serial: "fake_serial_2",
+          user_id: "2"
         },
         {
           title: "Chaz's iPhone",
-          device_serial: "fake_serial",
+          device_serial: "fake_serial_4",
           user_id: "4"
         },
         {
-          title: "Brian's Raspberry Pi",
-          device_serial: "fake_serial",
-          user_id: "4"
+          title: "Poop Head's Fake Cam",
+          device_serial: "fake_serial_3",
+          user_id: "3"
         }
       ]);
     });
