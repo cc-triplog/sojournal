@@ -199,6 +199,7 @@ let root = {
       .select(
         "id",
         "title",
+        "comment",
         "longitude",
         "latitude",
         "start_time as startTime",
@@ -435,6 +436,7 @@ let root = {
     db("groups")
       .insert({
         title: req.input.title,
+        comment: req.input.comment,
         longitude: req.input.longitude,
         latitude: req.input.latitude,
         altitude: req.input.altitude,
