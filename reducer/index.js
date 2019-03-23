@@ -17,7 +17,8 @@ const initialState = {
   groupStartDate: "",
   groupEndDate: "",
   groupTitle: null,
-  groupDescription: null
+  groupDescription: null,
+  pictureGroups: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -138,6 +139,10 @@ const reducer = (state = initialState, action) => {
     }
     case "SET_GROUP_DESCRIPTION": {
       const stateChanges = { groupDescription: action.description };
+      return { ...state, ...stateChanges };
+    }
+    case "LOAD_GROUPS": {
+      const stateChanges = { pictureGroups: action.groups };
       return { ...state, ...stateChanges };
     }
     default: {

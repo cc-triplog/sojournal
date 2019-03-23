@@ -133,6 +133,12 @@ const setGroupDescription = description => {
   };
 };
 
+const loadGroupsToState = groups => {
+  return {
+    type: "LOAD_GROUPS",
+    groups
+  };
+};
 module.exports = {
   renderPhotos,
   changeCardVisibility,
@@ -152,5 +158,6 @@ module.exports = {
   setGroupStartDate,
   setGroupEndDate,
   setGroupTitle,
-  setGroupDescription
+  setGroupDescription,
+  loadGroupsToState
 };
