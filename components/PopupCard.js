@@ -61,6 +61,24 @@ class PopupCard extends React.Component {
   onChangeTextDescription(text) {
     this.setState({ description: text })
   }
+  onPressDelete() {
+    axios({
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        mutation {DestroyPhoto(input: {
+          userId:${this.props.userId}
+          id:${this.props.markers[this.props.selectedImageIndex].id}
+        })
+      }
+        `
+      }
+    }).then(result => {
+      this.props.deletePhoto(this.props.selectedImageIndex);
+      this.props.changeCardVisibility(false)
+    })
+  }
   onPressExit() {
     this.props.changeCardVisibility(false)
   }
@@ -133,9 +151,16 @@ class PopupCard extends React.Component {
             <View style={styles.buttonUpload}>
               <Button
                 onPress={() => { this.onPressUpload() }}
-                title="UPLOAD"
+                title="UPDATE"
                 type="outline"
-                accessibilityLabel="upload" />
+                accessibilityLabel="update" />
+            </View>
+            <View style={styles.buttonDelete}>
+              <Button
+                onPress={() => { this.onPressDelete() }}
+                title="DELETE"
+                type="outline"
+                accessibilityLabel="delete" />
             </View>
             <View style={styles.buttonExit}>
               <Button
@@ -160,6 +185,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: "space-between",
+  },
+  buttonDelete: {
+    flex: 1,
+    marginHorizontal: 5,
   },
   buttonExit: {
     flex: 1,
