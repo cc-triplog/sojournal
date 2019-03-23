@@ -65,12 +65,9 @@ class PopupCard extends React.Component {
     this.props.changeCardVisibility(false)
   }
   onPressUpload() {
-    const updateTitle = this.changedTitle === null ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
-    const updateDescription = this.changedDescription === null ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
+    const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
+    const updateDescription = this.state.description === null ? this.props.markers[this.props.selectedImageIndex].description : this.state.description
 
-    const userIdNumber = Number(this.props.userId)
-
-    console.log("======================userID number", this.props.userId)
     console.log("=================title content", this.state.title)
     console.log("========================description", this.state.description)
 
@@ -81,7 +78,7 @@ class PopupCard extends React.Component {
       data: {
         query: `
         mutation {UpdatePhoto(input: {
-          userId:${userIdNumber}
+          userId:${this.props.userId}
           id:${this.props.markers[this.props.selectedImageIndex].id}
           title: "${updateTitle}"
           comment: "${updateDescription}"
@@ -103,6 +100,7 @@ class PopupCard extends React.Component {
       this.props.insertPhotoWithIndex(newPhotoData);
       this.props.changeCardVisibility(false)
     })
+      .catch(err => console.log("==================error", err))
   }
 
   render() {
