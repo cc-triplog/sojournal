@@ -414,7 +414,6 @@ let root = {
       })
       .catch(err => console.log(err));
 
-    //    await console.log(currentUser);
     // Temporary Multiuser - INSECURE
     let uuidNumber = uuid.v4();
     const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
