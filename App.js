@@ -1,7 +1,6 @@
 import React from "react";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore } from "redux";
-import { createLogger } from "redux-logger";
 import {
   Platform,
   StatusBar,
@@ -20,15 +19,7 @@ import { Auth } from "aws-amplify";
 import config from "./aws-exports";
 Amplify.configure(config);
 
-const logger = createLogger({
-  predicate,
-  collapsed,
-  level = 'console',
-  colors = ColorsObject,
-  titleFomatter,
-  logger = console,
-})
-const store = createStore(reducer, applyMiddleware(logger));
+const store = createStore(reducer);
 
 class App extends React.Component {
   state = {
