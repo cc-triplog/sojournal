@@ -12,7 +12,12 @@ const initialState = {
   stateChanged: false,
   capture: null,
   userId: null,
-  createGroupVisible: false
+  createGroupVisible: false,
+  groupDatePickerVisible: false,
+  groupStartDate: "",
+  groupEndDate: "",
+  groupTitle: null,
+  groupDescription: null
 };
 
 const reducer = (state = initialState, action) => {
@@ -111,6 +116,28 @@ const reducer = (state = initialState, action) => {
     case "SET_IMAGE_TITLE": {
       const newCapture = { ...state.capture, title: action.title };
       const stateChanges = { capture: newCapture };
+      return { ...state, ...stateChanges };
+    }
+    case "TOGGLE_GROUP_DATE_PICKER_VISIBLE": {
+      const stateChanges = {
+        groupDatePickerVisible: !state.groupDatePickerVisible
+      };
+      return { ...state, ...stateChanges };
+    }
+    case "SET_GROUP_START_DATE": {
+      const stateChanges = { groupStartDate: action.date };
+      return { ...state, ...stateChanges };
+    }
+    case "SET_GROUP_END_DATE": {
+      const stateChanges = { groupEndDate: action.date };
+      return { ...state, ...stateChanges };
+    }
+    case "SET_GROUP_TITLE": {
+      const stateChanges = { groupTitle: action.title };
+      return { ...state, ...stateChanges };
+    }
+    case "SET_GROUP_DESCRIPTION": {
+      const stateChanges = { groupDescription: action.description };
       return { ...state, ...stateChanges };
     }
     default: {
