@@ -53,7 +53,6 @@ class PopupCard extends React.Component {
   componentDidMount() {
     this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].title)
     this.saveOriginalDescription = JSON.stringify(this.props.markers[this.props.selectedImageIndex].description)
-    this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].image)
   }
 
   onChangeTextTitle(text) {
