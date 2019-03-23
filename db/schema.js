@@ -275,21 +275,33 @@ module.exports = `
     }
     input DestroyDevice {
       id: Int!
+      userId: Int!
+
     }
     input DestroyPhoto {
       id: Int!
+      userId: Int!
+
     }
     input DestroyGpsPoint {
       id: Int!
+      userId: Int!
+
     }
     input DestroyGroup {
       id: Int!
+      userId: Int!
+
     }
     input DestroyIntervalConfig {
       id: Int!
+      userId: Int!
+
     }
     input DestroyRasppiConfig{
       id: Int!
+      userId: Int!
+
     }
 
     type Query {
