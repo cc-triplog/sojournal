@@ -69,6 +69,20 @@ for (let i in seedArray) {
   });
 }
 
+for (let i in seedArray) {
+  photoObjectArray.push({
+    title: seedArray[i].title,
+    device_id: 1,
+    group_id: 1,
+    order_in_group: i,
+    user_id: 5,
+    latitude: 35.658124669454075 + 0.002 * i,
+    longitude: 139.72756780246945 + 0.002 * i,
+    comment: seedArray[i].comment,
+    image_file: folderName + "/" + seedArray[i].imageFile
+  });
+}
+
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
   return knex("photos")
