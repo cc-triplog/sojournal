@@ -323,19 +323,19 @@ def take_photo_with_gps(interval_config):
                 lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
-                print "gps_infomation: " + str(gps_info)
-                logger.info("gps_infomation: " + str(gps_info))
-                print "starting take photo " + filename
+                # print "gps_infomation: " + str(gps_info)
+                # logger.info("gps_infomation: " + str(gps_info))
+                # print "starting take photo " + filename
                 logger.info("starting take photo " + filename)
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 logger.info("finish take photo " + filename)
-                print "starting upload photo " + filename
-                logger.info("starting upload photo " + filename)
-                upload_server(filename, timestr, gps_info)
+                # print "starting upload photo " + filename
+                # logger.info("starting upload photo " + filename)
+                # upload_server(filename, timestr, gps_info)
                 # upload_s3(filename)
-                print "finish upload photo " + filename
-                logger.info("finish upload photo " + filename)
+                # print "finish upload photo " + filename
+                # logger.info("finish upload photo " + filename)
                 disk_usage = psutil.disk_usage('/home/')
                 print disk_usage
                 logger.info(disk_usage)
@@ -351,18 +351,18 @@ def take_photo_with_gps(interval_config):
                 lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
-                print "gps_infomation: " + str(gps_info)
-                logger.info("gps_infomation: " + str(gps_info))
+                # print "gps_infomation: " + str(gps_info)
+                # logger.info("gps_infomation: " + str(gps_info))
                 print "starting take photo " + filename
                 logger.info("starting take photo " + filename)
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 logger.info("finish take photo " + filename)
-                print "starting upload photo " + filename
-                logger.info("starting upload photo " + filename)
-                upload_server(filename, timestr, gps_info)
-                print "finish upload photo " + filename
-                logger.info("finish upload photo " + filename)
+                # print "starting upload photo " + filename
+                # logger.info("starting upload photo " + filename)
+                # upload_server(filename, timestr, gps_info)
+                # print "finish upload photo " + filename
+                # logger.info("finish upload photo " + filename)
                 disk_usage = psutil.disk_usage('/')
                 print disk_usage
                 logger.info(disk_usage)
@@ -373,10 +373,10 @@ def take_photo_with_gps(interval_config):
         # time.sleep(0.5)
     print "failed requests are " + str(len(failed))
     logger.info("failed requests are " + str(len(failed)))
-    if len(failed) != 0:
-        r.set("requests", json.dumps(failed))
-        print "stored failed requests to redis"
-        logger.info("stored failed requests to redis")
+    # if len(failed) != 0:
+    #     r.set("requests", json.dumps(failed))
+    #     print "stored failed requests to redis"
+    #     logger.info("stored failed requests to redis")
     # camera.stop_preview()
     camera.close()
 
