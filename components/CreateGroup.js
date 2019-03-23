@@ -3,6 +3,7 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Button, Card } from "react-native-elements";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import moment from "moment";
+import axios from "axios";
 
 //Redux
 import { connect } from "react-redux";
@@ -30,13 +31,42 @@ class CreateGroup extends React.Component {
     this.props.toggleGroupDatePickerVisible();
   };
   handleSave = () => {
+    this.uploadGroup();
+    this.props.toggleCreateGroupVisible();
+    this.resetFields();
+  };
+
+  resetFields = () => {
+    this.props.setGroupTitle("");
+    this.props.setGroupDescription("");
+    this.props.setGroupEndDate("");
+    this.props.setGroupStartDate("");
+  };
+
+  uploadGroup = async () => {
     const {
       groupEndDate,
       groupStartDate,
       groupTitle,
-      groupDescription
+      groupDescription,
+      userId
     } = this.props;
-    console.log(groupEndDate, groupStartDate, groupTitle, groupDescription);
+    await axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation{
+          CreateGroup(input: {
+            userId: ${userId}
+            title: "${groupTitle}"
+            comment: "${groupDescription}"
+            startTime: "${moment(groupStartDate).format("YYYY-MM-DD")}"
+            endTime: "${moment(groupEndDate).format("YYYY-MM-DD")}"
+            })
+          }`
+      }
+    });
   };
 
   render() {
@@ -162,7 +192,8 @@ const mapStateToProps = state => ({
   groupStartDate: state.groupStartDate,
   groupEndDate: state.groupEndDate,
   groupTitle: state.groupTitle,
-  groupDescription: state.groupDescription
+  groupDescription: state.groupDescription,
+  userId: state.userId
 });
 
 const mapDispatchToProps = dispatch => ({
