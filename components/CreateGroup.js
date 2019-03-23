@@ -13,7 +13,8 @@ import {
   setGroupEndDate,
   setGroupTitle,
   setGroupDescription,
-  toggleCreateGroupVisible
+  toggleCreateGroupVisible,
+  loadGroupsToState
 } from "../action";
 
 class CreateGroup extends React.Component {
@@ -30,10 +31,12 @@ class CreateGroup extends React.Component {
       : this.props.setGroupEndDate(date);
     this.props.toggleGroupDatePickerVisible();
   };
-  handleSave = () => {
-    this.uploadGroup();
-    this.props.toggleCreateGroupVisible();
-    this.resetFields();
+  handleSave = async () => {
+    this.uploadGroup().then(() => {
+      this.props.toggleCreateGroupVisible();
+      this.resetFields();
+      this.reload();
+    });
   };
 
   resetFields = () => {
@@ -43,6 +46,22 @@ class CreateGroup extends React.Component {
     this.props.setGroupStartDate("");
   };
 
+  reload = () => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `query {
+          ReadGroup(type: {userId: ${this.props.userId}}) {
+            id, title, comment, startTime, endTime
+            }
+          }`
+      }
+    }).then(res => {
+      this.props.loadGroupsToState(res.data.data.ReadGroup);
+    });
+  };
   uploadGroup = async () => {
     const {
       groupEndDate,
@@ -219,6 +238,10 @@ const mapDispatchToProps = dispatch => ({
   },
   toggleCreateGroupVisible: () => {
     const action = toggleCreateGroupVisible();
+    dispatch(action);
+  },
+  loadGroupsToState: groups => {
+    const action = loadGroupsToState(groups);
     dispatch(action);
   }
 });
