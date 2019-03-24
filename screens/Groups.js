@@ -38,6 +38,13 @@ class Groups extends React.Component {
   render() {
     return (
       <ScrollView>
+        <View style={styles.buttonContainer}>
+          <Button
+            buttonStyle={styles.button}
+            title="Navigate"
+            onPress={() => this.props.navigation.navigate("Map")}
+          />
+        </View>
         {this.props.createGroupVisible ? (
           <CreateGroup toggleVisible={this.props.toggleCreateGroupVisible} />
         ) : (

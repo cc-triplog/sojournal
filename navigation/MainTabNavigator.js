@@ -9,8 +9,10 @@ import TabBarIcon from "../components/TabBarIcon";
 import MapScreen from "../screens/MapScreen";
 import Camera from "../screens/Camera";
 import SettingsScreen from "../screens/RaspberryPi";
+import GroupScreen from "../screens/Groups";
 
 const MapStack = createStackNavigator({
+  Group: GroupScreen,
   Map: MapScreen
 });
 
