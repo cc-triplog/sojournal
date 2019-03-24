@@ -17,7 +17,7 @@ logger = getLogger(__name__)
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_LOCAL']
+GRAPHQL_URL = os.environ['URL_PROD']
 # GRAPHQL_URL = 'http://localhost:4000/graphql'
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
@@ -96,8 +96,8 @@ def upload_server(timestr, gps_info):
             client = GraphQLClient(GRAPHQL_URL)
             result = None
             query = "mutation{" + \
-                "CreateGpsPoint(input: {" + \
-                    "title:\"" + timestr + "\"," + \
+                "CamCreateGps(input: {" + \
+                    "deviceSerial: \"0000000076a55e56\"," + \
                     "longitude:" + str(gps_info['lon']) + "," + \
                     "latitude:" + str(gps_info['lat']) + "," + \
                     "altitude:" + str(gps_info['alt']) + \
@@ -130,7 +130,9 @@ if __name__ == "__main__":
     config = getRaspiConfig()
 
     if config is not None and len(config) != 0:
-        interval = config['gpsInterval']
+        interval = 5
+    else:
+        interval = 5
 
     thread = threading.Thread(target=get_gps, args=(
         data_stream, gps_socket, config))

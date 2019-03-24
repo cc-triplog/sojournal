@@ -27,7 +27,7 @@ logger = getLogger(__name__)
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_LOCAL']
+GRAPHQL_URL = os.environ['URL_PROD']
 
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
@@ -214,10 +214,10 @@ def upload_server(filename, timestr, gps_info):
         if gps_info != {}:
             if gps_info.viewkeys() >= {'lon', 'lat', 'alt', 'track'}:
                 try:
-                    query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' + \
-                        base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' + \
+                    query = 'mutation{CamCreatePhoto(input: {imageFile: \"\"\"' + \
+                        base64 + '\"\"\", longitude: ' + \
                         str(gps_info['lon']) + ', latitude: ' + \
-                        str(gps_info['lat']) + ', deviceId: 2, altitude: ' + \
+                        str(gps_info['lat']) + ', deviceSerial: "0000000076a55e56", altitude: ' + \
                         str(gps_info['alt']) + ', bearing: ' + \
                         str(gps_info['track']) + '})}'
                     result = client.execute(
@@ -243,18 +243,18 @@ def upload_server(filename, timestr, gps_info):
                     logger.info(result)
         else:
             try:
-                query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" + \
-                    base64 + "\"\"\", title: \"" + timestr + \
-                    "\", latitude: " + \
+                query = "mutation{CamCreatePhoto(input: {imageFile: \"\"\"" + \
+                    base64 + "\"\"\",  latitude: " + \
                     str(lastLatLon[0]) + ", longitude: " + \
-                    str(lastLatLon[1]) + ", deviceId: 2})}"
+                    str(lastLatLon[1]) + \
+                    ", deviceSerial: \"0000000076a55e56\"})}"
                 result = client.execute(
                     query
                 )
             except urllib2.URLError as err:
                 print err.reason
                 logger.error(err.reason)
-                if err.reason.strerror == 'nodename nor servname provided, or not known':
+                if err.reason.strerror == 'nodename nor servername provided, or not known':
                     failed.append(query)
                     pass
                 elif err.reason.message == 'timed out':
