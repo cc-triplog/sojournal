@@ -47,6 +47,7 @@ class MapScreen extends React.Component {
   }
 
   animation = new Animated.Value(0)
+
   componentDidMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
@@ -170,6 +171,13 @@ class MapScreen extends React.Component {
         return marker1.id - marker2.id
       })
       mapResult.forEach(photo => {
+        // const copyImageUrl = photo.image.uri.slice(0);
+        // const replaceTarget = /.jpg/gi;
+        // const midSizeImageUrl = this.copyImageUrl.replace(replaceTarget, '-mid.jpg');
+        // const fullSizeImageUrl = this.copyImageUrl.replace(replaceTarget, '-full.jpg')
+        // photo.imageMid = midSizeImageUrl
+        // photo.imageFull = fullSizeImageUrl
+
         if (photo.title == "null") photo.title = "Please Add Title"
         if (photo.description == "undefined") photo.description = "Please Add Comment"
       })
