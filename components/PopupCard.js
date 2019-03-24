@@ -50,13 +50,10 @@ class PopupCard extends React.Component {
     }
   }
   componentDidMount() {
-    console.log("====================navigate to uri", this.props.markers[this.props.selectedImageIndex].image.uri)
     const copyImageUrl = this.props.markers[this.props.selectedImageIndex].image.uri.slice(0);
     const replaceTarget = /.jpg/gi;
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
-    console.log('=====================fixed url', midSizeImageUrl)
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
-    console.log('================url in state', this.state.midSizeImage)
   }
 
   onChangeTextTitle(text) {
@@ -89,10 +86,6 @@ class PopupCard extends React.Component {
   onPressUpload() {
     const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
     const updateDescription = this.state.description === null ? this.props.markers[this.props.selectedImageIndex].description : this.state.description
-
-    console.log("=================title content", this.state.title)
-    console.log("========================description", this.state.description)
-
 
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
