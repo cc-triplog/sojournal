@@ -21,13 +21,13 @@ import led
 from logging import basicConfig, getLogger, DEBUG
 
 # logging
-basicConfig(filename='/home/pi/scripts/logs/takePhoto.log', level=DEBUG)
+basicConfig(filename='/home/pi/scripts/logs/takePhotoGPS.log', level=DEBUG)
 logger = getLogger(__name__)
 
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_LOCAL']
+GRAPHQL_URL = os.environ['URL_PROD']
 
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
@@ -214,10 +214,10 @@ def upload_server(filename, timestr, gps_info):
         if gps_info != {}:
             if gps_info.viewkeys() >= {'lon', 'lat', 'alt', 'track'}:
                 try:
-                    query = 'mutation{CreatePhoto(input: {imageFile: \"\"\"' + \
-                        base64 + '\"\"\", title: \"' + timestr + '\", longitude: ' + \
+                    query = 'mutation{CamCreatePhoto(input: {imageFile: \"\"\"' + \
+                        base64 + '\"\"\", longitude: ' + \
                         str(gps_info['lon']) + ', latitude: ' + \
-                        str(gps_info['lat']) + ', deviceId: 2, altitude: ' + \
+                        str(gps_info['lat']) + ', deviceSerial: "0000000076a55e56", altitude: ' + \
                         str(gps_info['alt']) + ', bearing: ' + \
                         str(gps_info['track']) + '})}'
                     result = client.execute(
@@ -243,18 +243,18 @@ def upload_server(filename, timestr, gps_info):
                     logger.info(result)
         else:
             try:
-                query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" + \
-                    base64 + "\"\"\", title: \"" + timestr + \
-                    "\", latitude: " + \
+                query = "mutation{CamCreatePhoto(input: {imageFile: \"\"\"" + \
+                    base64 + "\"\"\",  latitude: " + \
                     str(lastLatLon[0]) + ", longitude: " + \
-                    str(lastLatLon[1]) + ", deviceId: 2})}"
+                    str(lastLatLon[1]) + \
+                    ", deviceSerial: \"0000000076a55e56\"})}"
                 result = client.execute(
                     query
                 )
             except urllib2.URLError as err:
                 print err.reason
                 logger.error(err.reason)
-                if err.reason.strerror == 'nodename nor servname provided, or not known':
+                if err.reason.strerror == 'nodename nor servername provided, or not known':
                     failed.append(query)
                     pass
                 elif err.reason.message == 'timed out':
@@ -323,19 +323,19 @@ def take_photo_with_gps(interval_config):
                 lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
-                # print "gps_infomation: " + str(gps_info)
-                # logger.info("gps_infomation: " + str(gps_info))
-                # print "starting take photo " + filename
+                print "gps_infomation: " + str(gps_info)
+                logger.info("gps_infomation: " + str(gps_info))
+                print "starting take photo " + filename
                 logger.info("starting take photo " + filename)
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 logger.info("finish take photo " + filename)
-                # print "starting upload photo " + filename
-                # logger.info("starting upload photo " + filename)
-                # upload_server(filename, timestr, gps_info)
+                print "starting upload photo " + filename
+                logger.info("starting upload photo " + filename)
+                upload_server(filename, timestr, gps_info)
                 # upload_s3(filename)
-                # print "finish upload photo " + filename
-                # logger.info("finish upload photo " + filename)
+                print "finish upload photo " + filename
+                logger.info("finish upload photo " + filename)
                 disk_usage = psutil.disk_usage('/home/')
                 print disk_usage
                 logger.info(disk_usage)
@@ -351,18 +351,18 @@ def take_photo_with_gps(interval_config):
                 lasttime = deltatime
                 timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
                 filename = timestr + '.jpg'
-                # print "gps_infomation: " + str(gps_info)
-                # logger.info("gps_infomation: " + str(gps_info))
+                print "gps_infomation: " + str(gps_info)
+                logger.info("gps_infomation: " + str(gps_info))
                 print "starting take photo " + filename
                 logger.info("starting take photo " + filename)
                 take_photo(camera, filename, gps_info)
                 print "finish take photo " + filename
                 logger.info("finish take photo " + filename)
-                # print "starting upload photo " + filename
-                # logger.info("starting upload photo " + filename)
-                # upload_server(filename, timestr, gps_info)
-                # print "finish upload photo " + filename
-                # logger.info("finish upload photo " + filename)
+                print "starting upload photo " + filename
+                logger.info("starting upload photo " + filename)
+                upload_server(filename, timestr, gps_info)
+                print "finish upload photo " + filename
+                logger.info("finish upload photo " + filename)
                 disk_usage = psutil.disk_usage('/')
                 print disk_usage
                 logger.info(disk_usage)
@@ -373,10 +373,10 @@ def take_photo_with_gps(interval_config):
         # time.sleep(0.5)
     print "failed requests are " + str(len(failed))
     logger.info("failed requests are " + str(len(failed)))
-    # if len(failed) != 0:
-    #     r.set("requests", json.dumps(failed))
-    #     print "stored failed requests to redis"
-    #     logger.info("stored failed requests to redis")
+    if len(failed) != 0:
+        r.set("requests", json.dumps(failed))
+        print "stored failed requests to redis"
+        logger.info("stored failed requests to redis")
     # camera.stop_preview()
     camera.close()
 
@@ -449,21 +449,21 @@ class StoppableThread(threading.Thread):
 
 
 if __name__ == "__main__":
-    # gps_socket = gps3.GPSDSocket()
-    # data_stream = gps3.DataStream()
-    # gps_socket.connect()
-    # gps_socket.watch()
+    gps_socket = gps3.GPSDSocket()
+    data_stream = gps3.DataStream()
+    gps_socket.connect()
+    gps_socket.watch()
 
-    # retries = r.get("requests")
-    # if retries is not None:
-    #     requests = json.loads(retries)
-    #     r.delete('requests')
-    #     led.control("green", "flash")
-    #     for request in requests:
-    #         upload_retry(request)
-    #     if len(failed) != 0:
-    #         r.set("requests", json.dumps(failed))
-    #     led.control("green", "off")
+    retries = r.get("requests")
+    if retries is not None:
+        requests = json.loads(retries)
+        r.delete('requests')
+        led.control("green", "flash")
+        for request in requests:
+            upload_retry(request)
+        if len(failed) != 0:
+            r.set("requests", json.dumps(failed))
+        led.control("green", "off")
     lastLat = r.get("lastLat")
     lastLon = r.get("lastLon")
     lastLatExif = r.get("lastLatExif")
@@ -472,9 +472,9 @@ if __name__ == "__main__":
         lastLatLon = (lastLat, lastLon)
         lastLatLonExif = (lastLatExif, lastLonExif)
 
-    # thread_gps = StoppableThread(
-    #     target=get_gps, args=(data_stream, gps_socket))
-    # thread_gps.start()
+    thread_gps = StoppableThread(
+        target=get_gps, args=(data_stream, gps_socket))
+    thread_gps.start()
 
     try:
         while True:

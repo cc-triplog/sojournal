@@ -1,22 +1,35 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  StyleSheet,
+  AsyncStorage,
+  Dimensions
+} from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
+
+//Styling
 import { AntDesign } from "react-native-vector-icons";
 
 import axios from "axios";
 
-import styles from "../components/styles";
+//Components
 import CaptureView from "../components/CaptureView";
 import CaptureToolbar from "../components/CaptureToolbar";
 import CommentModal from "../components/CommentModal";
 
-export default class CameraPage extends React.Component {
+//Redux
+import { connect } from "react-redux";
+import { setCapture, setUserId, reflectStateChange } from "../action";
+
+class CameraPage extends React.Component {
   camera = null;
   static navigationOptions = {
     header: null
   };
   state = {
-    capture: null,
     imageView: false,
     modalVisible: false
   };
@@ -45,25 +58,18 @@ export default class CameraPage extends React.Component {
           }).then(async res => {
             let capture;
             if (!res.cancelled) {
-              if (Platform.OS === "ios") {
-                const location = await Location.getCurrentPositionAsync({});
-                capture = {
-                  latitude: location.coords.latitude,
-                  longitude: location.coords.longitude,
-                  base64: res.base64,
-                  timestamp: this.getDateFromCamera(res.exif.DateTimeDigitized),
-                  uri: res.uri
-                };
-              } else {
-                capture = {
-                  latitude: res.exif.GPSLatitude,
-                  longitude: res.exif.GPSLongitude,
-                  base64: res.base64,
-                  timestamp: this.getDateFromCamera(res.exif.DateTime),
-                  uri: res.uri
-                };
-              }
-              this.setState({ capture, imageView: true });
+              const location = await Location.getCurrentPositionAsync({});
+              latitude = res.exif.GPSLatitude || location.coords.latitude;
+              longitude = res.exif.GPSLongitude || location.coords.longitude;
+              capture = {
+                latitude: res.exif.GPSLatitude || location.coords.latitude,
+                longitude: res.exif.GPSLongitude || location.coords.latitude,
+                base64: res.base64,
+                timestamp: this.getDateFromCamera(res.exif.DateTime),
+                uri: res.uri
+              };
+              this.props.setCapture(capture);
+              this.setState({ imageView: true });
             }
           });
         }
@@ -101,7 +107,8 @@ export default class CameraPage extends React.Component {
                 uri: res.uri
               };
             }
-            this.setState({ capture, imageView: true });
+            this.props.setCapture(capture);
+            this.setState({ imageView: true });
           }
         });
       } else {
@@ -111,11 +118,12 @@ export default class CameraPage extends React.Component {
   };
 
   trashPicture = () => {
-    this.setState({ imageView: false, capture: {} });
+    this.props.setCapture({});
+    this.setState({ imageView: false });
   };
 
   uploadPicture = async () => {
-    const { capture } = this.state;
+    const { capture } = this.props;
 
     axios({
       url:
@@ -125,14 +133,19 @@ export default class CameraPage extends React.Component {
         query: `mutation
           {CreatePhoto(
             input:{
+              userId: ${this.props.userId}
               imageFile:${JSON.stringify(capture.base64)}
               longitude:${capture.longitude}
               latitude: ${capture.latitude}
               createdAt: "${capture.timestamp}"
               comment: "${capture.comment}"
+              title: "${capture.title}"
           })}`
       }
-    }).then(() => this.setState({ imageView: false }));
+    }).then(() => {
+      this.setState({ imageView: false });
+      // this.props.reflectStateChange(true);
+    });
   };
 
   addStory = () => {
@@ -142,16 +155,21 @@ export default class CameraPage extends React.Component {
     this.setState({ modalVisible: !this.state.modalVisible });
   };
   setComment = comment => {
-    const current = this.state.capture;
+    const current = this.props.capture;
     current.comment = comment;
-    this.setState({ capture: current });
+    this.props.setCapture(current);
     this.setModalVisible();
   };
 
-  async componentDidMount() {}
+  async componentDidMount() {
+    await AsyncStorage.getItem("id").then(res => {
+      this.props.setUserId(res);
+    });
+  }
 
   render() {
-    const { capture, imageView, modalVisible } = this.state;
+    const { capture } = this.props;
+    const { imageView, modalVisible } = this.state;
     return imageView === true ? (
       <React.Fragment>
         <CaptureView capture={capture} />
@@ -165,8 +183,6 @@ export default class CameraPage extends React.Component {
           <CommentModal
             modalVisible={modalVisible}
             setModalVisible={this.setModalVisible}
-            setComment={this.setComment}
-            saved={this.state.capture.comment}
           />
         ) : null}
       </React.Fragment>
@@ -191,3 +207,50 @@ export default class CameraPage extends React.Component {
     );
   }
 }
+
+const { width: winWidth, height: winHeight } = Dimensions.get("window");
+const styles = StyleSheet.create({
+  choicePage: {
+    backgroundColor: "purple",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-around",
+    flexDirection: "column",
+    height: winHeight,
+    width: winWidth
+  },
+  choiceButtons: {
+    justifyContent: "center",
+    backgroundColor: "white",
+    width: 150,
+    height: 150,
+    opacity: 0.5,
+    alignItems: "center",
+    borderRadius: 50
+  }
+});
+
+const mapStateToProps = state => ({
+  capture: state.capture,
+  userId: state.userId
+});
+
+const mapDispatchToProps = dispatch => ({
+  setCapture: capture => {
+    const action = setCapture(capture);
+    dispatch(action);
+  },
+  setUserId: id => {
+    const action = setUserId(id);
+    dispatch(action);
+  },
+  reflectStateChange: change => {
+    const action = reflectStateChange(change);
+    dispatch(action);
+  }
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CameraPage);

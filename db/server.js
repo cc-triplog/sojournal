@@ -1,10 +1,11 @@
 const AWS = require("aws-sdk");
 AWS.config.loadFromPath("./.env.json");
 
-var CognitoStrategy = require("passport-cognito");
+//var CognitoStrategy = require("passport-cognito");
 
 const uuid = require("uuid");
-const bucketName = "magellansmiles";
+const bucketName = "sojournal";
+const sharp = require("sharp");
 
 const express = require("express");
 const graphqlHTTP = require("express-graphql");
@@ -12,20 +13,81 @@ const { buildSchema } = require("graphql");
 const morgan = require("morgan");
 const config = require("./knexfile");
 const db = require("knex")(config);
-const axios = require("axios");
+//const axios = require("axios");
 const schemas = require("./schema");
 
 // Current User Needs to be replaced with login
 let currentUser = 4;
 
 // Image Hosting Server
-const imageLocation = "s3-ap-northeast-1.amazonaws.com/magellansmiles/";
+const imageLocation = "s3-ap-northeast-1.amazonaws.com/sojournal/";
 
 // GraphQL schema
 let schema = buildSchema(schemas);
 
 // Root resolver
 let root = {
+  // PHOTO AND GPS BY DATE RANGE
+  GetPhotoByDate: (req, res) => {
+    let whereObject = {
+      user_id: currentUser
+    };
+    // Temporary Multiuser - INSECURE
+    if (req.type.userId) {
+      whereObject.user_id = req.type.userId;
+    }
+    return db("photos")
+      .select(
+        "id",
+        "title",
+        "longitude",
+        "latitude",
+        "device_id as deviceId",
+        "group_id as groupId",
+        "comment",
+        "image_file as imageFile",
+        "altitude",
+        "bearing",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
+      .where(whereObject)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
+      .then(data => {
+        for (let i in data) {
+          data[i].imageFile = imageLocation + data[i].imageFile;
+        }
+        return data;
+      });
+  },
+  GetGpsByDate: (req, res) => {
+    let whereObject = {
+      user_id: currentUser
+    };
+    // Temporary Multiuser - INSECURE
+    if (req.type.userId) {
+      whereObject.user_id = req.type.userId;
+    }
+    return db("gps_points")
+      .select(
+        "id",
+        "title",
+        "longitude",
+        "latitude",
+        "group_id as groupId",
+        "comment",
+        "altitude",
+        "created_at as createdAt",
+        "updated_at as updatedAt"
+      )
+      .where(whereObject)
+      .where("created_at", ">=", req.type.startTime)
+      .where("created_at", "<=", req.type.endTime)
+      .then(data => {
+        return data;
+      });
+  },
   // READ
   ReadUser: (req, res) => {
     let whereObject = { cognito_id: req.type.cognitoId };
@@ -79,6 +141,7 @@ let root = {
         "title",
         "longitude",
         "latitude",
+        "user_id as userId",
         "device_id as deviceId",
         "group_id as groupId",
         "comment",
@@ -89,6 +152,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("created_at", "desc")
       .then(data => {
         for (let i in data) {
           data[i].imageFile = imageLocation + data[i].imageFile;
@@ -111,6 +175,7 @@ let root = {
         "title",
         "longitude",
         "latitude",
+        "user_id as userId",
         "group_id as groupId",
         "comment",
         "altitude",
@@ -118,6 +183,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("created_at", "desc")
       .then(data => {
         return data;
       });
@@ -135,8 +201,11 @@ let root = {
       .select(
         "id",
         "title",
+        "comment",
         "longitude",
         "latitude",
+        "start_time as startTime",
+        "end_time as endTime",
         "group_id as groupId",
         "order_in_group as orderInGroup",
         "altitude",
@@ -144,6 +213,7 @@ let root = {
         "updated_at as updatedAt"
       )
       .where(whereObject)
+      .orderBy("start_time", "desc")
       .then(data => {
         return data;
       });
@@ -232,11 +302,15 @@ let root = {
   },
   CreatePhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    let uuidNumber = uuid.v4();
+    const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const midKeyName = currentUser + "/" + uuidNumber + "-mid.jpg";
+    const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
-    const keyName = currentUser + "/" + uuid.v4() + ".jpg";
-    const objectParams = {
+
+    let objectParams = {
       Bucket: bucketName,
       Key: keyName,
       ContentType: "image/jpeg",
@@ -247,13 +321,66 @@ let root = {
       .promise();
     uploadPromise
       .then(function(data) {
-        console.log(
-          "Successfully uploaded data to " + bucketName + "/" + keyName
-        );
+        console.log("Successfully uploaded" + bucketName + "/" + keyName);
       })
       .catch(function(err) {
         console.error(err, err.stack);
       });
+    // UPLOAD THUMB
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(200, 200, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectThumbParams = {
+          Bucket: bucketName,
+          Key: thumbKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectThumbParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + thumbKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
+    // UPLOAD thumbKeyNameMID
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(800, 800, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectMidParams = {
+          Bucket: bucketName,
+          Key: midKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectMidParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + midKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
+
     db("photos")
       .insert({
         title: req.input.title,
@@ -264,9 +391,148 @@ let root = {
         order_in_group: req.input.orderInGroup,
         user_id: currentUser,
         comment: req.input.comment,
-        image_file: keyName,
+        image_file: thumbKeyName,
         altitude: req.input.altitude,
         bearing: req.input.bearing
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    // Temporary
+    currentUser = 4;
+    return true;
+  },
+  CamCreatePhoto: async (req, res) => {
+    let currentUser = await db("devices")
+      .select("user_id as userId")
+      .where({ device_serial: req.input.deviceSerial })
+      .then(data => {
+        if (data.length != 0) {
+          return data[0].userId;
+        }
+      })
+      .catch(err => console.log(err));
+
+    // Temporary Multiuser - INSECURE
+    let uuidNumber = uuid.v4();
+    const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const midKeyName = currentUser + "/" + uuidNumber + "-mid.jpg";
+    const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
+
+    let objectParams = {
+      Bucket: bucketName,
+      Key: keyName,
+      ContentType: "image/jpeg",
+      Body: Buffer.from(req.input.imageFile, "base64")
+    };
+    let uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+      .putObject(objectParams)
+      .promise();
+    uploadPromise
+      .then(function(data) {
+        console.log("Successfully uploaded" + bucketName + "/" + keyName);
+      })
+      .catch(function(err) {
+        console.error(err, err.stack);
+      });
+    // UPLOAD THUMB
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(200, 200, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectThumbParams = {
+          Bucket: bucketName,
+          Key: thumbKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectThumbParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + thumbKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
+    // UPLOAD thumbKeyNameMID
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(800, 800, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectMidParams = {
+          Bucket: bucketName,
+          Key: midKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectMidParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + midKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
+
+    db("photos")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        device_id: req.input.deviceId,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser,
+        comment: req.input.comment,
+        image_file: thumbKeyName,
+        altitude: req.input.altitude,
+        bearing: req.input.bearing
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    // Temporary
+    currentUser = 4;
+    return true;
+  },
+  CamCreateGps: async (req, res) => {
+    let currentUser = await db("devices")
+      .select("user_id as userId")
+      .where({ device_serial: req.input.deviceSerial })
+      .then(data => {
+        if (data.length != 0) {
+          return data[0].userId;
+        }
+      })
+      .catch(err => console.log(err));
+
+    db("gps_points")
+      .insert({
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        user_id: currentUser
       })
       .then(res => {
         //console.log(res);
@@ -280,8 +546,8 @@ let root = {
   },
   CreateGpsPoint: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("gps_points")
       .insert({
@@ -305,15 +571,18 @@ let root = {
   },
   CreateGroup: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("groups")
       .insert({
         title: req.input.title,
+        comment: req.input.comment,
         longitude: req.input.longitude,
         latitude: req.input.latitude,
         altitude: req.input.altitude,
+        start_time: req.input.startTime,
+        end_time: req.input.endTime,
         user_id: currentUser,
         group_id: req.input.groupId,
         order_in_group: req.input.orderInGroup
@@ -330,8 +599,8 @@ let root = {
   },
   CreateIntervalConfig: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("interval_configs")
       .insert({
@@ -362,8 +631,8 @@ let root = {
   },
   CreateRasppiConfig: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("rasppi_configs")
       .insert({
@@ -400,8 +669,8 @@ let root = {
   },
   UpdateDevice: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
@@ -425,8 +694,8 @@ let root = {
   },
   UpdatePhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
@@ -468,8 +737,8 @@ let root = {
   },
   UpdateGpsPoint: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
@@ -496,8 +765,8 @@ let root = {
   },
   UpdateGroup: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
@@ -508,6 +777,12 @@ let root = {
     }
     if (req.input.latitude) {
       updateObject.latitude = req.input.latitude;
+    }
+    if (req.input.startTime) {
+      updateObject.start_time = req.input.startTime;
+    }
+    if (req.input.endTime) {
+      updateObject.end_time = req.input.endTime;
     }
     if (req.input.groupId) {
       updateObject.group_id = req.input.groupId;
@@ -536,8 +811,8 @@ let root = {
   },
   UpdateIntervalConfig: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     let updateObject = { user_id: currentUser };
     if (req.input.title) {
@@ -588,8 +863,8 @@ let root = {
   },
   UpdateRasppiConfig: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     let updateObject = { user_id: currentUser };
     if (req.input.selectedInterval) {
@@ -626,8 +901,8 @@ let root = {
   },
   DestroyDevice: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("devices")
       .where({ id: req.input.id, user_id: currentUser })
@@ -644,8 +919,8 @@ let root = {
   },
   DestroyPhoto: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     // Post MVP - delete files from S3
     db("photos")
@@ -663,8 +938,8 @@ let root = {
   },
   DestroyGpsPoint: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("gps_points")
       .where({ id: req.input.id, user_id: currentUser })
@@ -681,8 +956,8 @@ let root = {
   },
   DestroyGroup: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("groups")
       .where({ id: req.input.id, user_id: currentUser })
@@ -699,8 +974,8 @@ let root = {
   },
   DestroyIntervalConfig: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("interval_configs")
       .where({ id: req.input.id, user_id: currentUser })
@@ -717,8 +992,8 @@ let root = {
   },
   DestroyRasppiConfig: (req, res) => {
     // Temporary Multiuser - INSECURE
-    if (req.input.user_id) {
-      currentUser = req.input.user_id;
+    if (req.input.userId) {
+      currentUser = req.input.userId;
     }
     db("rasppi_configs")
       .where({ id: req.input.id, user_id: currentUser })

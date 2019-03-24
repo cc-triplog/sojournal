@@ -5,46 +5,32 @@ exports.up = function(knex, Promise) {
       table.string("name");
       table.string("cognito_id");
       table.string("password");
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("devices", function(table) {
       table.increments();
       table.string("title");
       table.string("device_serial");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.integer("user_id");
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("photos", function(table) {
       table.increments();
       table.string("title");
       table.double("longitude");
       table.double("latitude");
-      table
-        .integer("device_id")
-        .references("id")
-        .inTable("devices");
-      table
-        .integer("group_id")
-        .references("id")
-        .inTable("groups");
+      table.integer("device_id");
+      table.integer("group_id");
       table.integer("order_in_group");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
+      table.integer("user_id");
       table.text("comment");
       table.text("image_file");
       table.double("altitude");
       table.double("bearing");
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("gps_points", function(table) {
       table.increments();
@@ -56,21 +42,20 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("groups");
       table.integer("order_in_group");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
+      table.integer("user_id");
       table.text("comment");
       table.double("altitude");
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("groups", function(table) {
       table.increments();
       table.string("title");
+      table.text("comment");
       table.double("longitude");
       table.double("latitude");
+      table.timestamp("start_time");
+      table.timestamp("end_time");
       table
         .integer("group_id")
         .references("id")
@@ -81,8 +66,8 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("users");
       table.double("altitude");
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("interval_configs", function(table) {
       table.increments();
@@ -101,8 +86,8 @@ exports.up = function(knex, Promise) {
       table.bigInteger("stop_epoch");
       table.integer("stop_countdown");
       table.integer("interval");
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
     knex.schema.createTable("rasppi_configs", function(table) {
       table.increments();
@@ -112,8 +97,8 @@ exports.up = function(knex, Promise) {
         .inTable("users");
       table.integer("selected_interval");
       table.integer("gps_interval");
-      table.string("created_at").defaultTo(knex.fn.now());
-      table.string("updated_at").defaultTo(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
+      table.timestamp("updated_at").defaultTo(knex.fn.now());
     })
   ]);
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Picker, View, Text, ScrollView } from "react-native";
+import { Picker, View, Text, ScrollView, AsyncStorage } from "react-native";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import TimePicker from "../components/TimePicker";
 import { Button } from "react-native-elements";
@@ -197,7 +197,12 @@ export default class RaspberryPi extends React.Component {
       });
     }
   };
-  componentDidMount() {
+  async componentDidMount() {
+    // await AsyncStorage.getItem("id")
+    //   .then(res => {
+    //     this.props.setUserId(res);
+    //   })
+    //   .then(() => this.getConfigs());
     this.getConfigs();
   }
 
