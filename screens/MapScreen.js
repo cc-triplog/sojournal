@@ -217,12 +217,22 @@ class MapScreen extends React.Component {
           initialRegion={this.props.region}
           style={styles.container}
         >
-          {this.props.markers.map((marker) => {
+          {this.props.markers.map((marker, index) => {
+            const scaleStyle = {
+              transform: [
+                {
+                  scale: interpolations[index].scale
+                }
+              ]
+            };
+            const opacityStyle = {
+              opacity: interpolations[index].scale,
+            };
             return (
-              <View key={this.props.markers.indexOf(marker)} style={styles.markerWrap}>
+              <View key={this.props.markers.indexOf(marker)} style={styles.markerWrap} pointerEvents='box-none'>
                 <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                  <Animated.View style={[styles.markerWrap]}>
-                    <Animated.View style={[styles.ring]} />
+                  <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                    <Animated.View style={[styles.ring, scaleStyle]} />
                     <View style={styles.marker} />
                   </Animated.View>
                 </MapView.Marker>
@@ -344,6 +354,9 @@ const styles = StyleSheet.create({
   markerWrap: {
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: 'transparent',
+    width: 60,
+    height: 60
   },
   marker: {
     width: 8,
