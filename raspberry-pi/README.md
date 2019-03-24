@@ -141,7 +141,7 @@ $ ssh pi@"your pi's IP address"
 $ git clone https://github.com/sojournalists/sojournal.git
 ```
 
-2. Go to "/home/pi/scripts" folder
+2. Go to "/home/pi/scripts" directory
 
    | Script          |                                                  |
    | --------------- | ------------------------------------------------ |
@@ -170,4 +170,33 @@ python takePhoto.py
 
 ```
 python takePhotoGPS.py
+```
+
+## Setting up of start up scripts
+
+1. Go to "~/.config/autostart" directry
+2. Create/Edit the photo.desktop file
+
+```
+$ nano photo.desktop
+```
+
+```
+[Desktop Entry]
+Type=Application
+Name=Photo
+Exec=python /home/pi/scripts/takePhoto.py
+```
+
+3. Create/Edit the gps.desktop file
+
+```
+$ nano gps.desktop
+```
+
+```
+[Desktop Entry]
+Type=Application
+Name=GPS
+Exec=python /home/pi/scripts/loggingGPS.py
 ```
