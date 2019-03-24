@@ -161,11 +161,7 @@ class CameraPage extends React.Component {
     this.setModalVisible();
   };
 
-  async componentDidMount() {
-    await AsyncStorage.getItem("id").then(res => {
-      this.props.setUserId(res);
-    });
-  }
+  componentDidMount() {}
 
   render() {
     const { capture } = this.props;
