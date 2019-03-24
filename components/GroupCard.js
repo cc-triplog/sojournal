@@ -9,6 +9,9 @@ import {
 import { Card, Button } from "react-native-elements";
 
 export default class GroupCard extends React.Component {
+  renderOnMap = () => {
+    this.props.renderOnMap();
+  };
   render() {
     const {
       groupTitle,
@@ -21,7 +24,9 @@ export default class GroupCard extends React.Component {
       <View>
         <Card containerStyle={styles.card} title={groupTitle}>
           <View style={styles.dateContainer}>
-            <Text style={styles.date}>Mar 12, 2015 to Mar 19, 2015</Text>
+            <Text style={styles.date}>
+              {groupStartDate + " to " + groupEndDate}
+            </Text>
             <TouchableOpacity onPress={() => console.log("change date")}>
               <Text style={styles.changeDate}>Change</Text>
             </TouchableOpacity>
@@ -38,6 +43,7 @@ export default class GroupCard extends React.Component {
               backgroundColor="#03A9F4"
               buttonStyle={styles.button}
               title="View"
+              onPress={this.renderOnMap}
             />
             <Button
               backgroundColor="#03A9F4"
