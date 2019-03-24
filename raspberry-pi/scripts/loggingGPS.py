@@ -129,7 +129,7 @@ def seedData():
 
 if __name__ == "__main__":
     # seeding data (usually comment out)
-    seedData()
+    # seedData()
 
     # gps_info = {
     #     'lon': 139.727873128,
@@ -138,28 +138,28 @@ if __name__ == "__main__":
     # }
 
     # default interval
-    # interval = 1
-    # gps_socket = gps3.GPSDSocket()
-    # data_stream = gps3.DataStream()
-    # gps_socket.connect()
-    # gps_socket.watch()
+    interval = 1
+    gps_socket = gps3.GPSDSocket()
+    data_stream = gps3.DataStream()
+    gps_socket.connect()
+    gps_socket.watch()
 
-    # config = getRaspiConfig()
+    config = getRaspiConfig()
 
-    # if config is not None and len(config) != 0:
-    #     interval = 5
-    # else:
-    #     interval = 5
+    if config is not None and len(config) != 0:
+        interval = 5
+    else:
+        interval = 5
 
-    # thread = threading.Thread(target=get_gps, args=(
-    #     data_stream, gps_socket, config))
-    # thread.start()
+    thread = threading.Thread(target=get_gps, args=(
+        data_stream, gps_socket, config))
+    thread.start()
 
-    # while True:
-    #     timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
-    #     print "gps_infomation: " + str(gps_info)
-    #     logger.info("gps_infomation: " + str(gps_info))
-    #     print "starting upload photo"
-    #     upload_server(timestr, gps_info)
-    #     print "finish upload gps data"
-    #     time.sleep(interval)
+    while True:
+        timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
+        print "gps_infomation: " + str(gps_info)
+        logger.info("gps_infomation: " + str(gps_info))
+        print "starting upload photo"
+        upload_server(timestr, gps_info)
+        print "finish upload gps data"
+        time.sleep(interval)
