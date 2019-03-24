@@ -81,7 +81,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   }
-  componentWillUpdate() {
+  componentDidUpdate() {
+    this.animation = new Animated.Value(0)
   }
   componentWillUnmount() {
   }
