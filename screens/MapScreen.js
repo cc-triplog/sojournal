@@ -47,6 +47,7 @@ class MapScreen extends React.Component {
   animation = new Animated.Value(0);
 
   animation = new Animated.Value(0)
+
   componentDidMount = () => {
     console.log(this.props.navigation.state.params);
     this.index = 0;
