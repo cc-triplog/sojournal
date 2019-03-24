@@ -35,7 +35,7 @@ CUI
 2. Open the terminal and check the IP address of your Pi
 
 ```
-arp -a
+$ arp -a
 ```
 
 3. Connect to your Pi by ssh
@@ -80,7 +80,7 @@ $ ssh pi@"your pi's IP address"
    1. Open the setting file
 
    ```
-   nano /etc/default/gpsd
+   $ nano /etc/default/gpsd
    ```
 
    2. Modify the file and save it
@@ -102,13 +102,13 @@ $ ssh pi@"your pi's IP address"
    3. Reboot Pi
 
    ```
-   sudo reboot
+   $ sudo reboot
    ```
 
    4. Check the GPS module working
 
    ```
-   gpsmon
+   $ gpsmon
    ```
 
 1. Connect GPS module to Pi
@@ -155,19 +155,19 @@ $ git clone https://github.com/sojournalists/sojournal.git
 - Record the GPS data
 
 ```
-python loggingGPS.py
+$ python loggingGPS.py
 ```
 
 - Record Photo
 
 ```
-python takePhoto.py
+$ python takePhoto.py
 ```
 
 - Record Photo with GPS data
 
 ```
-python takePhotoGPS.py
+$ python takePhotoGPS.py
 ```
 
 ## Setting up of start up scripts
