@@ -37,8 +37,6 @@ const CARD_WIDTH = CARD_HEIGHT - 50;
 let changedTitle
 let changedDescription
 
-
-
 class PopupCard extends React.Component {
   static navigationOptions = {
     header: null
@@ -47,12 +45,15 @@ class PopupCard extends React.Component {
     super(props);
     this.state = {
       title: null,
-      description: null
+      description: null,
+      midSizeImage: null,
     }
   }
   componentDidMount() {
-    this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].title)
-    this.saveOriginalDescription = JSON.stringify(this.props.markers[this.props.selectedImageIndex].description)
+    const copyImageUrl = this.props.markers[this.props.selectedImageIndex].image.uri.slice(0);
+    const replaceTarget = /.jpg/gi;
+    const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
+    this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
   }
 
   onChangeTextTitle(text) {
@@ -86,10 +87,6 @@ class PopupCard extends React.Component {
     const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
     const updateDescription = this.state.description === null ? this.props.markers[this.props.selectedImageIndex].description : this.state.description
 
-    console.log("=================title content", this.state.title)
-    console.log("========================description", this.state.description)
-
-
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
       method: 'post',
@@ -105,13 +102,15 @@ class PopupCard extends React.Component {
         `
       }
     }).then(result => {
+      const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
+      const updateDescription = this.state.description === null ? this.props.markers[this.props.selectedImageIndex].description : this.state.description
       const newPhotoData = {
         coordinate: {
           latitude: this.props.markers[this.props.selectedImageIndex].coordinate.latitude,
           longitude: this.props.markers[this.props.selectedImageIndex].coordinate.longitude,
         },
-        title: this.state.title,
-        description: this.state.description,
+        title: updateTitle,
+        description: updateDescription,
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
@@ -134,7 +133,7 @@ class PopupCard extends React.Component {
       >
         <View style={styles.card}>
           <View style={styles.popupContent}>
-            <Image source={this.props.markers[this.props.selectedImageIndex].image} style={styles.popUpImage} />
+            <Image source={this.state.midSizeImage} style={styles.popUpImage} />
           </View>
           <TextInput
             style={styles.textTitle}
