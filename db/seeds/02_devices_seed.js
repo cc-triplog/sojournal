@@ -8,7 +8,7 @@ exports.seed = function(knex, Promise) {
         {
           title: "Keisuke's FrankenCam",
           device_serial: "0000000076a55e56",
-          user_id: "5"
+          user_id: "1"
         },
         {
           title: "Alien's iPhone",
