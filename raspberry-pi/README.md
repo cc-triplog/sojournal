@@ -44,8 +44,6 @@ arp -a
 $ ssh pi@"your pi's IP address"
 ```
 
-## Intall Linux Package
-
 ## Setting up Python
 
 - Python 2.7 (already installed)
