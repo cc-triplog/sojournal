@@ -46,6 +46,7 @@ class MapScreen extends React.Component {
     super(props);
   }
 
+  animation = new Animated.Value(0)
   componentDidMount = () => {
     this.index = 0;
     this.animation = new Animated.Value(0);
@@ -82,7 +83,6 @@ class MapScreen extends React.Component {
   componentWillUpdate() {
   }
   componentWillUnmount() {
-
   }
 
   async loadById() {
