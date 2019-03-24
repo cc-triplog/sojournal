@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
+import { ScrollView, StyleSheet, View, Text, AsyncStorage } from "react-native";
 import { Button } from "react-native-elements";
 import GroupCard from "../components/GroupCard";
 import CreateGroup from "../components/CreateGroup";
@@ -8,7 +8,11 @@ import moment from "moment";
 
 //Redux
 import { connect } from "react-redux";
-import { toggleCreateGroupVisible, loadGroupsToState } from "../action";
+import {
+  setUserId,
+  toggleCreateGroupVisible,
+  loadGroupsToState
+} from "../action";
 
 class Groups extends React.Component {
   timeConvert = time => {
@@ -39,7 +43,11 @@ class Groups extends React.Component {
     });
   };
   async componentDidMount() {
-    this.loadGroups().then(() => console.log(this.props.pictureGroups));
+    await AsyncStorage.getItem("id")
+      .then(res => {
+        this.props.setUserId(res);
+      })
+      .then(() => this.loadGroups());
   }
   render() {
     return (
@@ -112,6 +120,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  setUserId: id => {
+    const action = setUserId(id);
+    dispatch(action);
+  },
   toggleCreateGroupVisible: () => {
     const action = toggleCreateGroupVisible();
     dispatch(action);

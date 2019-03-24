@@ -14,7 +14,7 @@ const AppNavigator = createAppContainer(
 );
 
 class AppContainer extends React.Component {
-  async componentDidMount() {
+  async componentWillMount() {
     await AsyncStorage.getItem("id").then(res => {
       this.props.setUserId(res);
     });
@@ -30,8 +30,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch(action);
   }
 });
+const mapStateToProps = state => ({
+  userId: state.userId
+});
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(AppContainer);
