@@ -219,7 +219,7 @@ class MapScreen extends React.Component {
         >
           {this.props.markers.map((marker) => {
             return (
-              <View key={marker.id} style={styles.markerWrap}>
+              <View key={this.props.markers.indexOf(marker)} style={styles.markerWrap}>
                 <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                   <Animated.View style={[styles.markerWrap]}>
                     <Animated.View style={[styles.ring]} />
@@ -231,7 +231,7 @@ class MapScreen extends React.Component {
           })}
           {this.props.GPS.map((gps) => {
             return (
-              <View key={gps.id} pointerEvents='box-none' backgroundColor='transparent'>
+              <View key={this.props.GPS.indexOf(gps)} pointerEvents='box-none' backgroundColor='transparent'>
                 <MapView.Marker coordinate={gps.coordinate}>
                   <Animated.View style={[styles.markerWrap]}>
                     <Animated.View style={[styles.ringGps]} />
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     shadowOffset: { x: 2, y: -2 },
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
-    overflow: "visible",
+    overflow: "hidden",
   },
   cardImage: {
     flex: 3,
@@ -342,10 +342,6 @@ const styles = StyleSheet.create({
     color: "#444",
   },
   markerWrap: {
-    width: 50,
-    height: 50,
-    borderRadius: 50 / 2,
-    zIndex: 2,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -353,31 +349,31 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#C71585",
+    position: "absolute",
+    backgroundColor: "rgba(130,4,150, 0.9)",
   },
   markerGps: {
     width: 8,
     height: 8,
     borderRadius: 4,
+    position: "absolute",
     backgroundColor: "#FF1493",
   },
   ring: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#C71585",
-    position: "absolute",
+    backgroundColor: "rgba(130,4,150, 0.3)",
     borderWidth: 1,
-    borderColor: "#C71585",
+    borderColor: "rgba(130,4,150, 0.5)",
   },
   ringGps: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#FF1493",
-    position: "absolute",
+    backgroundColor: "rgba(130,4,150, 0.3)",
     borderWidth: 1,
-    borderColor: "#FF1493",
+    borderColor: "rgba(130,4,150, 0.5)",
   },
 })
 
