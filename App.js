@@ -19,6 +19,14 @@ import { Auth } from "aws-amplify";
 import config from "./aws-exports";
 Amplify.configure(config);
 
+// const logger = createLogger({
+//   predicate,
+//   collapsed,
+//   level = 'console',
+//   colors = ColorsObject,
+//   titleFomatter,
+//   logger = console,
+// })
 const store = createStore(reducer);
 
 class App extends React.Component {

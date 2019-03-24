@@ -199,6 +199,7 @@ let root = {
       .select(
         "id",
         "title",
+        "comment",
         "longitude",
         "latitude",
         "start_time as startTime",
@@ -402,6 +403,145 @@ let root = {
     currentUser = 4;
     return true;
   },
+  CamCreatePhoto: async (req, res) => {
+    let currentUser = await db("devices")
+      .select("user_id as userId")
+      .where({ device_serial: req.input.deviceSerial })
+      .then(data => {
+        if (data.length != 0) {
+          return data[0].userId;
+        }
+      })
+      .catch(err => console.log(err));
+
+    // Temporary Multiuser - INSECURE
+    let uuidNumber = uuid.v4();
+    const keyName = currentUser + "/" + uuidNumber + "-full.jpg";
+    const midKeyName = currentUser + "/" + uuidNumber + "-mid.jpg";
+    const thumbKeyName = currentUser + "/" + uuidNumber + ".jpg";
+
+    let objectParams = {
+      Bucket: bucketName,
+      Key: keyName,
+      ContentType: "image/jpeg",
+      Body: Buffer.from(req.input.imageFile, "base64")
+    };
+    let uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+      .putObject(objectParams)
+      .promise();
+    uploadPromise
+      .then(function(data) {
+        console.log("Successfully uploaded" + bucketName + "/" + keyName);
+      })
+      .catch(function(err) {
+        console.error(err, err.stack);
+      });
+    // UPLOAD THUMB
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(200, 200, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectThumbParams = {
+          Bucket: bucketName,
+          Key: thumbKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectThumbParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + thumbKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
+    // UPLOAD thumbKeyNameMID
+    sharp(Buffer.from(req.input.imageFile, "base64"))
+      .rotate()
+      .resize(800, 800, {
+        fit: "outside"
+      })
+      .toBuffer()
+      .then(data => {
+        let objectMidParams = {
+          Bucket: bucketName,
+          Key: midKeyName,
+          ContentType: "image/jpeg",
+          Body: data
+        };
+        uploadPromise = new AWS.S3({ apiVersion: "2006-03-01" })
+          .putObject(objectMidParams)
+          .promise();
+        uploadPromise
+          .then(function(data) {
+            console.log(
+              "Successfully uploaded" + bucketName + "/" + midKeyName
+            );
+          })
+          .catch(function(err) {
+            console.error(err, err.stack);
+          });
+      });
+
+    db("photos")
+      .insert({
+        title: req.input.title,
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        device_id: req.input.deviceId,
+        group_id: req.input.groupId,
+        order_in_group: req.input.orderInGroup,
+        user_id: currentUser,
+        comment: req.input.comment,
+        image_file: thumbKeyName,
+        altitude: req.input.altitude,
+        bearing: req.input.bearing
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    // Temporary
+    currentUser = 4;
+    return true;
+  },
+  CamCreateGps: async (req, res) => {
+    let currentUser = await db("devices")
+      .select("user_id as userId")
+      .where({ device_serial: req.input.deviceSerial })
+      .then(data => {
+        if (data.length != 0) {
+          return data[0].userId;
+        }
+      })
+      .catch(err => console.log(err));
+
+    db("gps_points")
+      .insert({
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        user_id: currentUser
+      })
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    // Temporary
+    currentUser = 4;
+    return true;
+  },
   CreateGpsPoint: (req, res) => {
     // Temporary Multiuser - INSECURE
     if (req.input.userId) {
@@ -435,6 +575,7 @@ let root = {
     db("groups")
       .insert({
         title: req.input.title,
+        comment: req.input.comment,
         longitude: req.input.longitude,
         latitude: req.input.latitude,
         altitude: req.input.altitude,

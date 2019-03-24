@@ -47,6 +47,7 @@ module.exports = `
       id: Int
       userId: Int
       title: String
+      comment: String
       longitude: Float
       latitude: Float
       altitude: Float
@@ -144,6 +145,7 @@ module.exports = `
       id: Int
       userId: Int
       title: String
+      comment: String
       longitude: Float
       latitude: Float
       altitude: Float
@@ -176,6 +178,23 @@ module.exports = `
       userId: Int
       selectedInterval: Int
       gpsInterval: Int
+      createdAt: String
+      updatedAt: String
+    }
+    input CamInputPhoto {
+      deviceSerial: String
+      imageFile: String
+      longitude: Float
+      latitude: Float
+      altitude: Float
+      createdAt: String
+      updatedAt: String
+    }
+    input CamInputGps {
+      deviceSerial: String
+      longitude: Float
+      latitude: Float
+      altitude: Float
       createdAt: String
       updatedAt: String
     }
@@ -231,6 +250,7 @@ module.exports = `
       id: Int!
       userId: Int
       title: String
+      comment: String
       longitude: Float
       latitude: Float
       altitude: Float
@@ -272,21 +292,33 @@ module.exports = `
     }
     input DestroyDevice {
       id: Int!
+      userId: Int!
+
     }
     input DestroyPhoto {
       id: Int!
+      userId: Int!
+
     }
     input DestroyGpsPoint {
       id: Int!
+      userId: Int!
+
     }
     input DestroyGroup {
       id: Int!
+      userId: Int!
+
     }
     input DestroyIntervalConfig {
       id: Int!
+      userId: Int!
+
     }
     input DestroyRasppiConfig{
       id: Int!
+      userId: Int!
+
     }
 
     type Query {
@@ -309,6 +341,8 @@ module.exports = `
       CreateGroup(input: InputGroup): Boolean
       CreateIntervalConfig(input: InputIntervalConfig): Boolean
       CreateRasppiConfig(input: InputRasppiConfig): Boolean
+      CamCreatePhoto(input: CamInputPhoto): Boolean
+      CamCreateGps(input: CamInputGps): Boolean
 
       UpdateUser(input: UpdateUser): Boolean
       UpdateDevice(input: UpdateDevice): Boolean

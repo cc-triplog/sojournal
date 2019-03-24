@@ -8,6 +8,11 @@ import threading
 import redis
 from graphqlclient import GraphQLClient
 from gps3 import gps3
+from logging import basicConfig, getLogger, DEBUG
+
+# logging
+basicConfig(filename='/home/pi/scripts/logs/loggingGPS.log', level=DEBUG)
+logger = getLogger(__name__)
 
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
@@ -45,6 +50,7 @@ def getRaspiConfig():
             config = json.loads(r.get('gpsconfig'))
             pass
         print(err.reason)
+        logger.error(err.reason)
     if result is not None:
         config = json.loads(result)["data"]["ReadRasppiConfig"]
         if len(config) != 0:
@@ -101,8 +107,10 @@ def upload_server(timestr, gps_info):
             )
         except urllib2.URLError as err:
             print err
+            logger.error(err.reason)
         if result is not None:
             print result
+            logger.info(result)
 
 
 if __name__ == "__main__":
@@ -131,6 +139,7 @@ if __name__ == "__main__":
     while True:
         timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
         print "gps_infomation: " + str(gps_info)
+        logger.info("gps_infomation: " + str(gps_info))
         print "starting upload photo"
         upload_server(timestr, gps_info)
         print "finish upload gps data"
