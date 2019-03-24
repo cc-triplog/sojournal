@@ -515,6 +515,33 @@ let root = {
     currentUser = 4;
     return true;
   },
+  CamCreatePhoto: async (req, res) => {
+    let currentUser = await db("devices")
+      .select("user_id as userId")
+      .where({ device_serial: req.input.deviceSerial })
+      .then(data => {
+        if (data.length != 0) {
+          return data[0].userId;
+        }
+      })
+      .catch(err => console.log(err));
+
+    db("gps_points")
+      .insert({
+        longitude: req.input.longitude,
+        latitude: req.input.latitude,
+        user_id: currentUser
+      })
+      .then(res => {
+        //console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    // Temporary
+    currentUser = 4;
+    return true;
+  },
   CreateGpsPoint: (req, res) => {
     // Temporary Multiuser - INSECURE
     if (req.input.userId) {
