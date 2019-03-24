@@ -515,7 +515,7 @@ let root = {
     currentUser = 4;
     return true;
   },
-  CamCreatePhoto: async (req, res) => {
+  CamCreateGps: async (req, res) => {
     let currentUser = await db("devices")
       .select("user_id as userId")
       .where({ device_serial: req.input.deviceSerial })
