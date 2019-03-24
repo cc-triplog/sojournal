@@ -12,11 +12,7 @@ exports.up = function(knex, Promise) {
       table.increments();
       table.string("title");
       table.string("device_serial");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
+      table.integer("user_id");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at").defaultTo(knex.fn.now());
     }),
@@ -25,20 +21,10 @@ exports.up = function(knex, Promise) {
       table.string("title");
       table.double("longitude");
       table.double("latitude");
-      table
-        .integer("device_id")
-        .references("id")
-        .inTable("devices");
-      table
-        .integer("group_id")
-        .references("id")
-        .inTable("groups");
+      table.integer("device_id");
+      table.integer("group_id");
       table.integer("order_in_group");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
+      table.integer("user_id");
       table.text("comment");
       table.text("image_file");
       table.double("altitude");
@@ -56,11 +42,7 @@ exports.up = function(knex, Promise) {
         .references("id")
         .inTable("groups");
       table.integer("order_in_group");
-      table
-        .integer("user_id")
-        .references("id")
-        .inTable("users")
-        .notNullable();
+      table.integer("user_id");
       table.text("comment");
       table.double("altitude");
       table.timestamp("created_at").defaultTo(knex.fn.now());
@@ -69,6 +51,7 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable("groups", function(table) {
       table.increments();
       table.string("title");
+      table.text("comment");
       table.double("longitude");
       table.double("latitude");
       table.timestamp("start_time");

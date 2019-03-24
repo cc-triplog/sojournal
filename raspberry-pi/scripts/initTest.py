@@ -1,6 +1,5 @@
 import os
 import sys
-import picamera
 import time
 from datetime import datetime
 from gps3 import gps3
@@ -8,7 +7,6 @@ from urllib import urlencode
 import urllib2
 from graphqlclient import GraphQLClient
 import json
-import pyexif
 from fractions import Fraction
 import math
 from pynput import keyboard
@@ -21,13 +19,14 @@ import led
 from logging import basicConfig, getLogger, DEBUG
 
 # logging
-basicConfig(filename='/home/pi/scripts/logs/takePhoto.log', level=DEBUG)
+basicConfig(filename='/home/pi/scripts/logs/initTest.log', level=DEBUG)
 logger = getLogger(__name__)
 
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_LOCAL']
+#GRAPHQL_URL = os.environ['URL_LOCAL']
+GRAPHQL_URL = "http://localhost:4000/graphql"
 
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
@@ -136,7 +135,7 @@ def take_photo(camera, filename, gps_info):
         lastLatLonExif = (exiv_lat, exiv_lng)
     # camera warm-up time
     # time.sleep(2)
-    camera.capture('/home/pi/scripts/photos/' + filename)
+    camera.capture('./photos/' + filename)
     r.set("lastLatExif", lastLatLonExif[0])
     r.set("lastLonExif", lastLatLonExif[1])
 
@@ -201,7 +200,7 @@ def change_to_rational(number):
 def upload_server(filename, timestr, gps_info):
     global lastLatLon
     global failed
-    with open('/home/pi/scripts/photos/' + filename, 'rb') as f:
+    with open('./photos/' + filename, 'rb') as f:
         data = f.read()
         base64 = data.encode('base64')
 
@@ -240,7 +239,7 @@ def upload_server(filename, timestr, gps_info):
                         pass
                 if result is not None:
                     print result
-                    logger.info(result)
+                    logger.error(result)
         else:
             try:
                 query = "mutation{CreatePhoto(input: {imageFile: \"\"\"" + \
@@ -253,7 +252,6 @@ def upload_server(filename, timestr, gps_info):
                 )
             except urllib2.URLError as err:
                 print err.reason
-                logger.error(err.reason)
                 if err.reason.strerror == 'nodename nor servname provided, or not known':
                     failed.append(query)
                     pass
@@ -305,8 +303,6 @@ def take_photo_with_gps(interval_config):
     global lastLatLon
     global lastLatLonExif
     count = 0
-    camera = picamera.PiCamera()
-    camera.led = False
 
     if interval_config["startMethod"] == "startTimeOfDay":
         lasttime = interval_config["startTimeOfDay"]
@@ -319,66 +315,23 @@ def take_photo_with_gps(interval_config):
         deltatime = (currenttime - midnight).seconds
         if interval_config["startMethod"] == "startTimeOfDay":
             if (deltatime - lasttime) >= interval_config["interval"]:
+                logger.info("Try taking photo")
+                print "Try taking photo"
                 count += 1
-                lasttime = deltatime
-                timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
-                filename = timestr + '.jpg'
-                # print "gps_infomation: " + str(gps_info)
-                # logger.info("gps_infomation: " + str(gps_info))
-                # print "starting take photo " + filename
-                logger.info("starting take photo " + filename)
-                take_photo(camera, filename, gps_info)
-                print "finish take photo " + filename
-                logger.info("finish take photo " + filename)
-                # print "starting upload photo " + filename
-                # logger.info("starting upload photo " + filename)
-                # upload_server(filename, timestr, gps_info)
-                # upload_s3(filename)
-                # print "finish upload photo " + filename
-                # logger.info("finish upload photo " + filename)
-                disk_usage = psutil.disk_usage('/home/')
-                print disk_usage
-                logger.info(disk_usage)
-                if disk_usage.percent >= 95:
-                    raise Exception
             if startFlag == False:
-                print "uploaded: " + str(count)
-                logger.info("uploaded: " + str(count))
+                logger.info("stop takeing photo")
+                print "stop takeing photo"
                 break
         else:
             if (deltatime - lasttime) >= interval_config["interval"]:
+                logger.info("Try taking photo")
+                print "Try taking photo"
                 count += 1
-                lasttime = deltatime
-                timestr = datetime.now().strftime('%Y-%m-%dT%H_%M_%S%f')
-                filename = timestr + '.jpg'
-                # print "gps_infomation: " + str(gps_info)
-                # logger.info("gps_infomation: " + str(gps_info))
-                print "starting take photo " + filename
-                logger.info("starting take photo " + filename)
-                take_photo(camera, filename, gps_info)
-                print "finish take photo " + filename
-                logger.info("finish take photo " + filename)
-                # print "starting upload photo " + filename
-                # logger.info("starting upload photo " + filename)
-                # upload_server(filename, timestr, gps_info)
-                # print "finish upload photo " + filename
-                # logger.info("finish upload photo " + filename)
-                disk_usage = psutil.disk_usage('/')
-                print disk_usage
-                logger.info(disk_usage)
-                if disk_usage.percent >= 95:
-                    raise Exception
             if startFlag == False:
+                logger.info("stop takeing photo")
+                print "stop takeing photo"
                 break
         # time.sleep(0.5)
-    print "failed requests are " + str(len(failed))
-    logger.info("failed requests are " + str(len(failed)))
-    # if len(failed) != 0:
-    #     r.set("requests", json.dumps(failed))
-    #     print "stored failed requests to redis"
-    #     logger.info("stored failed requests to redis")
-    # camera.stop_preview()
-    camera.close()
 
 
 def on_press(key):
@@ -464,13 +417,13 @@ if __name__ == "__main__":
     #     if len(failed) != 0:
     #         r.set("requests", json.dumps(failed))
     #     led.control("green", "off")
-    lastLat = r.get("lastLat")
-    lastLon = r.get("lastLon")
-    lastLatExif = r.get("lastLatExif")
-    lastLonExif = r.get("lastLonExif")
-    if lastLat is not None and lastLon is not None:
-        lastLatLon = (lastLat, lastLon)
-        lastLatLonExif = (lastLatExif, lastLonExif)
+    # lastLat = r.get("lastLat")
+    # lastLon = r.get("lastLon")
+    # lastLatExif = r.get("lastLatExif")
+    # lastLonExif = r.get("lastLonExif")
+    # if lastLat is not None and lastLon is not None:
+    #     lastLatLon = (lastLat, lastLon)
+    #     lastLatLonExif = (lastLatExif, lastLonExif)
 
     # thread_gps = StoppableThread(
     #     target=get_gps, args=(data_stream, gps_socket))
@@ -501,9 +454,10 @@ if __name__ == "__main__":
                         startFlag = False
                         print "startflag is " + str(startFlag)
                         logger.debug("startflag is " + str(startFlag))
+
                         thread_photo.stop_timeofday()
-                        print "Stop Thread"
                         logger.info("Stop Thread")
+                        print "Stop Thread"
                 if (interval_config["stopMethod"] == "stopButton"):
                     with keyboard.Listener(
                             on_press=on_press) as listener:
@@ -516,18 +470,16 @@ if __name__ == "__main__":
                         logger.info("Stop Thread")
                 if (interval_config["stopMethod"] == "stopCountDown"):
                     time.sleep(interval_config["stopCountdown"])
-                    print startFlag
                     startFlag = False
                     thread_photo.stop()
-                    print "stop thread"
                     logger.info("Stop Thread")
 
             if interval_config["startMethod"] == "startButton":
                 led.control("green", "on")
-                print "startMethod is startButton"
                 logger.info("startMethod is startButton")
-                print "waiting input"
+                print "startMethod is startButton"
                 logger.info("waiting input")
+                print "waiting input"
                 with keyboard.Listener(
                         on_press=on_press) as listener:
                     listener.join()
@@ -535,8 +487,8 @@ if __name__ == "__main__":
                 logger.info("startflag is " + str(startFlag))
                 if (startFlag):
                     thread_photo.start()
-                    print "start thread"
                     logger.info("start thread")
+                    print "start thread"
                 if (interval_config["stopMethod"] == "stopTimeOfDay"):
                     if (deltatime - endtime == 0):
                         startFlag = False
@@ -553,14 +505,14 @@ if __name__ == "__main__":
                     logger.info("startflag is " + str(startFlag))
                     if (startFlag == False):
                         thread_photo.stop()
-                        print "stop thread"
                         logger.info("stop thread")
+                        print "stop thread"
                 if (interval_config["stopMethod"] == "stopCountDown"):
                     time.sleep(interval_config["stopCountdown"])
                     startFlag = False
                     thread_photo.stop()
-                    print "stop thread"
                     logger.info("stop thread")
+                    print "stop thread"
             if interval_config["startMethod"] == "startCountDown":
                 led.control("green", "on")
                 print "startMethod is startCountDown"
@@ -585,8 +537,8 @@ if __name__ == "__main__":
                         print "startflag is " + str(startFlag)
                         logger.info("startflag is " + str(startFlag))
                         thread_photo.stop()
-                        print "Stop Thread"
                         logger.info("Stop Thread")
+                        print "Stop Thread"
                 if (interval_config["stopMethod"] == "stopButton"):
                     with keyboard.Listener(
                             on_press=on_press) as listener:
@@ -601,14 +553,14 @@ if __name__ == "__main__":
                     time.sleep(interval_config["stopCountdown"])
                     startFlag = False
                     thread_photo.stop()
-                    print "stop thread"
                     logger.info("stop thread")
-            # time.sleep(0.5)
+                    print "stop thread"
+            print psutil.disk_usage('/home/')
             if finishFlag == True:
-                #print threading.current_thread().name
                 led.control("green", "off")
                 logger.info("finish scripts")
                 sys.exit(0)
+            # time.sleep(0.5)
     except KeyboardInterrupt:
         led.control("green", "off")
         sys.exit(0)

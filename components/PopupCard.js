@@ -46,28 +46,49 @@ class PopupCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: this.props.markers[this.props.selectedImageIndex].title,
-      description: this.props.markers[this.props.selectedImageIndex].description,
+      title: null,
+      description: null
     }
   }
   componentDidMount() {
     this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].title)
     this.saveOriginalDescription = JSON.stringify(this.props.markers[this.props.selectedImageIndex].description)
-    this.saveOriginalTitle = JSON.stringify(this.props.markers[this.props.selectedImageIndex].image)
   }
 
   onChangeTextTitle(text) {
     this.setState({ title: text })
   }
   onChangeTextDescription(text) {
-    this.setState({ descriptio: text })
+    this.setState({ description: text })
+  }
+  onPressDelete() {
+    axios({
+      url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
+      method: 'post',
+      data: {
+        query: `
+        mutation {DestroyPhoto(input: {
+          userId:${this.props.userId}
+          id:${this.props.markers[this.props.selectedImageIndex].id}
+        })
+      }
+        `
+      }
+    }).then(result => {
+      this.props.deletePhoto(this.props.selectedImageIndex);
+      this.props.changeCardVisibility(false)
+    })
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
   }
   onPressUpload() {
-    const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.props.markers[this.props.selectedImageIndex].title
-    const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.props.markers[this.props.selectedImageIndex].description
+    const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
+    const updateDescription = this.state.description === null ? this.props.markers[this.props.selectedImageIndex].description : this.state.description
+
+    console.log("=================title content", this.state.title)
+    console.log("========================description", this.state.description)
+
 
     axios({
       url: 'http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql',
@@ -75,34 +96,29 @@ class PopupCard extends React.Component {
       data: {
         query: `
         mutation {UpdatePhoto(input: {
+          userId:${this.props.userId}
           id:${this.props.markers[this.props.selectedImageIndex].id}
-          title: "${this.state.title}",
-          comment: "${this.state.description}"
+          title: "${updateTitle}"
+          comment: "${updateDescription}"
         })
       }
         `
       }
     }).then(result => {
-      const updateTitle = typeof this.changedTitle === 'string' ? changedTitle : this.saveOriginalTitle;
-      const updateDescription = typeof this.changedDescription === 'string' ? changedDescription : this.saveOriginalDescription;
-
       const newPhotoData = {
         coordinate: {
           latitude: this.props.markers[this.props.selectedImageIndex].coordinate.latitude,
           longitude: this.props.markers[this.props.selectedImageIndex].coordinate.longitude,
         },
-        title: updateTitle,
-        description: updateDescription,
+        title: this.state.title,
+        description: this.state.description,
         image: this.props.markers[this.props.selectedImageIndex].image,
         id: this.props.markers[this.props.selectedImageIndex].id
       }
       this.props.insertPhotoWithIndex(newPhotoData);
-      // this.props.deletePhoto(this.props.selectedImageIndex);
-      // this.props.reflectStateChange(!(this.props.stateChanged))
-      // this.props.changeCardVisibility(false)
+      this.props.changeCardVisibility(false)
     })
-
-    // this.callDatabase()
+      .catch(err => console.log("==================error", err))
   }
 
   render() {
@@ -135,9 +151,16 @@ class PopupCard extends React.Component {
             <View style={styles.buttonUpload}>
               <Button
                 onPress={() => { this.onPressUpload() }}
-                title="UPLOAD"
+                title="UPDATE"
                 type="outline"
-                accessibilityLabel="upload" />
+                accessibilityLabel="update" />
+            </View>
+            <View style={styles.buttonDelete}>
+              <Button
+                onPress={() => { this.onPressDelete() }}
+                title="DELETE"
+                type="outline"
+                accessibilityLabel="delete" />
             </View>
             <View style={styles.buttonExit}>
               <Button
@@ -162,6 +185,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: "space-between",
+  },
+  buttonDelete: {
+    flex: 1,
+    marginHorizontal: 5,
   },
   buttonExit: {
     flex: 1,
@@ -228,7 +255,8 @@ const mapStateToProps = state => ({
   region: state.region,
   visible: state.visible,
   selectedImageIndex: state.selectedImageIndex,
-  stateChanged: state.stateChanged
+  stateChanged: state.stateChanged,
+  userId: state.userId
 })
 
 const mapDispatchToProps = dispatch => ({
