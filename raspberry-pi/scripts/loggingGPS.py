@@ -9,6 +9,7 @@ import redis
 from graphqlclient import GraphQLClient
 from gps3 import gps3
 from logging import basicConfig, getLogger, DEBUG
+import serial
 
 # logging
 basicConfig(filename='/home/pi/scripts/logs/loggingGPS.log', level=DEBUG)
@@ -90,14 +91,14 @@ def get_gps(data_stream, gps_socket, config):
     return gps_info
 
 
-def upload_server(timestr, gps_info):
+def upload_server(timestr, gps_info, serial):
     if gps_info.viewkeys() >= {'lon', 'lat'}:
         try:
             client = GraphQLClient(GRAPHQL_URL)
             result = None
             query = "mutation{" + \
                 "CamCreateGps(input: {" + \
-                    "deviceSerial: \"0000000076a55e56\"," + \
+                    "deviceSerial: \"" + serial + "\"," + \
                     "longitude:" + str(gps_info['lon']) + "," + \
                     "latitude:" + str(gps_info['lat']) + \
                 "})}"
@@ -123,7 +124,7 @@ def seedData():
         gps_info["lat"] = data["latitude"]
         gps_info["lon"] = data["longitude"]
 
-        upload_server(timestr, gps_info)
+        upload_server(timestr, gps_info, serialNo)
         print "finish upload gps data"
 
 
@@ -146,6 +147,8 @@ if __name__ == "__main__":
 
     config = getRaspiConfig()
 
+    serialNo = serial.getserial()
+
     if config is not None and len(config) != 0:
         interval = 5
     else:
@@ -160,6 +163,6 @@ if __name__ == "__main__":
         print "gps_infomation: " + str(gps_info)
         logger.info("gps_infomation: " + str(gps_info))
         print "starting upload photo"
-        upload_server(timestr, gps_info)
+        upload_server(timestr, gps_info, serialNo)
         print "finish upload gps data"
         time.sleep(interval)
