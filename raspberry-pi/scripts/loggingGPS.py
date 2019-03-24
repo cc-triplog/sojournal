@@ -99,9 +99,8 @@ def upload_server(timestr, gps_info):
                 "CamCreateGps(input: {" + \
                     "deviceSerial: \"0000000076a55e56\"," + \
                     "longitude:" + str(gps_info['lon']) + "," + \
-                    "latitude:" + str(gps_info['lat']) + "," + \
-                    "altitude:" + str(gps_info['alt']) + \
-                "})}"
+                    "latitude:" + str(gps_info['lat'])
+            "})}"
             result = client.execute(
                 query
             )
