@@ -1,5 +1,12 @@
 import React from "react";
-import { Picker, View, Text, ScrollView, AsyncStorage } from "react-native";
+import {
+  AsyncStorage,
+  Picker,
+  ScrollView,
+  Text,
+  TextInput,
+  View
+} from "react-native";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import TimePicker from "../components/TimePicker";
 import { Button } from "react-native-elements";
@@ -33,7 +40,9 @@ class RaspberryPi extends React.Component {
     intervalSeconds: 0,
     startTimerHours: 0,
     startTimerMinutes: 0,
-    startTimerSeconds: 0
+    startTimerSeconds: 0,
+    newDeviceID: "",
+    currentDeviceID: ""
   };
 
   handleUpdate = target => value => {
@@ -174,6 +183,29 @@ class RaspberryPi extends React.Component {
     });
   };
 
+  getDevice = () => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `{
+            ReadDevice(type: {
+              userId: ${this.props.userId}
+              }){
+              deviceSerial
+            }
+          }`
+      }
+    }).then(res =>
+      this.setState({
+        currentDeviceID: res.data.data.ReadDevice[0]
+          ? res.data.data.ReadDevice[0]["deviceSerial"]
+          : ""
+      })
+    );
+  };
+
   convertConfigsFromServer = res => {
     this.setState({
       startMethod: res.startMethod,
@@ -201,6 +233,38 @@ class RaspberryPi extends React.Component {
     this.props.screenProps.logOut();
     this.props.resetState();
   };
+  pairDevice = () => {
+    console.log(this.state.newDeviceID, this.props.userId);
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation{
+            CreateDevice(input: {
+              userId: ${this.props.userId}
+              deviceSerial: "${this.state.newDeviceID}"
+            })
+          }`
+      }
+    }).then(() => this.getDevice());
+  };
+
+  unregisterDevice = () => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation {
+            DestroyDevice(input: {
+            userId: ${this.props.userId}
+            deviceSerial: "${this.state.currentDeviceID}"
+            })
+          }`
+      }
+    }).then(() => this.getDevice());
+  };
   async componentDidMount() {
     this.props.navigation.setParams({
       logOut: this.logOut
@@ -209,7 +273,10 @@ class RaspberryPi extends React.Component {
       .then(res => {
         this.props.setUserId(res);
       })
-      .then(() => this.getConfigs());
+      .then(() => {
+        this.getConfigs();
+        this.getDevice();
+      });
   }
 
   render() {
@@ -226,7 +293,8 @@ class RaspberryPi extends React.Component {
       intervalSeconds,
       startTimerHours,
       startTimerMinutes,
-      startTimerSeconds
+      startTimerSeconds,
+      currentDeviceID
     } = this.state;
     return (
       <View style={{ marginTop: 20, marginRight: 15, marginLeft: 15 }}>
@@ -343,6 +411,63 @@ class RaspberryPi extends React.Component {
               </View>
             </View>
           )}
+          <Text style={{ fontSize: 16 }}>Your Device</Text>
+          <View
+            style={{
+              borderWidth: 1,
+              borderRadius: 10,
+              borderColor: "grey",
+              marginTop: 10
+            }}
+          >
+            <TextInput
+              value={currentDeviceID}
+              editable={false}
+              style={{ marginLeft: 10, height: 40 }}
+              onChangeText={text => {
+                this.setState({ deviceID: text });
+              }}
+            />
+          </View>
+          <Button
+            buttonStyle={{
+              width: "50%",
+              alignSelf: "center",
+              marginBottom: 40,
+              marginTop: 20
+            }}
+            type="outline"
+            title="Unregister"
+            onPress={this.unregisterDevice}
+          />
+          <Text style={{ fontSize: 16 }}>Pair New Device:</Text>
+          <View
+            style={{
+              borderWidth: 1,
+              borderRadius: 10,
+              borderColor: "grey",
+              marginTop: 10
+            }}
+          >
+            <TextInput
+              style={{ marginLeft: 10, height: 40 }}
+              placeholder="Enter device ID"
+              onChangeText={text => {
+                this.setState({ newDeviceID: text });
+              }}
+            />
+          </View>
+          <Button
+            buttonStyle={{
+              width: "50%",
+              alignSelf: "center",
+              marginBottom: 40,
+              marginTop: 20
+            }}
+            type="outline"
+            title="Pair"
+            onPress={this.pairDevice}
+          />
           <Button
             buttonStyle={{
               width: "50%",
@@ -354,6 +479,7 @@ class RaspberryPi extends React.Component {
             title="Save"
             onPress={this.uploadConfigs}
           />
+          <View style={{ height: 220 }} />
         </ScrollView>
       </View>
     );
