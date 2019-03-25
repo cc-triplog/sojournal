@@ -19,7 +19,7 @@ import "./styles";
 import { WebBrowser, Component } from "expo";
 import { Button } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
-import MapView from "react-native-maps";
+import { MapView, Overlay } from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from "axios";
 import { connect } from "react-redux";
@@ -81,19 +81,10 @@ class MapScreen extends React.Component {
         }
       }, 10);
     });
-<<<<<<< HEAD
-  }
-  componentDidUpdate() {
-    this.animation = new Animated.Value(0)
-  }
-  componentWillUnmount() {
-  }
-=======
   };
-  componentWillUpdate() {}
-  componentWillUnmount() {}
+  componentWillUpdate() { }
+  componentWillUnmount() { }
 
->>>>>>> b96e18bdadbeacd6dfd9c279c0c993746a3382a8
 
   async loadById() {
     await AsyncStorage.getItem("id")
@@ -226,7 +217,7 @@ class MapScreen extends React.Component {
     });
 
     return (
-      <View style={styles.container}>
+      <View key='container' style={styles.container}>
         <Button
           buttonStyle={{ marginTop: 30 }}
           title="Go Back"

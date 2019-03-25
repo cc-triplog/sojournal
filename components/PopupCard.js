@@ -55,12 +55,6 @@ class PopupCard extends React.Component {
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
   }
-  layoutAnimation() {
-    if (!this.layoutAnimationActive) {
-      this.layoutAnimationActive = true;
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInOut, () => { this.layoutAnimationActive = false; })
-    }
-  }
   onChangeTextTitle(text) {
     this.setState({ title: text })
   }
@@ -128,54 +122,54 @@ class PopupCard extends React.Component {
   render() {
 
     return (
-      <Overlay
-        key={this.props.selectedImageIndex}
-        isVisible={this.props.visible}
-        windowBackgroundColor="rgba(255,255,255, .5)"
-        overlayBackgroundColor="#fff"
-        fullScreen={false}
-        style={styles.overlay}
-      >
-        <View style={styles.card}>
-          <View style={styles.popupContent}>
-            <Image source={this.state.midSizeImage} style={styles.popUpImage} />
-          </View>
+      // <Overlay
+      //   key={this.props.selectedImageIndex}
+      //   isVisible={this.props.visible}
+      //   windowBackgroundColor="rgba(255,255,255, .5)"
+      //   overlayBackgroundColor="#fff"
+      //   fullScreen={false}
+      //   style={styles.overlay}
+      // >
+      <View key={this.props.selectedImageIndex} style={styles.card}>
+        <View style={styles.popupContent}>
+          <Image source={this.state.midSizeImage} style={styles.popUpImage} />
+        </View>
+        <TextInput
+          style={styles.textTitle}
+          onChangeText={(text) => { this.onChangeTextTitle(text) }}
+          defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+        <View style={styles.textDescription}>
           <TextInput
-            style={styles.textTitle}
-            onChangeText={(text) => { this.onChangeTextTitle(text) }}
-            defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
-          <View style={styles.textDescription}>
-            <TextInput
-              multiline={true}
-              style={theme.cardContentStyle}
-              onChangeText={(text) => { this.onChangeTextDescription(text) }}
-              defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+            multiline={true}
+            style={theme.cardContentStyle}
+            onChangeText={(text) => { this.onChangeTextDescription(text) }}
+            defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+        </View>
+        <View style={styles.alignButtons}>
+          <View style={styles.buttonUpload}>
+            <Button
+              onPress={() => { this.onPressUpload() }}
+              title="UPDATE"
+              type="outline"
+              accessibilityLabel="update" />
           </View>
-          <View style={styles.alignButtons}>
-            <View style={styles.buttonUpload}>
-              <Button
-                onPress={() => { this.onPressUpload() }}
-                title="UPDATE"
-                type="outline"
-                accessibilityLabel="update" />
-            </View>
-            <View style={styles.buttonDelete}>
-              <Button
-                onPress={() => { this.onPressDelete() }}
-                title="DELETE"
-                type="outline"
-                accessibilityLabel="delete" />
-            </View>
-            <View style={styles.buttonExit}>
-              <Button
-                onPress={() => { this.onPressExit() }}
-                title="EXIT"
-                type="outline"
-                accessibilityLabel="exit" />
-            </View>
+          <View style={styles.buttonDelete}>
+            <Button
+              onPress={() => { this.onPressDelete() }}
+              title="DELETE"
+              type="outline"
+              accessibilityLabel="delete" />
+          </View>
+          <View style={styles.buttonExit}>
+            <Button
+              onPress={() => { this.onPressExit() }}
+              title="EXIT"
+              type="outline"
+              accessibilityLabel="exit" />
           </View>
         </View>
-      </Overlay>
+      </View>
+      // </Overlay>
     );
   }
 }
