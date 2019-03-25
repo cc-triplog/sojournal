@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./images/sojournal.jpg" align="center" width="100%" alt="omykuji">
+    <img src="./images/sojournal.jpg" align="center" width="100%" alt="sojournal">
 </div>
 <h1 align="center" >SOJOURNAL</h1>
 
