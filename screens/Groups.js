@@ -17,13 +17,6 @@ import {
 } from "../action";
 
 class Groups extends React.Component {
-  // static navigationOptions = () => {
-  //   headerTitle: "Sojournal",
-  //   headerRight: (
-  //     <Button onPress={navigation.getParam("logOut")} title="Log Out" />
-  //   )
-  // };
-
   static navigationOptions = ({ navigation }) => ({
     headerTitle: "Sojournal",
     headerRight: (
@@ -31,15 +24,22 @@ class Groups extends React.Component {
     )
   });
 
-  logOut = () => {
-    Auth.signOut().then(() => {
-      this.forceUpdate();
-    });
+  deleteGroup = async id => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation{
+            DestroyGroup(input: {
+            id: ${id}
+            userId: ${this.props.userId}
+            })
+          }`
+      }
+    }).then(() => this.loadGroups());
   };
-  timeConvert = time => {
-    const epoch = Number(time);
-    return moment(epoch).format("MMM DD YY");
-  };
+
   loadGroups = async () => {
     axios({
       url:
@@ -56,6 +56,12 @@ class Groups extends React.Component {
       this.props.loadGroupsToState(res.data.data.ReadGroup);
     });
   };
+
+  logOut = () => {
+    this.props.screenProps.logOut();
+    this.props.resetState();
+  };
+
   renderOnMap = (title, startDate, endDate) => {
     this.props.navigation.navigate("Map", {
       title,
@@ -64,9 +70,9 @@ class Groups extends React.Component {
     });
   };
 
-  logOut = () => {
-    this.props.screenProps.logOut();
-    this.props.resetState();
+  timeConvert = time => {
+    const epoch = Number(time);
+    return moment(epoch).format("MMM DD YY");
   };
 
   async componentDidMount() {
@@ -104,6 +110,9 @@ class Groups extends React.Component {
         {this.props.pictureGroups.reverse().map(group => (
           <GroupCard
             key={group.id}
+            deleteGroup={() => {
+              this.deleteGroup(group.id);
+            }}
             groupTitle={group.title}
             groupDescription={group.comment}
             groupStartDate={this.timeConvert(group.startTime)}
