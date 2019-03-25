@@ -62,11 +62,12 @@ class Groups extends React.Component {
     this.props.resetState();
   };
 
-  renderOnMap = (title, startDate, endDate) => {
+  renderOnMap = (title, startDate, endDate, groupId) => {
     this.props.navigation.navigate("Map", {
       title,
       startDate,
-      endDate
+      endDate,
+      groupId
     });
   };
 
@@ -118,7 +119,12 @@ class Groups extends React.Component {
             groupStartDate={this.timeConvert(group.startTime)}
             groupEndDate={this.timeConvert(group.endTime)}
             renderOnMap={() =>
-              this.renderOnMap(group.title, group.startTime, group.endTime)
+              this.renderOnMap(
+                group.title,
+                group.startTime,
+                group.endTime,
+                group.id
+              )
             }
           />
         ))}
