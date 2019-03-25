@@ -17,7 +17,7 @@
 
 ## Connect to Rapberry Pi using ssh
 
-GUI
+From GUI
 
 1. Connect HDMI cable and display it to the monitor
 2. Setting up of Wifi
@@ -29,7 +29,7 @@ $ ssh pi@raspberrypi.local
 
 4. Enter your pi's password and login to Pi
 
-CUI
+From CUI
 
 1. Connect Erthnet cable your Pi and your machine
 2. Open the terminal and check the IP address of your Pi
@@ -197,4 +197,14 @@ $ nano gps.desktop
 Type=Application
 Name=GPS
 Exec=python /home/pi/scripts/loggingGPS.py
+```
+
+4. If you want to stop the init scripts temporary, please add "NotShowIn=LXDE" to the end of desktop file
+
+```
+[Desktop Entry]
+Type=Application
+Name=Photo
+Exec=python /home/pi/scripts/takePhoto.py
+NotShowIn=LXDE
 ```
