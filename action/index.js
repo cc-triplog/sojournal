@@ -99,6 +99,46 @@ const setComment = comment => {
   };
 };
 
+const toggleGroupDatePickerVisible = () => {
+  return {
+    type: "TOGGLE_GROUP_DATE_PICKER_VISIBLE"
+  };
+};
+
+const setGroupStartDate = date => {
+  return {
+    type: "SET_GROUP_START_DATE",
+    date
+  };
+};
+
+const setGroupEndDate = date => {
+  return {
+    type: "SET_GROUP_END_DATE",
+    date
+  };
+};
+
+const setGroupTitle = title => {
+  return {
+    type: "SET_GROUP_TITLE",
+    title
+  };
+};
+
+const setGroupDescription = description => {
+  return {
+    type: "SET_GROUP_DESCRIPTION",
+    description
+  };
+};
+
+const loadGroupsToState = groups => {
+  return {
+    type: "LOAD_GROUPS",
+    groups
+  };
+};
 module.exports = {
   renderPhotos,
   changeCardVisibility,
@@ -112,5 +152,12 @@ module.exports = {
   setUserId,
   toggleCreateGroupVisible,
   setComment,
-  setTitle
+  setTitle,
+  toggleCreateGroupVisible,
+  toggleGroupDatePickerVisible,
+  setGroupStartDate,
+  setGroupEndDate,
+  setGroupTitle,
+  setGroupDescription,
+  loadGroupsToState
 };
