@@ -139,6 +139,12 @@ const loadGroupsToState = groups => {
     groups
   };
 };
+
+const resetState = () => {
+  return {
+    type: "RESET_STATE"
+  };
+};
 module.exports = {
   renderPhotos,
   changeCardVisibility,
@@ -159,5 +165,6 @@ module.exports = {
   setGroupEndDate,
   setGroupTitle,
   setGroupDescription,
-  loadGroupsToState
+  loadGroupsToState,
+  resetState
 };

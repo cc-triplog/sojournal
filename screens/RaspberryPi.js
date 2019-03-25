@@ -1,22 +1,22 @@
 import React from "react";
-import { Picker, View, Text, ScrollView } from "react-native";
+import { Picker, View, Text, ScrollView, AsyncStorage } from "react-native";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import TimePicker from "../components/TimePicker";
 import { Button } from "react-native-elements";
 import moment from "moment";
 import axios from "axios";
 
-export default class RaspberryPi extends React.Component {
-  static navigationOptions = {
-    title: "Interval Settings",
-    headerStyle: {
-      backgroundColor: "grey"
-    },
-    headerTintColor: "#fff",
-    headerTitleStyle: {
-      fontWeight: "bold"
-    }
-  };
+//Redux
+import { connect } from "react-redux";
+import { setUserId, resetState } from "../action";
+
+class RaspberryPi extends React.Component {
+  static navigationOptions = ({ navigation }) => ({
+    headerTitle: "Sojournal",
+    headerRight: (
+      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+    )
+  });
   state = {
     startMethod: "startButton",
     stopMethod: "stopButton",
@@ -197,8 +197,19 @@ export default class RaspberryPi extends React.Component {
       });
     }
   };
-  componentDidMount() {
-    this.getConfigs();
+  logOut = () => {
+    this.props.screenProps.logOut();
+    this.props.resetState();
+  };
+  async componentDidMount() {
+    this.props.navigation.setParams({
+      logOut: this.logOut
+    });
+    await AsyncStorage.getItem("id")
+      .then(res => {
+        this.props.setUserId(res);
+      })
+      .then(() => this.getConfigs());
   }
 
   render() {
@@ -348,3 +359,23 @@ export default class RaspberryPi extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  userId: state.userId
+});
+
+const mapDispatchToProps = dispatch => ({
+  setUserId: id => {
+    const action = setUserId(id);
+    dispatch(action);
+  },
+  resetState: () => {
+    const action = resetState();
+    dispatch(action);
+  }
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(RaspberryPi);

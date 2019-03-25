@@ -9,7 +9,7 @@ import {
   Dimensions
 } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
-
+import { Button } from "react-native-elements";
 //Styling
 import { AntDesign } from "react-native-vector-icons";
 
@@ -22,13 +22,22 @@ import CommentModal from "../components/CommentModal";
 
 //Redux
 import { connect } from "react-redux";
-import { setCapture, setUserId, reflectStateChange } from "../action";
+import {
+  setCapture,
+  setUserId,
+  reflectStateChange,
+  resetState
+} from "../action";
 
 class CameraPage extends React.Component {
   camera = null;
-  static navigationOptions = {
-    header: null
-  };
+
+  static navigationOptions = ({ navigation }) => ({
+    headerTitle: "Sojournal",
+    headerRight: (
+      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+    )
+  });
   state = {
     imageView: false,
     modalVisible: false
@@ -144,7 +153,6 @@ class CameraPage extends React.Component {
       }
     }).then(() => {
       this.setState({ imageView: false });
-      // this.props.reflectStateChange(true);
     });
   };
 
@@ -160,8 +168,15 @@ class CameraPage extends React.Component {
     this.props.setCapture(current);
     this.setModalVisible();
   };
+  logOut = () => {
+    this.props.screenProps.logOut();
+    this.props.resetState();
+  };
 
   async componentDidMount() {
+    this.props.navigation.setParams({
+      logOut: this.logOut
+    });
     await AsyncStorage.getItem("id").then(res => {
       this.props.setUserId(res);
     });
@@ -246,6 +261,10 @@ const mapDispatchToProps = dispatch => ({
   },
   reflectStateChange: change => {
     const action = reflectStateChange(change);
+    dispatch(action);
+  },
+  resetState: () => {
+    const action = resetState();
     dispatch(action);
   }
 });

@@ -1,16 +1,41 @@
 import React from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
+import { ScrollView, StyleSheet, View, Text, AsyncStorage } from "react-native";
 import { Button } from "react-native-elements";
 import GroupCard from "../components/GroupCard";
 import CreateGroup from "../components/CreateGroup";
 import axios from "axios";
 import moment from "moment";
+import { Auth } from "aws-amplify";
 
 //Redux
 import { connect } from "react-redux";
-import { toggleCreateGroupVisible, loadGroupsToState } from "../action";
+import {
+  setUserId,
+  toggleCreateGroupVisible,
+  loadGroupsToState,
+  resetState
+} from "../action";
 
 class Groups extends React.Component {
+  // static navigationOptions = () => {
+  //   headerTitle: "Sojournal",
+  //   headerRight: (
+  //     <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+  //   )
+  // };
+
+  static navigationOptions = ({ navigation }) => ({
+    headerTitle: "Sojournal",
+    headerRight: (
+      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+    )
+  });
+
+  logOut = () => {
+    Auth.signOut().then(() => {
+      this.forceUpdate();
+    });
+  };
   timeConvert = time => {
     const epoch = Number(time);
     return moment(epoch).format("MMM DD YY");
@@ -38,8 +63,21 @@ class Groups extends React.Component {
       endDate
     });
   };
+
+  logOut = () => {
+    this.props.screenProps.logOut();
+    this.props.resetState();
+  };
+
   async componentDidMount() {
-    this.loadGroups().then(() => console.log(this.props.pictureGroups));
+    this.props.navigation.setParams({
+      logOut: this.logOut
+    });
+    await AsyncStorage.getItem("id")
+      .then(res => {
+        this.props.setUserId(res);
+      })
+      .then(() => this.loadGroups());
   }
   render() {
     return (
@@ -112,12 +150,20 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  setUserId: id => {
+    const action = setUserId(id);
+    dispatch(action);
+  },
   toggleCreateGroupVisible: () => {
     const action = toggleCreateGroupVisible();
     dispatch(action);
   },
   loadGroupsToState: groups => {
     const action = loadGroupsToState(groups);
+    dispatch(action);
+  },
+  resetState: () => {
+    const action = resetState();
     dispatch(action);
   }
 });
