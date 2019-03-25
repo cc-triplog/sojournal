@@ -70,6 +70,7 @@ class CreateGroup extends React.Component {
       groupDescription,
       userId
     } = this.props;
+    console.log(groupDescription);
     await axios({
       url:
         "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
@@ -78,8 +79,8 @@ class CreateGroup extends React.Component {
         query: `mutation{
           CreateGroup(input: {
             userId: ${userId}
-            title: "${groupTitle}"
-            comment: "${groupDescription}"
+            title: "${groupTitle.trim()}"
+            comment: "${groupDescription.trim()}"
             startTime: "${moment(groupStartDate).format("YYYY-MM-DD")}"
             endTime: "${moment(groupEndDate).format("YYYY-MM-DD")}"
             })
