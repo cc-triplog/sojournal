@@ -14,10 +14,10 @@ import {
   View
 } from "react-native";
 import './styles'
-import { Button, Overlay } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
-import MapView from "react-native-maps";
+import { MapView, Overlay } from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -55,7 +55,12 @@ class PopupCard extends React.Component {
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
   }
-
+  layoutAnimation() {
+    if (!this.layoutAnimationActive) {
+      this.layoutAnimationActive = true;
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInOut, () => { this.layoutAnimationActive = false; })
+    }
+  }
   onChangeTextTitle(text) {
     this.setState({ title: text })
   }
