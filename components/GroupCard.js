@@ -9,9 +9,6 @@ import {
 import { Card, Button } from "react-native-elements";
 
 export default class GroupCard extends React.Component {
-  renderOnMap = () => {
-    this.props.renderOnMap();
-  };
   render() {
     const {
       groupTitle,
@@ -43,12 +40,13 @@ export default class GroupCard extends React.Component {
               backgroundColor="#03A9F4"
               buttonStyle={styles.button}
               title="View"
-              onPress={this.renderOnMap}
+              onPress={this.props.renderOnMap}
             />
             <Button
               backgroundColor="#03A9F4"
               buttonStyle={styles.button}
-              title="Save"
+              title="Delete"
+              onPress={this.props.deleteGroup}
             />
           </View>
         </Card>

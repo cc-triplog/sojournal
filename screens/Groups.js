@@ -1,20 +1,45 @@
 import React from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
+import { ScrollView, StyleSheet, View, Text, AsyncStorage } from "react-native";
 import { Button } from "react-native-elements";
 import GroupCard from "../components/GroupCard";
 import CreateGroup from "../components/CreateGroup";
 import axios from "axios";
 import moment from "moment";
+import { Auth } from "aws-amplify";
 
 //Redux
 import { connect } from "react-redux";
-import { toggleCreateGroupVisible, loadGroupsToState } from "../action";
+import {
+  setUserId,
+  toggleCreateGroupVisible,
+  loadGroupsToState,
+  resetState
+} from "../action";
 
 class Groups extends React.Component {
-  timeConvert = time => {
-    const epoch = Number(time);
-    return moment(epoch).format("MMM DD YY");
+  static navigationOptions = ({ navigation }) => ({
+    headerTitle: "Sojournal",
+    headerRight: (
+      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+    )
+  });
+
+  deleteGroup = async id => {
+    axios({
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation{
+            DestroyGroup(input: {
+            id: ${id}
+            userId: ${this.props.userId}
+            })
+          }`
+      }
+    }).then(() => this.loadGroups());
   };
+
   loadGroups = async () => {
     axios({
       url:
@@ -31,6 +56,12 @@ class Groups extends React.Component {
       this.props.loadGroupsToState(res.data.data.ReadGroup);
     });
   };
+
+  logOut = () => {
+    this.props.screenProps.logOut();
+    this.props.resetState();
+  };
+
   renderOnMap = (title, startDate, endDate) => {
     this.props.navigation.navigate("Map", {
       title,
@@ -38,8 +69,21 @@ class Groups extends React.Component {
       endDate
     });
   };
+
+  timeConvert = time => {
+    const epoch = Number(time);
+    return moment(epoch).format("MMM DD YY");
+  };
+
   async componentDidMount() {
-    this.loadGroups().then(() => console.log(this.props.pictureGroups));
+    this.props.navigation.setParams({
+      logOut: this.logOut
+    });
+    await AsyncStorage.getItem("id")
+      .then(res => {
+        this.props.setUserId(res);
+      })
+      .then(() => this.loadGroups());
   }
   render() {
     return (
@@ -66,6 +110,9 @@ class Groups extends React.Component {
         {this.props.pictureGroups.reverse().map(group => (
           <GroupCard
             key={group.id}
+            deleteGroup={() => {
+              this.deleteGroup(group.id);
+            }}
             groupTitle={group.title}
             groupDescription={group.comment}
             groupStartDate={this.timeConvert(group.startTime)}
@@ -112,12 +159,20 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  setUserId: id => {
+    const action = setUserId(id);
+    dispatch(action);
+  },
   toggleCreateGroupVisible: () => {
     const action = toggleCreateGroupVisible();
     dispatch(action);
   },
   loadGroupsToState: groups => {
     const action = loadGroupsToState(groups);
+    dispatch(action);
+  },
+  resetState: () => {
+    const action = resetState();
     dispatch(action);
   }
 });

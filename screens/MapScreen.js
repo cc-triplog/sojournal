@@ -146,8 +146,8 @@ class MapScreen extends React.Component {
         query: `
         query {GetPhotoByDate(type: {
           userId: ${this.props.userId}
-          startTime: "2000-01-01"
-          endTime: "2019-04-28"
+          startTime: ${this.props.groupStartDate}
+          endTime: ${this.props.groupEndDate}
         }) {
          title, latitude, longitude, comment, imageFile, id
         }

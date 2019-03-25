@@ -291,7 +291,7 @@ module.exports = `
       id: Int!
     }
     input DestroyDevice {
-      id: Int!
+      deviceSerial: String!
       userId: Int!
 
     }

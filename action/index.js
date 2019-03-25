@@ -145,6 +145,12 @@ const loadGroupsToState = groups => {
     groups
   };
 };
+
+const resetState = () => {
+  return {
+    type: "RESET_STATE"
+  };
+};
 module.exports = {
   renderPhotos,
   changeCardVisibility,
@@ -166,5 +172,9 @@ module.exports = {
   setGroupTitle,
   setGroupDescription,
   loadGroupsToState,
+<<<<<<< HEAD
   updateImageFullScreen
+=======
+  resetState
+>>>>>>> f0110eb3ebb7224b6be232fb9368dd5c13da57a0
 };

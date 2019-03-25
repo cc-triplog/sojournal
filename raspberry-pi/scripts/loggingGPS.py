@@ -8,12 +8,17 @@ import threading
 import redis
 from graphqlclient import GraphQLClient
 from gps3 import gps3
-from logging import basicConfig, getLogger, DEBUG
+from logging import basicConfig, getLogger, DEBUG, handlers
 import serial
 
 # logging
-basicConfig(filename='/home/pi/scripts/logs/loggingGPS.log', level=DEBUG)
+basicConfig(level=DEBUG)
 logger = getLogger(__name__)
+handler = handlers.TimedRotatingFileHandler(
+    filename='/home/pi/scripts/logs/loggingGPS.log',
+    when='D'
+)
+logger.addHandler(handler)
 
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
