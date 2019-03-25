@@ -5,16 +5,37 @@ import GroupCard from "../components/GroupCard";
 import CreateGroup from "../components/CreateGroup";
 import axios from "axios";
 import moment from "moment";
+import { Auth } from "aws-amplify";
 
 //Redux
 import { connect } from "react-redux";
 import {
   setUserId,
   toggleCreateGroupVisible,
-  loadGroupsToState
+  loadGroupsToState,
+  resetState
 } from "../action";
 
 class Groups extends React.Component {
+  // static navigationOptions = () => {
+  //   headerTitle: "Sojournal",
+  //   headerRight: (
+  //     <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+  //   )
+  // };
+
+  static navigationOptions = ({ navigation }) => ({
+    headerTitle: "Sojournal",
+    headerRight: (
+      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+    )
+  });
+
+  logOut = () => {
+    Auth.signOut().then(() => {
+      this.forceUpdate();
+    });
+  };
   timeConvert = time => {
     const epoch = Number(time);
     return moment(epoch).format("MMM DD YY");
@@ -42,7 +63,16 @@ class Groups extends React.Component {
       endDate
     });
   };
+
+  logOut = () => {
+    this.props.screenProps.logOut();
+    this.props.resetState();
+  };
+
   async componentDidMount() {
+    this.props.navigation.setParams({
+      logOut: this.logOut
+    });
     await AsyncStorage.getItem("id")
       .then(res => {
         this.props.setUserId(res);
@@ -130,6 +160,10 @@ const mapDispatchToProps = dispatch => ({
   },
   loadGroupsToState: groups => {
     const action = loadGroupsToState(groups);
+    dispatch(action);
+  },
+  resetState: () => {
+    const action = resetState();
     dispatch(action);
   }
 });
