@@ -7,8 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   AsyncStorage,
-  Dimensions,
-  Image
+  Dimensions
 } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
 import { Button } from "react-native-elements";
@@ -158,12 +157,13 @@ class CameraPage extends React.Component {
               longitude:${capture.longitude}
               latitude: ${capture.latitude}
               createdAt: "${capture.timestamp}"
-              comment: "${capture.comment}"
-              title: "${capture.title}"
+              comment: "${capture.comment || "Comment your picture"}"
+              title: "${capture.title || "Name your picture"}"
           })}`
       }
     }).then(() => {
       this.setState({ imageView: false });
+      this.props.screenProps.rerender();
     });
   };
 
@@ -185,6 +185,7 @@ class CameraPage extends React.Component {
   };
 
   async componentDidMount() {
+    console.log("-------", this.props.screenProps.rerender);
     this.props.navigation.setParams({
       logOut: this.logOut
     });
@@ -196,11 +197,7 @@ class CameraPage extends React.Component {
   render() {
     const { capture } = this.props;
     const { imageView, modalVisible, isLoading } = this.state;
-    // return (
-    //   <View style={[styles.container, styles.horizontal]}>
-    //     <ActivityIndicator size={100} color="#A9A9A9" />
-    //   </View>
-    // );
+
     return imageView === true ? (
       <React.Fragment>
         <CaptureView capture={capture} />
