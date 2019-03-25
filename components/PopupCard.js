@@ -58,6 +58,7 @@ class PopupCard extends React.Component {
     const replaceTarget = /.jpg/gi;
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
+    console.log("======================midsize image url", this.state.midSizeImage)
   }
   onChangeTextTitle(text) {
     this.setState({ title: text })

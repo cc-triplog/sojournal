@@ -49,7 +49,7 @@ class MapScreen extends React.Component {
   animation = new Animated.Value(0)
 
   componentDidMount = () => {
-    console.log(this.props.navigation.state.params);
+    console.log("==================navigation prop", this.props.navigation.state.params);
     this.index = 0;
     this.animation = new Animated.Value(0);
 
@@ -146,7 +146,7 @@ class MapScreen extends React.Component {
         query: `
         query {GetPhotoByDate(type: {
           userId: ${this.props.userId}
-          startTime: ${this.props.groupStartDate}
+          startTime: ${this.props.pictureGroups.groupStartDate}
           endTime: ${this.props.groupEndDate}
         }) {
          title, latitude, longitude, comment, imageFile, id
