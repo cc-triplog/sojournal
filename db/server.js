@@ -905,7 +905,7 @@ let root = {
       currentUser = req.input.userId;
     }
     db("devices")
-      .where({ id: req.input.id, user_id: currentUser })
+      .where({ device_serial: req.input.deviceSerial, user_id: currentUser })
       .del()
       .then(res => {
         //console.log(res);
