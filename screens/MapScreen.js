@@ -45,10 +45,10 @@ class MapScreen extends React.Component {
     super(props);
   }
 
-  animation = new Animated.Value(0)
+  animation = new Animated.Value(0);
 
   componentDidMount = () => {
-    console.log(this.props.navigation.state.params);
+    console.log("===== navig params", this.props.navigation.state.params);
     this.index = 0;
     this.animation = new Animated.Value(0);
 
@@ -81,9 +81,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   };
-  componentWillUpdate() { }
-  componentWillUnmount() { }
-
+  componentWillUpdate() {}
+  componentWillUnmount() {}
 
   async loadById() {
     await AsyncStorage.getItem("id")
@@ -154,22 +153,20 @@ class MapScreen extends React.Component {
         `
       }
     }).then(result => {
-      const http = "http://"
-      const mapResult = result.data.data.GetPhotoByDate.map(object => (
-        {
-          coordinate: {
-            latitude: Number(object.latitude),
-            longitude: Number(object.longitude),
-          },
-          title: `${object.title}`,
-          description: `${object.comment}`,
-          image: { uri: `${http + object.imageFile}` },
-          id: Number(object.id),
-        }
-      ));
+      const http = "http://";
+      const mapResult = result.data.data.GetPhotoByDate.map(object => ({
+        coordinate: {
+          latitude: Number(object.latitude),
+          longitude: Number(object.longitude)
+        },
+        title: `${object.title}`,
+        description: `${object.comment}`,
+        image: { uri: `${http + object.imageFile}` },
+        id: Number(object.id)
+      }));
       mapResult.sort((marker1, marker2) => {
-        return marker1.id - marker2.id
-      })
+        return marker1.id - marker2.id;
+      });
       mapResult.forEach(photo => {
         if (photo.title == "null") photo.title = "Please Add Title";
         if (photo.description == "undefined")
@@ -185,15 +182,14 @@ class MapScreen extends React.Component {
       if (this.props.markers[i].id === id) index = i;
       this.props.selectImageCard(index);
     }
-
-  }
-  onPressImageCard = (id) => {
-    this.props.changeCardVisibility(true)
-    this.idToIndex(id)
-  }
+  };
+  onPressImageCard = id => {
+    this.props.changeCardVisibility(true);
+    this.idToIndex(id);
+  };
   sortById = (marker1, marker2) => {
-    return marker1.id - marker2.id
-  }
+    return marker1.id - marker2.id;
+  };
 
   render() {
     const interpolations = this.props.markers.map((marker, index) => {
@@ -240,7 +236,11 @@ class MapScreen extends React.Component {
               opacity: interpolations[index].scale
             };
             return (
-              <View key={index} style={styles.markerWrap} pointerEvents='box-none'>
+              <View
+                key={index}
+                style={styles.markerWrap}
+                pointerEvents="box-none"
+              >
                 <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                   <Animated.View style={[styles.markerWrap, opacityStyle]}>
                     <Animated.View style={[styles.ring, scaleStyle]} />
@@ -253,7 +253,11 @@ class MapScreen extends React.Component {
 
           {this.props.GPS.map((gps, index) => {
             return (
-              <View key={index} pointerEvents='box-none' backgroundColor='transparent'>
+              <View
+                key={index}
+                pointerEvents="box-none"
+                backgroundColor="transparent"
+              >
                 <MapView.Marker coordinate={gps.coordinate}>
                   <Animated.View style={[styles.markerWrap]}>
                     <Animated.View style={[styles.ringGps]} />
@@ -284,7 +288,6 @@ class MapScreen extends React.Component {
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
-
           {this.props.markers.map((marker, index) => (
             <TouchableOpacity
               key={index}
