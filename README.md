@@ -1,99 +1,94 @@
-# Sojournal
+<div align="center">
+    <img src="./images/sojournal.jpg" align="center" width="100%" alt="sojournal">
+</div>
+<h1 align="center" >SOJOURNAL</h1>
 
 ## Remember your sojourns.
-
-## Drop the database if there is a problem
-
-\$ dropdb triplog
-
-## How to Setup the Database
-
-\$ createdb triplog
-
-\$ yarn knex --knexfile=./db/knexfile.js migrate:latest
-
-\$ yarn knex --knexfile=./db/knexfile.js migrate:rollback
-
-\$ yarn knex --knexfile=./db/knexfile.js seed:run
-
-## How to Run the Database for testing
-
-\$ yarn nodemon --watch ./db ./db/server.js
-
-{
-ReadUser(type: {
-id: 1
-}) {
-id, name, email
-}
-}
-
-mutation{
-CreateUser(input: {
-id: 5
-name: "chaz"
-}) {
-id, name
-}
-}
-
-### Select a photo by id and the keys and new values you want to edit
-
-id and imageFile can't be changed. Only the keys and values you want to change are needed.
-
-mutation{
-UpdatePhoto(input: {
-id: 1
-title: "new title"
-}) {
-title
-}
-}
-
-mutation{
-DestroyPhoto(input: {
-id: 1
-})
-}
 
 <div height="400px" width="800px">
     <h1 align="center">
     <img src="./src/img/trip.jpg" alt="Trip Log Image" />
     </h1>
 </div>
-
+<div align="center">
+    <div >
+        ***********************************************************************
+        <br/>
+        <a href="https://sojournal.wixsite.com/sojournal">Our landing page</a>
+        <br/>
+        <br/>
+        App available at Google Play
+        <br/>
+        <a href="https://play.google.com/store/apps/details?id=com.codechrysalis.magellansmiles">
+        <img src="./images/playstore.svg" width="150px">
+        </a>
+        <br/>
+        ***********************************************************************
+    </div>
+</div>
 <div align="center">
 
-[About](#1-about)&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;[Features](#2-features)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Setup](#3-setup)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Deployment](#4-deployment)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Contributions](#5-contributions)
-
-**Sojournal**
+[Overview](#1-overview)&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
+[Technology](#2-technology)&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
+[Architecture](#3-architecture)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+[Features](#4-features)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Setup](#5-setup)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Deployment](#4-deployment)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Contributions](#5-contributions)
 
 </div>
 
 ---
 
-## 1. About
+## 1. Overview
 
 Trip Log™ is a cloud image storage based on geographic location. Though Trip Log is aimed to expand creativity of our users through automatic mapping of photos and user friendly text editing interface, with Trip Cam, it can be expanded infinately more.Trip Log™ respects the privacy of our users. Although our users can share their stories via integrated image export or url, user decides if it is partially shared or the whole.
 
-<div width="400px">
-<img alt="Node.js" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1200px-Node.js_logo.svg.png" width="100px">
-<img alt="React" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1200px-React-icon.svg.png" width="100px">
-<img alt="Redux" src="https://redux.js.org/img/redux-logo-landscape.png" width="100px">
-<img alt="Heroku" src="https://i2.wp.com/gluonhq.com/wp-content/uploads/2018/05/heroku-logotype-vertical-purple.png?fit=576%2C684&ssl=1" width="100px">
+## 2. Technology
+
+### Frontend
+
+<div width="300px">
+<img alt="ReactNative" src="./images/react_native.png" width="100px">
+<img alt="Android" src="./images/android.png" width="100px">
+<img alt="Redux" src="./images/redux.png" width="100px">
 </div>
 
-## 2. Features
+### Backend
+
+<div width="400px">
+<img alt="AWS" src="./images/aws.jpg" width="100px">
+<img alt="S3" src="./images/amazons3.jpg" width="100px">
+<img alt="EC2" src="./images/ec2.png" width="100px">
+<img alt="express" src="./images/express.png" width="100px">
+<img alt="graphql" src="./images/graphql.png" width="100px">
+<img alt="knex" src="./images/knex.png" width="100px">
+<img alt="postgres" src="./images/postgres.png" width="100px">
+<img alt="ubuntu.png" src="./images/ubuntu.png" width="100px">
+</div>
+
+### Hardware
+
+<div width="300px">
+<img alt="raspberry pi" src="./images/raspberrypi.png" width="100px">
+<img alt="python" src="./images/python.png" width="100px">
+<img alt="redis" src="./images/redis.png" width="100px">
+</div>
+
+## 3. Architecture
+
+### Frontend
+
+### Backend
+
+### Hardware
+
+<img alt="screenshot_hard" src="./images/hardware_screenshot.png">
+
+## 4. Features
 
 ### a) _Upload Photos That Automatically Locates on Map_
 
 Once you open the app, you will see your geographical location zoomed into google map.
 
-<img alt="PicOfApp" src="./img/map1.png">
-
 Click on the **Upload** button and it will direct you to your image gallery on your mobile device. Select one or multiple images to upload.
-
-<img alt="PicOfApp" src="./img/map2.png">
 
 Once photos are chosen, you will be able to see it on the map. Please refer to the instruction below to learn more about writting comments for each photo uploads.
 
@@ -101,56 +96,102 @@ Once photos are chosen, you will be able to see it on the map. Please refer to t
 
 If you click a marker, an informational pop-up balloon with the name of that truck stop will appear just above the marker.
 
-<img alt="PicOfApp" src="./img/map3.png">
-
 To close a pop-up balloon, click the marker or the close button (marked with an 'x') in the upper-right hand corner of the balloon.
 
-## 3. Setup
+## 5. Setup
 
-Install the dependencies and devDependencies and start the server.
+### Frontend
 
-```
-yarn
-```
-
-Install postgres, if it isn't already installed.
+1. Clone our repositry from GitHub
 
 ```
-Create a database called "truckstop"
+$ git clone https://github.com/sojournalists/sojournal.git
 ```
 
-createdb truckstop
+2. Install and set up [Android Studio](https://developer.android.com/studio)
+
+3. Install dependencies
 
 ```
-To view your project locally (on http://localhost:9000/) you need to run the build script and connect to the localhost.
+$ yarn install
 ```
 
-yarn build
-yarn start
+4. Run Android emulator from Android Studio
+
+5. Start Application
 
 ```
-To work on Heroku, you need to be added as a collaborator by the project manager. Follow [this tutorial](https://devcenter.heroku.com/articles/getting-started-with-nodejs) to set your machine up for Heroku. To access Heroku from your machine, you need to be added as a collaborator by the project manager.
-
-Useful: add Heroku as a remote using:
+$ yarn android
 ```
 
-heroku git:remote -a truck-stops
+### Backend
 
-## 4. Deployment
-
-The master branch is the stage and production.
-Therefore, when working locally, please make sure you are working from a branch and not directly on the master branch, create your branch and set up upstream as below.
+1. Clone our repositry from GitHub
 
 ```
-git remote add upstream https://github.com/codechrysalis/cc7-project.continuous-delivery-react.git
+$ git clone https://github.com/sojournalists/sojournal.git
 ```
 
-If your change is to be merged with the master branch, it will be automatically deployed via Heroku.
+2. Install dependencies
 
-## 5. Contributions
+```
+$ yarn install
+```
 
-In order to make contributions be sure that your changes are created in a new branch with descriptive name that explains what is being changed (e.g. "truckstop-ui-fix") and in your pull request be sure to provide a detailed description of the changes made.
+3. Setup the Database
 
-**Note:** It is best to discuss your proposed changes before starting on a contribution to be sure that your contribution is suitable for the project.
+```
+#Create database
+$ createdb triplog
 
-<div align="center">©︎Created by <b>TEAM OMAR 2019</b></div>
+#Drop database
+$ dropdb triplog
+
+#Migration
+$ yarn knex --knexfile=./db/knexfile.js migrate:latest
+
+#Rollback
+$ yarn knex --knexfile=./db/knexfile.js migrate:rollback
+
+#Seed data
+yarn knex --knexfile=./db/knexfile.js seed:run
+```
+
+3. Run Server
+
+```
+$ yarn node db/server.js
+```
+
+4. Run Server (Development)
+
+```
+$ yarn nodemon db/server.js
+```
+
+5. Now you can test server at localhost:4000/graphql
+
+### Hardware
+
+See Hardware [README](./raspberry-pi/README.md)
+
+## 6. Contributions
+
+To contribute to this app, make sure you create a branch and **ALWAYS** make a pull request. **DO NOT EDIT THE MASTER!**
+
+`git checkout -b <branch_name>`
+
+If you want to push your edited files to your remote file, run the following:
+
+`git push <remote_name> <branch_name>`
+
+---
+
+<div align="center">
+<b>LICENSE</b>: CC7 TEAM CYAN
+</div>
+<br/>
+<div align="center">
+<b>Linkedin</b>: <br/>
+
+[Brian Lee](https://www.linkedin.com/in/briansunghaklee/)&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;[Omar Kalouti](https://www.linkedin.com/in/omar-kalouti/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Chaz Wilson](https://www.linkedin.com/in/chaz-wilson/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Keisuke Mori](https://www.linkedin.com/in/keisuke-mori/)
