@@ -9,6 +9,7 @@ import redis
 from graphqlclient import GraphQLClient
 from gps3 import gps3
 from logging import basicConfig, getLogger, DEBUG
+import serial
 
 # logging
 basicConfig(filename='/home/pi/scripts/logs/loggingGPS.log', level=DEBUG)
@@ -17,8 +18,8 @@ logger = getLogger(__name__)
 # redis settings
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-GRAPHQL_URL = os.environ['URL_LOCAL']
-# GRAPHQL_URL = 'http://localhost:4000/graphql'
+GRAPHQL_URL = os.environ['URL_PROD']
+#GRAPHQL_URL = 'http://localhost:4000/graphql'
 # default timeout is about 1 min.
 socket.setdefaulttimeout(10)
 
@@ -90,17 +91,16 @@ def get_gps(data_stream, gps_socket, config):
     return gps_info
 
 
-def upload_server(timestr, gps_info):
-    if gps_info.viewkeys() >= {'lon', 'lat', 'alt'}:
+def upload_server(timestr, gps_info, serial):
+    if gps_info.viewkeys() >= {'lon', 'lat'}:
         try:
             client = GraphQLClient(GRAPHQL_URL)
             result = None
             query = "mutation{" + \
-                "CreateGpsPoint(input: {" + \
-                    "title:\"" + timestr + "\"," + \
+                "CamCreateGps(input: {" + \
+                    "deviceSerial: \"" + serial + "\"," + \
                     "longitude:" + str(gps_info['lon']) + "," + \
-                    "latitude:" + str(gps_info['lat']) + "," + \
-                    "altitude:" + str(gps_info['alt']) + \
+                    "latitude:" + str(gps_info['lat']) + \
                 "})}"
             result = client.execute(
                 query
@@ -113,7 +113,25 @@ def upload_server(timestr, gps_info):
             logger.info(result)
 
 
+def seedData():
+    f = open(
+        "../futakotamagawa.json", 'r')
+    json_data = json.load(f)["data"]["ReadGpsPoint"]
+
+    for data in json_data:
+        timestr = datetime.now().strftime('%Y_%m_%dT%H_%M_%S%f')
+        print "starting upload photo"
+        gps_info["lat"] = data["latitude"]
+        gps_info["lon"] = data["longitude"]
+
+        upload_server(timestr, gps_info, serialNo)
+        print "finish upload gps data"
+
+
 if __name__ == "__main__":
+    # seeding data (usually comment out)
+    # seedData()
+
     # gps_info = {
     #     'lon': 139.727873128,
     #     'lat': 35.658070908,
@@ -129,8 +147,12 @@ if __name__ == "__main__":
 
     config = getRaspiConfig()
 
+    serialNo = serial.getserial()
+
     if config is not None and len(config) != 0:
-        interval = config['gpsInterval']
+        interval = 5
+    else:
+        interval = 5
 
     thread = threading.Thread(target=get_gps, args=(
         data_stream, gps_socket, config))
@@ -141,6 +163,6 @@ if __name__ == "__main__":
         print "gps_infomation: " + str(gps_info)
         logger.info("gps_infomation: " + str(gps_info))
         print "starting upload photo"
-        upload_server(timestr, gps_info)
+        upload_server(timestr, gps_info, serialNo)
         print "finish upload gps data"
         time.sleep(interval)

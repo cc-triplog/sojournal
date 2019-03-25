@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Text } from "react-native";
 import { Button } from "react-native-elements";
 import GroupCard from "../components/GroupCard";
 import CreateGroup from "../components/CreateGroup";
@@ -31,7 +31,13 @@ class Groups extends React.Component {
       this.props.loadGroupsToState(res.data.data.ReadGroup);
     });
   };
-
+  renderOnMap = (title, startDate, endDate) => {
+    this.props.navigation.navigate("Map", {
+      title,
+      startDate,
+      endDate
+    });
+  };
   async componentDidMount() {
     this.loadGroups().then(() => console.log(this.props.pictureGroups));
   }
@@ -40,10 +46,11 @@ class Groups extends React.Component {
       <ScrollView>
         <View style={styles.buttonContainer}>
           <Button
-            buttonStyle={styles.button}
-            title="Navigate"
+            buttonStyle={styles.viewAllButton}
+            title="All Memories"
             onPress={() => this.props.navigation.navigate("Map")}
           />
+          <Text style={styles.myTripsHeader}> My Trips </Text>
         </View>
         {this.props.createGroupVisible ? (
           <CreateGroup toggleVisible={this.props.toggleCreateGroupVisible} />
@@ -63,6 +70,9 @@ class Groups extends React.Component {
             groupDescription={group.comment}
             groupStartDate={this.timeConvert(group.startTime)}
             groupEndDate={this.timeConvert(group.endTime)}
+            renderOnMap={() =>
+              this.renderOnMap(group.title, group.startTime, group.endTime)
+            }
           />
         ))}
       </ScrollView>
@@ -80,6 +90,18 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: "center"
+  },
+  viewAllButton: {
+    width: 150,
+    height: 40,
+    backgroundColor: "#BA55D3",
+    marginTop: 10,
+    marginBottom: 30,
+    borderRadius: 50
+  },
+  myTripsHeader: {
+    fontSize: 16,
+    marginBottom: 20
   }
 });
 
