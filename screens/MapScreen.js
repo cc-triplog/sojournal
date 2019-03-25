@@ -17,9 +17,9 @@ import {
 import ViewOverflow from "react-native-view-overflow";
 import "./styles";
 import { WebBrowser, Component } from "expo";
-import { Button } from "react-native-elements";
+import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
-import { MapView, Overlay } from "react-native-maps";
+import MapView from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from "axios";
 import { connect } from "react-redux";
@@ -44,7 +44,6 @@ class MapScreen extends React.Component {
   constructor(props) {
     super(props);
   }
-  animation = new Animated.Value(0);
 
   animation = new Animated.Value(0)
 
@@ -217,7 +216,7 @@ class MapScreen extends React.Component {
     });
 
     return (
-      <View key='container' style={styles.container}>
+      <View style={styles.container}>
         <Button
           buttonStyle={{ marginTop: 30 }}
           title="Go Back"
@@ -242,7 +241,6 @@ class MapScreen extends React.Component {
             };
             return (
               <View key={index} style={styles.markerWrap} pointerEvents='box-none'>
-
                 <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
                   <Animated.View style={[styles.markerWrap, opacityStyle]}>
                     <Animated.View style={[styles.ring, scaleStyle]} />

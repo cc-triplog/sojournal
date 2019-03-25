@@ -14,10 +14,10 @@ import {
   View
 } from "react-native";
 import './styles'
-import { Button } from 'react-native-elements';
+import { Button, Overlay } from 'react-native-elements';
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
-import { MapView, Overlay } from "react-native-maps";
+import { MapView } from "react-native-maps";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -122,54 +122,54 @@ class PopupCard extends React.Component {
   render() {
 
     return (
-      // <Overlay
-      //   key={this.props.selectedImageIndex}
-      //   isVisible={this.props.visible}
-      //   windowBackgroundColor="rgba(255,255,255, .5)"
-      //   overlayBackgroundColor="#fff"
-      //   fullScreen={false}
-      //   style={styles.overlay}
-      // >
-      <View key={this.props.selectedImageIndex} style={styles.card}>
-        <View style={styles.popupContent}>
-          <Image source={this.state.midSizeImage} style={styles.popUpImage} />
-        </View>
-        <TextInput
-          style={styles.textTitle}
-          onChangeText={(text) => { this.onChangeTextTitle(text) }}
-          defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
-        <View style={styles.textDescription}>
+      <Overlay
+        key={this.props.selectedImageIndex}
+        isVisible={this.props.visible}
+        windowBackgroundColor="rgba(255,255,255, .5)"
+        overlayBackgroundColor="#fff"
+        fullScreen={false}
+        style={styles.overlay}
+      >
+        <View key={this.props.selectedImageIndex} style={styles.card}>
+          <View style={styles.popupContent}>
+            <Image source={this.state.midSizeImage} style={styles.popUpImage} />
+          </View>
           <TextInput
-            multiline={true}
-            style={theme.cardContentStyle}
-            onChangeText={(text) => { this.onChangeTextDescription(text) }}
-            defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+            style={styles.textTitle}
+            onChangeText={(text) => { this.onChangeTextTitle(text) }}
+            defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+          <View style={styles.textDescription}>
+            <TextInput
+              multiline={true}
+              style={theme.cardContentStyle}
+              onChangeText={(text) => { this.onChangeTextDescription(text) }}
+              defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+          </View>
+          <View style={styles.alignButtons}>
+            <View style={styles.buttonUpload}>
+              <Button
+                onPress={() => { this.onPressUpload() }}
+                title="UPDATE"
+                type="outline"
+                accessibilityLabel="update" />
+            </View>
+            <View style={styles.buttonDelete}>
+              <Button
+                onPress={() => { this.onPressDelete() }}
+                title="DELETE"
+                type="outline"
+                accessibilityLabel="delete" />
+            </View>
+            <View style={styles.buttonExit}>
+              <Button
+                onPress={() => { this.onPressExit() }}
+                title="EXIT"
+                type="outline"
+                accessibilityLabel="exit" />
+            </View>
+          </View>
         </View>
-        <View style={styles.alignButtons}>
-          <View style={styles.buttonUpload}>
-            <Button
-              onPress={() => { this.onPressUpload() }}
-              title="UPDATE"
-              type="outline"
-              accessibilityLabel="update" />
-          </View>
-          <View style={styles.buttonDelete}>
-            <Button
-              onPress={() => { this.onPressDelete() }}
-              title="DELETE"
-              type="outline"
-              accessibilityLabel="delete" />
-          </View>
-          <View style={styles.buttonExit}>
-            <Button
-              onPress={() => { this.onPressExit() }}
-              title="EXIT"
-              type="outline"
-              accessibilityLabel="exit" />
-          </View>
-        </View>
-      </View>
-      // </Overlay>
+      </Overlay>
     );
   }
 }
