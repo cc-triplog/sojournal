@@ -143,7 +143,8 @@ $ git clone https://github.com/sojournalists/sojournal.git
 
    | Script          |                                                  |
    | --------------- | ------------------------------------------------ |
-   | led.py          | manipulate the PWD, ACT LED                      |
+   | led.py          | Manipulate the PWD, ACT LED                      |
+   | serial.py       | Get the Rapberry Pi serial number                |
    | loggingGPS.py   | Get the GPS data and send it to server           |
    | takePhoto.py    | Taking photo                                     |
    | takePhotoGPS.py | Taking photo and send it to server with GPS data |
