@@ -113,13 +113,14 @@ $ ssh pi@"your pi's IP address"
 
 1. Connect GPS module to Pi
 
-   GPIO Map  
+   GPIO Map
+
    | Raspberry Pi | GPS Module |
-   | ------------- | ------------- |
-   | 3.3V | VCC |
-   | GND | GND |
-   | GPIO15 (RXD) | TXD |
-   | GPIO14 (TXD) | RXD |
+   | ------------ | ---------- |
+   | 3.3V         | VCC        |
+   | GND          | GND        |
+   | GPIO15 (RXD) | TXD        |
+   | GPIO14 (TXD) | RXD        |
 
    Raspberry Pi GPIO  
    ![alt text](https://www.electronicwings.com/public/images/user_images/images/Raspberry%20Pi/RaspberryPi_GPIO/Raspberry%20pi%203%20GPIO_pins_v2.png "Raspberry Pi GPIO")
@@ -209,3 +210,31 @@ Name=Photo
 Exec=python /home/pi/scripts/takePhoto.py
 NotShowIn=LXDE
 ```
+
+## Logging
+
+1. Log File
+
+| Location                             |                                   |
+| ------------------------------------ | --------------------------------- |
+| /home/pi/scripts/logs/loggingGPS.log | Log of the GPS logging            |
+| /home/pi/scripts/logs/takePhoto.log  | Log of Photo taking               |
+| /home/pi/scripts/logs/takePhoto.log  | Log of Photo taking with GPS data |
+
+2. Log Level, Log Rotation
+
+- [Log Level](https://docs.python.org/2/library/logging.html#logging-levels)
+
+- [Log Rotation](https://docs.python.org/2/library/logging.handlers.html#timedrotatingfilehandler)
+
+- Example
+  ```
+  # logging
+  basicConfig(level=DEBUG)
+  logger = getLogger(__name__)
+  handler = handlers.TimedRotatingFileHandler(
+      filename='/home/pi/scripts/logs/takePhoto.log',
+      when='D'
+  )
+  logger.addHandler(handler)
+  ```
