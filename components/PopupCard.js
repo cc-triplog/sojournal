@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableHighlight,
   TouchableOpacity,
   View
 } from "react-native";
@@ -17,7 +18,8 @@ import './styles'
 import { Button, Overlay } from 'react-native-elements';
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
-import { MapView } from "react-native-maps";
+import MapView from "react-native-maps";
+import ImageFullScreen from "./ImageFullScreen";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -28,7 +30,8 @@ import {
   insertPhotoWithIndex,
   deletePhoto,
   reflectStateChange,
-  replaceAllMarkers
+  replaceAllMarkers,
+  updateImageFullScreen,
 } from '../action';
 
 const { width, height } = Dimensions.get("window");
@@ -47,6 +50,7 @@ class PopupCard extends React.Component {
       title: null,
       description: null,
       midSizeImage: null,
+      displayImageFull: false,
     }
   }
   componentDidMount() {
@@ -81,6 +85,10 @@ class PopupCard extends React.Component {
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
+  }
+  onPressImage() {
+    console.log("==========================touched")
+    this.setState({ ImageFullScreen: true })
   }
   onPressUpload() {
     const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
@@ -130,45 +138,57 @@ class PopupCard extends React.Component {
         fullScreen={false}
         style={styles.overlay}
       >
-        <View key={this.props.selectedImageIndex} style={styles.card}>
-          <View style={styles.popupContent}>
-            <Image source={this.state.midSizeImage} style={styles.popUpImage} />
-          </View>
-          <TextInput
-            style={styles.textTitle}
-            onChangeText={(text) => { this.onChangeTextTitle(text) }}
-            defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
-          <View style={styles.textDescription}>
+        {this.props.displayImageFull
+          ? (<ImageFullScreen />)
+          : (<View key={this.props.selectedImageIndex} style={styles.card}>
+            <View style={styles.popupContent}>
+              <TouchableOpacity
+                key={this.props.selectedImageIndex}
+                onPress={() => this.onPressImage()}
+                ref={this.props.selectedImageIndex}
+              >
+                <View>
+                  <Image source={this.state.midSizeImage} style={styles.popUpImage} />
+                </View>
+              </TouchableOpacity>
+            </View>
+
             <TextInput
-              multiline={true}
-              style={theme.cardContentStyle}
-              onChangeText={(text) => { this.onChangeTextDescription(text) }}
-              defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
-          </View>
-          <View style={styles.alignButtons}>
-            <View style={styles.buttonUpload}>
-              <Button
-                onPress={() => { this.onPressUpload() }}
-                title="UPDATE"
-                type="outline"
-                accessibilityLabel="update" />
+              style={styles.textTitle}
+              onChangeText={(text) => { this.onChangeTextTitle(text) }}
+              defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+            <View style={styles.textDescription}>
+              <TextInput
+                multiline={true}
+                style={theme.cardContentStyle}
+                onChangeText={(text) => { this.onChangeTextDescription(text) }}
+                defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
             </View>
-            <View style={styles.buttonDelete}>
-              <Button
-                onPress={() => { this.onPressDelete() }}
-                title="DELETE"
-                type="outline"
-                accessibilityLabel="delete" />
+            <View style={styles.alignButtons}>
+              <View style={styles.buttonUpload}>
+                <Button
+                  onPress={() => { this.onPressUpload() }}
+                  title="UPDATE"
+                  type="outline"
+                  accessibilityLabel="update" />
+              </View>
+              <View style={styles.buttonDelete}>
+                <Button
+                  onPress={() => { this.onPressDelete() }}
+                  title="DELETE"
+                  type="outline"
+                  accessibilityLabel="delete" />
+              </View>
+              <View style={styles.buttonExit}>
+                <Button
+                  onPress={() => { this.onPressExit() }}
+                  title="EXIT"
+                  type="outline"
+                  accessibilityLabel="exit" />
+              </View>
             </View>
-            <View style={styles.buttonExit}>
-              <Button
-                onPress={() => { this.onPressExit() }}
-                title="EXIT"
-                type="outline"
-                accessibilityLabel="exit" />
-            </View>
-          </View>
-        </View>
+          </View>)
+        }
       </Overlay>
     );
   }
@@ -239,6 +259,7 @@ const styles = StyleSheet.create({
   },
   popupContent: {
     flex: 6,
+    backgroundColor: 'transparent'
   },
   textTitle: {
     flex: 1,
@@ -249,6 +270,7 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = state => ({
+  displayImageFull: state.displayImageFull,
   markers: state.markers,
   region: state.region,
   visible: state.visible,
@@ -284,6 +306,10 @@ const mapDispatchToProps = dispatch => ({
   },
   replaceAllMarkers: photos => {
     const action = replaceAllMarkers(photos)
+    dispatch(action)
+  },
+  updateImageFullScreen: boolean => {
+    const action = updateImageFullScreen(boolean)
     dispatch(action)
   }
 })

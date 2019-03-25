@@ -28,6 +28,12 @@ const deletePhoto = index => {
     index
   };
 };
+const updateImageFullScreen = boolean => {
+  return {
+    type: "update_IMAGEFULLSCREEN",
+    boolean
+  }
+}
 const renderGPS = GPS => {
   return {
     type: "RENDER_GPS",
@@ -42,7 +48,7 @@ const renderPhotos = photos => {
 };
 const renderPhoto = photo => {
   return {
-    type: "RENDER_PHOTOS",
+    type: "RENDER_PHOTO",
     photo
   };
 };
@@ -159,5 +165,6 @@ module.exports = {
   setGroupEndDate,
   setGroupTitle,
   setGroupDescription,
-  loadGroupsToState
+  loadGroupsToState,
+  updateImageFullScreen
 };

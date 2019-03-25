@@ -9,7 +9,7 @@ const initialState = {
     GPS: [],
     visible: false,
     selectedImageIndex: null,
-    stateChanged: false,
+    displayImageFull: false,
     capture: null,
     userId: null,
     createGroupVisible: false,
