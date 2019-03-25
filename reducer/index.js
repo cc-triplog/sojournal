@@ -160,7 +160,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, ...stateChanges };
     }
     case "RESET_STATE": {
-      console.log("resetting state");
       return { ...initialState };
     }
     default: {
