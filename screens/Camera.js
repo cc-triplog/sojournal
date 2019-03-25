@@ -4,9 +4,11 @@ import {
   Text,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
   StyleSheet,
   AsyncStorage,
-  Dimensions
+  Dimensions,
+  Image
 } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
 import { Button } from "react-native-elements";
@@ -40,7 +42,8 @@ class CameraPage extends React.Component {
   });
   state = {
     imageView: false,
-    modalVisible: false
+    modalVisible: false,
+    isLoading: false
   };
 
   getDateFromCamera = input => {
@@ -50,6 +53,7 @@ class CameraPage extends React.Component {
   };
 
   launchCamera = async () => {
+    this.setState({ isLoading: true });
     await Permissions.askAsync(
       Permissions.CAMERA,
       Permissions.CAMERA_ROLL,
@@ -66,6 +70,9 @@ class CameraPage extends React.Component {
             exif: true
           }).then(async res => {
             let capture;
+            if (res.cancelled) {
+              this.setState({ isLoading: false });
+            }
             if (!res.cancelled) {
               const location = await Location.getCurrentPositionAsync({});
               latitude = res.exif.GPSLatitude || location.coords.latitude;
@@ -78,7 +85,7 @@ class CameraPage extends React.Component {
                 uri: res.uri
               };
               this.props.setCapture(capture);
-              this.setState({ imageView: true });
+              this.setState({ imageView: true, isLoading: false });
             }
           });
         }
@@ -89,6 +96,7 @@ class CameraPage extends React.Component {
   };
 
   launchLibrary = async () => {
+    this.setState({ isLoading: true });
     await Permissions.askAsync(Permissions.CAMERA_ROLL).then(async res => {
       if (res.status === "granted") {
         await ImagePicker.launchImageLibraryAsync({
@@ -97,6 +105,9 @@ class CameraPage extends React.Component {
           exif: true
         }).then(async res => {
           let capture;
+          if (res.cancelled) {
+            this.setState({ isLoading: false });
+          }
           if (!res.cancelled) {
             if (Platform.OS === "ios") {
               const location = await Location.getCurrentPositionAsync({});
@@ -117,7 +128,7 @@ class CameraPage extends React.Component {
               };
             }
             this.props.setCapture(capture);
-            this.setState({ imageView: true });
+            this.setState({ imageView: true, isLoading: false });
           }
         });
       } else {
@@ -128,7 +139,7 @@ class CameraPage extends React.Component {
 
   trashPicture = () => {
     this.props.setCapture({});
-    this.setState({ imageView: false });
+    this.setState({ imageView: false, isLoading: false });
   };
 
   uploadPicture = async () => {
@@ -184,7 +195,12 @@ class CameraPage extends React.Component {
 
   render() {
     const { capture } = this.props;
-    const { imageView, modalVisible } = this.state;
+    const { imageView, modalVisible, isLoading } = this.state;
+    // return (
+    //   <View style={[styles.container, styles.horizontal]}>
+    //     <ActivityIndicator size={100} color="#A9A9A9" />
+    //   </View>
+    // );
     return imageView === true ? (
       <React.Fragment>
         <CaptureView capture={capture} />
@@ -201,6 +217,10 @@ class CameraPage extends React.Component {
           />
         ) : null}
       </React.Fragment>
+    ) : isLoading ? (
+      <View style={[styles.container, styles.horizontal]}>
+        <ActivityIndicator size={100} color="#A9A9A9" />
+      </View>
     ) : (
       <View style={styles.choicePage}>
         <TouchableOpacity
@@ -242,6 +262,15 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     alignItems: "center",
     borderRadius: 50
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center"
+  },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10
   }
 });
 
