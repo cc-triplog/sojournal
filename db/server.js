@@ -286,6 +286,10 @@ let root = {
     return true;
   },
   CreateDevice: (req, res) => {
+    // Temporary Multiuser - INSECURE
+    if (req.input.userId) {
+      currentUser = req.input.userId;
+    }
     db("devices")
       .insert({
         title: req.input.title,
@@ -298,6 +302,7 @@ let root = {
       .catch(err => {
         console.log(err);
       });
+    currentUser = 4;
     return true;
   },
   CreatePhoto: (req, res) => {
