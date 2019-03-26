@@ -56,14 +56,6 @@ class CameraPage extends React.Component {
     isLoading: false
   };
 
-  // getDateFromCamera = input => {
-  //   console.log("time input------:");
-  //   const separators = new RegExp("[: ]", "g");
-  //   if (!input) return new Date().getTime();
-
-  //   return new Date(...input.split(separators)).getTime();
-  // };
-
   getDateFromCamera = input => {
     const separators = new RegExp("[: ]", "g");
     if (!input) return new Date().getTime();
@@ -210,7 +202,6 @@ class CameraPage extends React.Component {
   };
 
   async componentDidMount() {
-    console.log("-------", this.props.screenProps.rerender);
     this.props.navigation.setParams({
       logOut: this.logOut
     });
@@ -249,16 +240,16 @@ class CameraPage extends React.Component {
           style={styles.choiceButtons}
           onPress={this.launchCamera}
         >
-          <AntDesign name="camera" color="white" size={100} />
-          <Text>Take Photo</Text>
+          <AntDesign name="camera" color="black" size={100} />
+          <Text style={styles.commandText}>Take Photo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.choiceButtons}
           onPress={this.launchLibrary}
         >
-          <AntDesign name="picture" color="white" size={100} />
-          <Text>Pick Photo</Text>
+          <AntDesign name="picture" color="black" size={100} />
+          <Text style={styles.commandText}>Pick Photo</Text>
         </TouchableOpacity>
       </View>
     );
@@ -268,7 +259,7 @@ class CameraPage extends React.Component {
 const { width: winWidth, height: winHeight } = Dimensions.get("window");
 const styles = StyleSheet.create({
   choicePage: {
-    backgroundColor: "purple",
+    backgroundColor: "#F5F5F5",
     flex: 1,
     alignItems: "center",
     justifyContent: "space-around",
@@ -278,10 +269,9 @@ const styles = StyleSheet.create({
   },
   choiceButtons: {
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: "#82bfff",
     width: 150,
     height: 150,
-    opacity: 0.5,
     alignItems: "center",
     borderRadius: 50
   },
@@ -293,6 +283,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10
+  },
+  commandText: {
+    fontWeight: "bold"
   }
 });
 
