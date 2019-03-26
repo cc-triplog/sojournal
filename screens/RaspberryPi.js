@@ -327,12 +327,14 @@ class RaspberryPi extends React.Component {
           {startMethod === "startTimeOfDay" ? (
             <React.Fragment>
               <Button
+                titleStyle={{ color: "black" }}
                 buttonStyle={{
                   width: "50%",
                   alignSelf: "center",
-                  marginBottom: 20
+                  marginBottom: 20,
+                  backgroundColor: "#82bfff",
+                  borderRadius: 50
                 }}
-                type="outline"
                 title={
                   startTimePicked === ""
                     ? "Select Time"
@@ -367,12 +369,14 @@ class RaspberryPi extends React.Component {
           </Picker>
           {stopMethod === "stopTimeOfDay" ? (
             <Button
+              titleStyle={{ color: "black" }}
               buttonStyle={{
                 width: "50%",
                 alignSelf: "center",
-                marginBottom: 20
+                marginBottom: 20,
+                backgroundColor: "#82bfff",
+                borderRadius: 50
               }}
-              type="outline"
               title={
                 finishTimePicked === ""
                   ? "Select Time"
@@ -445,13 +449,15 @@ class RaspberryPi extends React.Component {
             />
           </View>
           <Button
+            titleStyle={{ color: "black" }}
             buttonStyle={{
               width: "50%",
               alignSelf: "center",
               marginBottom: 40,
-              marginTop: 20
+              marginTop: 20,
+              backgroundColor: "#82bfff",
+              borderRadius: 50
             }}
-            type="outline"
             title="Unregister"
             onPress={this.unregisterDevice}
           />
@@ -473,22 +479,28 @@ class RaspberryPi extends React.Component {
             />
           </View>
           <Button
+            titleStyle={{ color: "black" }}
             buttonStyle={{
               width: "50%",
               alignSelf: "center",
               marginBottom: 40,
-              marginTop: 20
+              marginTop: 20,
+              backgroundColor: "#82bfff",
+              borderRadius: 50
             }}
             type="outline"
             title="Pair"
             onPress={this.pairDevice}
           />
           <Button
+            titleStyle={{ color: "black" }}
             buttonStyle={{
               width: "50%",
               alignSelf: "center",
               marginTop: 20,
-              marginBottom: 20
+              marginBottom: 20,
+              backgroundColor: "#82bfff",
+              borderRadius: 50
             }}
             type="outline"
             title="Save"

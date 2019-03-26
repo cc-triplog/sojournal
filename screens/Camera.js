@@ -56,14 +56,6 @@ class CameraPage extends React.Component {
     isLoading: false
   };
 
-  // getDateFromCamera = input => {
-  //   console.log("time input------:");
-  //   const separators = new RegExp("[: ]", "g");
-  //   if (!input) return new Date().getTime();
-
-  //   return new Date(...input.split(separators)).getTime();
-  // };
-
   getDateFromCamera = input => {
     const separators = new RegExp("[: ]", "g");
     if (!input) return new Date().getTime();
@@ -168,7 +160,7 @@ class CameraPage extends React.Component {
 
   uploadPicture = async () => {
     const { capture } = this.props;
-
+    this.setState({ isLoading: true });
     axios({
       url:
         "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
@@ -187,7 +179,7 @@ class CameraPage extends React.Component {
           })}`
       }
     }).then(() => {
-      this.setState({ imageView: false });
+      this.setState({ imageView: false, isLoading: false });
       this.props.screenProps.rerender();
     });
   };
@@ -210,7 +202,6 @@ class CameraPage extends React.Component {
   };
 
   async componentDidMount() {
-    console.log("-------", this.props.screenProps.rerender);
     this.props.navigation.setParams({
       logOut: this.logOut
     });
@@ -224,51 +215,57 @@ class CameraPage extends React.Component {
     const { imageView, modalVisible, isLoading } = this.state;
 
     return imageView === true ? (
-      <React.Fragment>
-        <CaptureView capture={capture} />
+      isLoading ? (
+        <View style={[styles.container, styles.horizontal]}>
+          <ActivityIndicator size={100} color="#82bfff" />
+        </View>
+      ) : (
+        <React.Fragment>
+          <CaptureView capture={capture} />
 
-        <CaptureToolbar
-          trashPicture={this.trashPicture}
-          uploadPicture={this.uploadPicture}
-          addStory={this.addStory}
-        />
-        {modalVisible ? (
-          <CommentModal
-            modalVisible={modalVisible}
-            setModalVisible={this.setModalVisible}
+          <CaptureToolbar
+            trashPicture={this.trashPicture}
+            uploadPicture={this.uploadPicture}
+            addStory={this.addStory}
           />
-        ) : null}
-      </React.Fragment>
+          {modalVisible ? (
+            <CommentModal
+              modalVisible={modalVisible}
+              setModalVisible={this.setModalVisible}
+            />
+          ) : null}
+        </React.Fragment>
+      )
     ) : isLoading ? (
       <View style={[styles.container, styles.horizontal]}>
-        <ActivityIndicator size={100} color="#A9A9A9" />
+        <ActivityIndicator size={100} color="#82bfff" />
       </View>
     ) : (
-          <View style={styles.choicePage}>
-            <TouchableOpacity
-              style={styles.choiceButtons}
-              onPress={this.launchCamera}
-            >
-              <AntDesign name="camera" color="white" size={100} />
-              <Text>Take Photo</Text>
-            </TouchableOpacity>
+      <View style={styles.choicePage}>
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={this.launchCamera}
+        >
+          <AntDesign name="camera" color="black" size={100} />
+          <Text style={styles.commandText}>Take Photo</Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.choiceButtons}
-              onPress={this.launchLibrary}
-            >
-              <AntDesign name="picture" color="white" size={100} />
-              <Text>Pick Photo</Text>
-            </TouchableOpacity>
-          </View>
-        );
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={this.launchLibrary}
+        >
+          <AntDesign name="picture" color="black" size={100} />
+          <Text style={styles.commandText}>Pick Photo</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 }
 
 const { width: winWidth, height: winHeight } = Dimensions.get("window");
 const styles = StyleSheet.create({
   choicePage: {
-    backgroundColor: "purple",
+    backgroundColor: "#F5F5F5",
     flex: 1,
     alignItems: "center",
     justifyContent: "space-around",
@@ -278,10 +275,9 @@ const styles = StyleSheet.create({
   },
   choiceButtons: {
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: "#82bfff",
     width: 150,
     height: 150,
-    opacity: 0.5,
     alignItems: "center",
     borderRadius: 50
   },
@@ -293,6 +289,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10
+  },
+  commandText: {
+    fontWeight: "bold"
   }
 });
 
