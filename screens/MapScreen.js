@@ -168,7 +168,7 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
-        date: `${this.timeConvert(object.createdAt)}`,
+        date: `${this.startTimeConvert(object.createdAt)}`,
         id: Number(object.id)
       }));
       mapResult.sort((marker1, marker2) => {
@@ -206,7 +206,7 @@ class MapScreen extends React.Component {
   };
   endTimeConvert = time => {
     const epoch = Number(time);
-    if (time == undefined || time == null) return moment(99999999999999999999999).format("MMM DD YY")
+    if (time == undefined || time == null) return moment(99999999999999).format("MMM DD YY")
 
     return moment(epoch).format("MMM DD YY");
   };
