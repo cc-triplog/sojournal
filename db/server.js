@@ -386,21 +386,33 @@ let root = {
           });
       });
 
-    db("photos")
-      .insert({
-        title: req.input.title,
-        longitude: req.input.longitude,
-        latitude: req.input.latitude,
-        device_id: req.input.deviceId,
-        group_id: req.input.groupId,
-        order_in_group: req.input.orderInGroup,
-        user_id: currentUser,
-        comment: req.input.comment,
-        image_file: thumbKeyName,
-        altitude: req.input.altitude,
-        bearing: req.input.bearing,
-        created_at: req.input.createdAt
-      })
+    db.schema
+      .raw(
+        "INSERT INTO photos(title, longitude, latitude, device_id, group_id, order_in_group," +
+          "user_id, comment, image_file, altitude, bearing, created_at) " +
+          `VALUES (${req.input.title}, ${req.input.longitude}, ${
+            req.input.latitude
+          }, ${req.input.deviceId}, ${req.input.groupId}, ${
+            req.input.orderInGroup
+          }, ${currentUser}, ${req.input.comment}, ${thumbKeyName}, ${
+            req.input.altitude
+          }, ${req.input.bearing}, to_timestamp(${req.input.createdAt}))`
+      )
+      // db("photos")
+      //   .insert({
+      //     title: req.input.title,
+      //     longitude: req.input.longitude,
+      //     latitude: req.input.latitude,
+      //     device_id: req.input.deviceId,
+      //     group_id: req.input.groupId,
+      //     order_in_group: req.input.orderInGroup,
+      //     user_id: currentUser,
+      //     comment: req.input.comment,
+      //     image_file: thumbKeyName,
+      //     altitude: req.input.altitude,
+      //     bearing: req.input.bearing,
+      //     created_at: req.input.createdAt
+      //   })
       .then(res => {
         console.log(res);
       })
