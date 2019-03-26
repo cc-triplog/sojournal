@@ -81,12 +81,21 @@ class Groups extends React.Component {
     this.props.resetState();
   };
 
-  renderOnMap = (title, startDate, endDate, groupId) => {
+  renderOnMapFiltered = (title, startDate, endDate, groupId) => {
     this.props.navigation.navigate("Map", {
       title,
       startDate,
       endDate,
       groupId
+    });
+  };
+
+  renderOnMapAll = () => {
+    this.props.navigation.navigate("Map", {
+      title: "All Pictures",
+      startDate: null,
+      endDate: null,
+      groupId: null
     });
   };
 
@@ -112,21 +121,21 @@ class Groups extends React.Component {
           <Button
             buttonStyle={styles.viewAllButton}
             title="All Memories"
-            onPress={() => this.props.navigation.navigate("Map")}
+            onPress={() => this.renderOnMapAll()}
           />
           <Text style={styles.myTripsHeader}> My Trips </Text>
         </View>
         {this.props.createGroupVisible ? (
           <CreateGroup toggleVisible={this.props.toggleCreateGroupVisible} />
         ) : (
-          <View style={styles.buttonContainer}>
-            <Button
-              buttonStyle={styles.button}
-              title="Create New"
-              onPress={this.props.toggleCreateGroupVisible}
-            />
-          </View>
-        )}
+            <View style={styles.buttonContainer}>
+              <Button
+                buttonStyle={styles.button}
+                title="Create New"
+                onPress={this.props.toggleCreateGroupVisible}
+              />
+            </View>
+          )}
         {this.props.pictureGroups.reverse().map(group => (
           <GroupCard
             key={group.id}
@@ -137,8 +146,8 @@ class Groups extends React.Component {
             groupDescription={group.comment}
             groupStartDate={this.timeConvert(group.startTime)}
             groupEndDate={this.timeConvert(group.endTime)}
-            renderOnMap={() =>
-              this.renderOnMap(
+            renderOnMapFiltered={() =>
+              this.renderOnMapFiltered(
                 group.title,
                 group.startTime,
                 group.endTime,

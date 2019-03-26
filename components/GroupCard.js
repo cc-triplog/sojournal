@@ -40,7 +40,7 @@ export default class GroupCard extends React.Component {
               backgroundColor="#03A9F4"
               buttonStyle={styles.button}
               title="View"
-              onPress={this.props.renderOnMap}
+              onPress={this.props.renderOnMapFiltered}
             />
             <Button
               backgroundColor="#03A9F4"
