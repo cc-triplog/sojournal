@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableHighlight,
   TouchableOpacity,
   View
 } from "react-native";
@@ -17,7 +18,8 @@ import './styles'
 import { Button, Overlay } from 'react-native-elements';
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
-import { MapView } from "react-native-maps";
+import MapView from "react-native-maps";
+import ImageFullScreen from "./ImageFullScreen";
 import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -28,7 +30,8 @@ import {
   insertPhotoWithIndex,
   deletePhoto,
   reflectStateChange,
-  replaceAllMarkers
+  replaceAllMarkers,
+  updateImageFullScreen,
 } from '../action';
 
 const { width, height } = Dimensions.get("window");
@@ -47,6 +50,7 @@ class PopupCard extends React.Component {
       title: null,
       description: null,
       midSizeImage: null,
+      displayImageFull: false,
     }
   }
   componentDidMount() {
@@ -54,6 +58,8 @@ class PopupCard extends React.Component {
     const replaceTarget = /.jpg/gi;
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
+    console.log("========================image url", this.props.markers[this.props.selectedImageIndex].image)
+    console.log('========================midsizeimageurl', midSizeImageUrl)
   }
   onChangeTextTitle(text) {
     this.setState({ title: text })
@@ -81,6 +87,11 @@ class PopupCard extends React.Component {
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
+    console.log("======================midsize image url", this.state.midSizeImage)
+  }
+  onPressImage() {
+    console.log("==========================touched")
+    this.setState({ ImageFullScreen: true })
   }
   onPressUpload() {
     const updateTitle = this.state.title === null ? this.props.markers[this.props.selectedImageIndex].title : this.state.title
@@ -249,6 +260,7 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = state => ({
+  displayImageFull: state.displayImageFull,
   markers: state.markers,
   region: state.region,
   visible: state.visible,
@@ -284,6 +296,10 @@ const mapDispatchToProps = dispatch => ({
   },
   replaceAllMarkers: photos => {
     const action = replaceAllMarkers(photos)
+    dispatch(action)
+  },
+  updateImageFullScreen: boolean => {
+    const action = updateImageFullScreen(boolean)
     dispatch(action)
   }
 })

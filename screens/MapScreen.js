@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableHighlight,
   TouchableOpacity,
   View
 } from "react-native";
@@ -20,6 +21,7 @@ import { WebBrowser, Component } from "expo";
 import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
 import MapView from "react-native-maps";
+import moment from "moment";
 import { MonoText } from "../components/StyledText";
 import axios from "axios";
 import { connect } from "react-redux";
@@ -48,7 +50,9 @@ class MapScreen extends React.Component {
   animation = new Animated.Value(0);
 
   componentDidMount = () => {
+
     console.log("===== navig params", this.props.navigation.state.params);
+
     this.index = 0;
     this.animation = new Animated.Value(0);
 
@@ -81,8 +85,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   };
-  componentWillUpdate() {}
-  componentWillUnmount() {}
+  componentWillUpdate() { }
+  componentWillUnmount() { }
 
   async loadById() {
     await AsyncStorage.getItem("id")
@@ -136,6 +140,11 @@ class MapScreen extends React.Component {
     });
   };
   callDatabasePhotos = async () => {
+    const epochToNormalStart = this.timeConvert(this.props.navigation.state.params.startDate)
+    const epochToNormalEnd = this.timeConvert(this.props.navigation.state.params.endDate)
+    console.log("=========================normal start", epochToNormalStart)
+    console.log("=========================normal end", epochToNormalEnd)
+
     await axios({
       url:
         "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
@@ -143,11 +152,11 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetPhotoByDate(type: {
-          userId: ${this.props.userId}
-          startTime: "2000-01-01"
-          endTime: "2019-04-28"
+          userId: 5
+          startTime: "${epochToNormalStart}"
+          endTime: "${epochToNormalEnd}"
         }) {
-         title, latitude, longitude, comment, imageFile, id
+         title, latitude, longitude, comment, imageFile, id, createdAt
         }
       }
         `
@@ -162,6 +171,7 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
+        date: `${this.timeConvert(object.createdAt)}`,
         id: Number(object.id)
       }));
       mapResult.sort((marker1, marker2) => {
@@ -174,7 +184,8 @@ class MapScreen extends React.Component {
       });
 
       this.props.renderPhotos(mapResult);
-    });
+    })
+      .catch(err => console.log("============err========", err))
   };
   idToIndex = id => {
     let index;
@@ -188,7 +199,12 @@ class MapScreen extends React.Component {
     this.idToIndex(id);
   };
   sortById = (marker1, marker2) => {
-    return marker1.id - marker2.id;
+
+    return marker1.id - marker2.id
+  }
+  timeConvert = time => {
+    const epoch = Number(time);
+    return moment(epoch).format("MMM DD YY");
   };
 
   render() {
