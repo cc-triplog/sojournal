@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
   StyleSheet,
   AsyncStorage,
-  Dimensions
+  Dimensions,
+  Image
 } from "react-native";
 import { Permissions, Location, ImagePicker } from "expo";
-import { Button } from "react-native-elements";
 //Styling
-import { AntDesign } from "react-native-vector-icons";
+import { AntDesign, SimpleLineIcons } from "react-native-vector-icons";
 
 import axios from "axios";
 
@@ -34,9 +34,20 @@ class CameraPage extends React.Component {
   camera = null;
 
   static navigationOptions = ({ navigation }) => ({
-    headerTitle: "Sojournal",
+    headerLeft: (
+      <Image
+        style={{ width: 100, height: 40, marginLeft: 20 }}
+        source={require("../assets/images/sojournal_black.png")}
+      />
+    ),
     headerRight: (
-      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+      <TouchableOpacity onPress={navigation.getParam("logOut")}>
+        <SimpleLineIcons
+          name="logout"
+          size={30}
+          style={{ marginRight: 30, marginTop: 8 }}
+        />
+      </TouchableOpacity>
     )
   });
   state = {
@@ -45,10 +56,23 @@ class CameraPage extends React.Component {
     isLoading: false
   };
 
+  // getDateFromCamera = input => {
+  //   console.log("time input------:");
+  //   const separators = new RegExp("[: ]", "g");
+  //   if (!input) return new Date().getTime();
+
+  //   return new Date(...input.split(separators)).getTime();
+  // };
+
   getDateFromCamera = input => {
     const separators = new RegExp("[: ]", "g");
     if (!input) return new Date().getTime();
-    return new Date(...input.split(separators)).getTime();
+    const separatedDate = [...input.split(separators)].map(input =>
+      parseInt(input)
+    );
+    separatedDate[1] = separatedDate[1] - 1;
+    const output = new Date(...separatedDate).getTime();
+    return output;
   };
 
   launchCamera = async () => {
@@ -125,6 +149,7 @@ class CameraPage extends React.Component {
                 timestamp: this.getDateFromCamera(res.exif.DateTime),
                 uri: res.uri
               };
+              console.log(capture.timestamp);
             }
             this.props.setCapture(capture);
             this.setState({ imageView: true, isLoading: false });
