@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./assets/assets/images/sojournal.jpg" align="center" width="100%" alt="sojournal">
+    <img src="./assets/images/sojournal.jpg" align="center" width="100%" alt="sojournal">
 </div>
 <h1 align="center" >SOJOURNAL</h1>
 

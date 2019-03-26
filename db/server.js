@@ -385,22 +385,38 @@ let root = {
             console.error(err, err.stack);
           });
       });
+    let sTitle = req.input.title || "''";
+    let sLongitude = req.input.longitude || "139.727666";
+    let sLatitude = req.input.latitude || "35.657995";
+    let sDeviceId = req.input.deviceId || "''";
+    let sGroupId = req.input.groupId || "''";
+    let sOrderInGroup = req.input.orderInGroup || "''";
+    let sComment = req.input.comment || "''";
+    let sAltitude = req.input.altitude || "0.0";
+    let sBearing = req.input.bearing || "''";
+    let sCreatedAt = req.input.createdAt || "current_timestamp";
 
-    db("photos")
-      .insert({
-        title: req.input.title,
-        longitude: req.input.longitude,
-        latitude: req.input.latitude,
-        device_id: req.input.deviceId,
-        group_id: req.input.groupId,
-        order_in_group: req.input.orderInGroup,
-        user_id: currentUser,
-        comment: req.input.comment,
-        image_file: thumbKeyName,
-        altitude: req.input.altitude,
-        bearing: req.input.bearing,
-        created_at: req.input.createdAt
-      })
+    db.schema
+      .raw(
+        "INSERT INTO photos(title, longitude, latitude, device_id, group_id, order_in_group," +
+          "user_id, comment, image_file, altitude, bearing, created_at) " +
+          `VALUES (${sTitle}, ${sLongitude}, ${sLatitude}, ${sDeviceId}, ${sGroupId}, ${sOrderInGroup}, ${currentUser}, ${sComment}, ${thumbKeyName}, ${sAltitude}, ${sBearing}, to_timestamp(${sCreatedAt}))`
+      )
+      // db("photos")
+      //   .insert({
+      //     title: req.input.title,
+      //     longitude: req.input.longitude,
+      //     latitude: req.input.latitude,
+      //     device_id: req.input.deviceId,
+      //     group_id: req.input.groupId,
+      //     order_in_group: req.input.orderInGroup,
+      //     user_id: currentUser,
+      //     comment: req.input.comment,
+      //     image_file: thumbKeyName,
+      //     altitude: req.input.altitude,
+      //     bearing: req.input.bearing,
+      //     created_at: req.input.createdAt
+      //   })
       .then(res => {
         console.log(res);
       })
