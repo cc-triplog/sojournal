@@ -20,7 +20,14 @@ class AppContainer extends React.Component {
     });
   }
   render() {
-    return <AppNavigator screenProps={{ logOut: this.props.logOut }} />;
+    return (
+      <AppNavigator
+        screenProps={{
+          logOut: this.props.logOut,
+          rerender: this.props.rerender
+        }}
+      />
+    );
   }
 }
 

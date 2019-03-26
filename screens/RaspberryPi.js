@@ -5,10 +5,14 @@ import {
   ScrollView,
   Text,
   TextInput,
-  View
+  View,
+  Image,
+  TouchableOpacity
 } from "react-native";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import TimePicker from "../components/TimePicker";
+import { SimpleLineIcons } from "react-native-vector-icons";
+
 import { Button } from "react-native-elements";
 import moment from "moment";
 import axios from "axios";
@@ -19,9 +23,20 @@ import { setUserId, resetState } from "../action";
 
 class RaspberryPi extends React.Component {
   static navigationOptions = ({ navigation }) => ({
-    headerTitle: "Sojournal",
+    headerLeft: (
+      <Image
+        style={{ width: 100, height: 40, marginLeft: 20 }}
+        source={require("../assets/images/sojournal_black.png")}
+      />
+    ),
     headerRight: (
-      <Button onPress={navigation.getParam("logOut")} title="Log Out" />
+      <TouchableOpacity onPress={navigation.getParam("logOut")}>
+        <SimpleLineIcons
+          name="logout"
+          size={30}
+          style={{ marginRight: 30, marginTop: 8 }}
+        />
+      </TouchableOpacity>
     )
   });
   state = {

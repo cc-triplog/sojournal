@@ -152,7 +152,7 @@ class App extends React.Component {
         <Provider store={store}>
           <View style={styles.container}>
             {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-            <AppNavigator logOut={this.logOut} />
+            <AppNavigator logOut={this.logOut} rerender={this.props.rerender} />
           </View>
         </Provider>
       );
