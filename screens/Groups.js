@@ -128,14 +128,14 @@ class Groups extends React.Component {
         {this.props.createGroupVisible ? (
           <CreateGroup toggleVisible={this.props.toggleCreateGroupVisible} />
         ) : (
-          <View style={styles.buttonContainer}>
-            <Button
-              buttonStyle={styles.button}
-              title="Create New"
-              onPress={this.props.toggleCreateGroupVisible}
-            />
-          </View>
-        )}
+            <View style={styles.buttonContainer}>
+              <Button
+                buttonStyle={styles.button}
+                title="Create New"
+                onPress={this.props.toggleCreateGroupVisible}
+              />
+            </View>
+          )}
         {this.props.pictureGroups.reverse().map(group => (
           <GroupCard
             key={group.id}

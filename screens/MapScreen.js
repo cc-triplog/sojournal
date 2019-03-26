@@ -18,7 +18,6 @@ import {
 import "./styles";
 import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
-import Icon from AntDesign;
 import MapView from "react-native-maps";
 import moment from "moment";
 import axios from "axios";
@@ -234,10 +233,10 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => this.props.navigation.goBack()}>
-          <Icon type="left-square-o" size={40} />
-        </TouchableOpacity>
+          <AntDes type="left-square-o" size={40} />
+        </TouchableOpacity> */}
         {/* <Button
           buttonStyle={{ marginTop: 30 }}
           title="Go Back"
