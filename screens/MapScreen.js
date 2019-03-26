@@ -18,6 +18,7 @@ import {
 import "./styles";
 import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
+import { AntDesign, SimpleLineIcons } from 'react-native-vector-icons';
 import MapView from "react-native-maps";
 import moment from "moment";
 import axios from "axios";
@@ -37,9 +38,23 @@ const CARD_HEIGHT = height / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
 
 class MapScreen extends React.Component {
-  static navigationOptions = {
-    header: null
-  };
+  static navigationOptions = ({ navigation }) => ({
+    headerLeft: (
+      <Image
+        style={{ width: 100, height: 40, marginLeft: 20 }}
+        source={require("../assets/images/sojournal_black.png")}
+      />
+    ),
+    headerRight: (
+      <TouchableOpacity onPress={navigation.getParam("logOut")}>
+        <SimpleLineIcons
+          name="logout"
+          size={30}
+          style={{ marginRight: 30, marginTop: 8 }}
+        />
+      </TouchableOpacity>
+    )
+  });
   constructor(props) {
     super(props);
   }
@@ -233,22 +248,12 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        {/* <TouchableOpacity
-          onPress={() => this.props.navigation.goBack()}>
-          <AntDes type="left-square-o" size={40} />
-        </TouchableOpacity> */}
-        {/* <Button
-          buttonStyle={{ marginTop: 30 }}
-          title="Go Back"
-          onPress={() => this.props.navigation.goBack()}
-        /> */}
         {this.props.visible ? <PopupCard /> : <View />}
         <MapView
           ref={map => (this.map = map)}
           initialRegion={this.props.region}
           style={styles.container}
         >
-
           {this.props.markers.map((marker, index) => {
             const scaleStyle = {
               transform: [
@@ -337,7 +342,7 @@ class MapScreen extends React.Component {
             </TouchableOpacity>
           ))}
         </Animated.ScrollView>
-      </View>
+      </View >
     );
   }
 }
@@ -345,6 +350,10 @@ class MapScreen extends React.Component {
 const theme = getTheme();
 
 const styles = StyleSheet.create({
+  backIcon: {
+    marginTop: 20,
+    backgroundColor: 'transparent',
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff"

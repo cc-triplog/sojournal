@@ -168,6 +168,25 @@ class CameraPage extends React.Component {
 
   uploadPicture = async () => {
     const { capture } = this.props;
+    const axiosCall = {
+      url:
+        "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
+      method: "post",
+      data: {
+        query: `mutation
+          {CreatePhoto(
+            input:{
+              userId: ${this.props.userId}
+              imageFile:${JSON.stringify(capture.base64)}
+              longitude:${capture.longitude}
+              latitude: ${capture.latitude}
+              createdAt: "${capture.timestamp}"
+              comment: "${capture.comment || "Comment your picture"}"
+              title: "${capture.title || "Name your picture"}"
+          })}`
+      }
+    }
+    console.log("===-==========================axiosCall", axiosCall)
 
     axios({
       url:

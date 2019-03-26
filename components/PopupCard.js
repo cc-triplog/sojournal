@@ -81,8 +81,8 @@ class PopupCard extends React.Component {
         `
       }
     }).then(result => {
-      this.props.deletePhoto(this.props.selectedImageIndex);
       this.props.changeCardVisibility(false)
+      this.props.deletePhoto(this.props.selectedImageIndex);
     })
   }
   onPressExit() {
