@@ -37,11 +37,13 @@ export default class GroupCard extends React.Component {
           />
           <View style={styles.buttonContainer}>
             <Button
+              titleStyle={{ color: "black" }}
               buttonStyle={styles.viewButton}
               title="View"
               onPress={this.props.renderOnMapFiltered}
             />
             <Button
+              titleStyle={{ color: "black" }}
               buttonStyle={styles.deleteButton}
               title="Delete"
               onPress={this.props.deleteGroup}
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     width: 100,
     height: 40,
-    backgroundColor: "#A9A9A9"
+    backgroundColor: "#D3D3D3"
   },
   viewButton: {
     width: 100,

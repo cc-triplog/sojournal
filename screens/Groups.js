@@ -119,6 +119,7 @@ class Groups extends React.Component {
       <ScrollView>
         <View style={styles.buttonContainer}>
           <Button
+            titleStyle={{ color: "black" }}
             buttonStyle={styles.viewAllButton}
             title="All Memories"
             onPress={() => this.renderOnMapAll()}
@@ -130,6 +131,7 @@ class Groups extends React.Component {
         ) : (
           <View style={styles.buttonContainer}>
             <Button
+              titleStyle={{ color: "black" }}
               buttonStyle={styles.button}
               title="Create New"
               onPress={this.props.toggleCreateGroupVisible}
@@ -184,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: 50
   },
   myTripsHeader: {
-    fontSize: 16,
+    fontSize: 24,
     marginBottom: 20
   }
 });
