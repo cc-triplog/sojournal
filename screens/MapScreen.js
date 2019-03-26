@@ -18,7 +18,6 @@ import {
 import "./styles";
 import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
-import AntDesign from "react-native-vector-icons";
 import Icon from AntDesign;
 import MapView from "react-native-maps";
 import moment from "moment";
