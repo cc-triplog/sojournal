@@ -35,6 +35,7 @@ r = redis.Redis(host='localhost', port=6379, db=0)
 GRAPHQL_URL = os.environ['URL_LOCAL']
 
 # default timeout is about 1 min.
+# Now, set the timeout 10 seconds.
 socket.setdefaulttimeout(10)
 
 today = datetime.now()

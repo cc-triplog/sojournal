@@ -385,7 +385,6 @@ let root = {
             console.error(err, err.stack);
           });
       });
-
     db("photos")
       .insert({
         title: req.input.title,
@@ -399,7 +398,7 @@ let root = {
         image_file: thumbKeyName,
         altitude: req.input.altitude,
         bearing: req.input.bearing,
-        created_at: req.input.createdAt
+        created_at: Number(req.input.createdAt)
       })
       .then(res => {
         console.log(res);
