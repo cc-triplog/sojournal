@@ -37,14 +37,12 @@ export default class GroupCard extends React.Component {
           />
           <View style={styles.buttonContainer}>
             <Button
-              backgroundColor="#03A9F4"
-              buttonStyle={styles.button}
+              buttonStyle={styles.viewButton}
               title="View"
               onPress={this.props.renderOnMapFiltered}
             />
             <Button
-              backgroundColor="#03A9F4"
-              buttonStyle={styles.button}
+              buttonStyle={styles.deleteButton}
               title="Delete"
               onPress={this.props.deleteGroup}
             />
@@ -70,9 +68,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around"
   },
-  button: {
+  deleteButton: {
     width: 100,
-    height: 40
+    height: 40,
+    backgroundColor: "#A9A9A9"
+  },
+  viewButton: {
+    width: 100,
+    height: 40,
+    backgroundColor: "#82bfff"
   },
   dateContainer: {
     flexDirection: "row",

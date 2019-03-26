@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   button: {
     width: 150,
     height: 40,
-    backgroundColor: "#008080",
+    backgroundColor: "#82bfff",
     marginTop: 10,
     borderRadius: 50
   },
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   viewAllButton: {
     width: 150,
     height: 40,
-    backgroundColor: "#BA55D3",
+    backgroundColor: "#82bfff",
     marginTop: 10,
     marginBottom: 30,
     borderRadius: 50
