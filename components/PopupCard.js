@@ -58,7 +58,8 @@ class PopupCard extends React.Component {
     const replaceTarget = /.jpg/gi;
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
-    console.log("======================midsize image url", this.state.midSizeImage)
+    console.log("========================image url", this.props.markers[this.props.selectedImageIndex].image)
+    console.log('========================midsizeimageurl', midSizeImageUrl)
   }
   onChangeTextTitle(text) {
     this.setState({ title: text })
@@ -86,6 +87,7 @@ class PopupCard extends React.Component {
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
+    console.log("======================midsize image url", this.state.midSizeImage)
   }
   onPressImage() {
     console.log("==========================touched")
@@ -139,57 +141,45 @@ class PopupCard extends React.Component {
         fullScreen={false}
         style={styles.overlay}
       >
-        {this.props.displayImageFull
-          ? (<ImageFullScreen />)
-          : (<View key={this.props.selectedImageIndex} style={styles.card}>
-            <View style={styles.popupContent}>
-              <TouchableOpacity
-                key={this.props.selectedImageIndex}
-                onPress={() => this.onPressImage()}
-                ref={this.props.selectedImageIndex}
-              >
-                <View>
-                  <Image source={this.state.midSizeImage} style={styles.popUpImage} />
-                </View>
-              </TouchableOpacity>
-            </View>
-
+        <View key={this.props.selectedImageIndex} style={styles.card}>
+          <View style={styles.popupContent}>
+            <Image source={this.state.midSizeImage} style={styles.popUpImage} />
+          </View>
+          <TextInput
+            style={styles.textTitle}
+            onChangeText={(text) => { this.onChangeTextTitle(text) }}
+            defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
+          <View style={styles.textDescription}>
             <TextInput
-              style={styles.textTitle}
-              onChangeText={(text) => { this.onChangeTextTitle(text) }}
-              defaultValue={this.props.markers[this.props.selectedImageIndex].title} />
-            <View style={styles.textDescription}>
-              <TextInput
-                multiline={true}
-                style={theme.cardContentStyle}
-                onChangeText={(text) => { this.onChangeTextDescription(text) }}
-                defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+              multiline={true}
+              style={theme.cardContentStyle}
+              onChangeText={(text) => { this.onChangeTextDescription(text) }}
+              defaultValue={this.props.markers[this.props.selectedImageIndex].description} />
+          </View>
+          <View style={styles.alignButtons}>
+            <View style={styles.buttonUpload}>
+              <Button
+                onPress={() => { this.onPressUpload() }}
+                title="UPDATE"
+                type="outline"
+                accessibilityLabel="update" />
             </View>
-            <View style={styles.alignButtons}>
-              <View style={styles.buttonUpload}>
-                <Button
-                  onPress={() => { this.onPressUpload() }}
-                  title="UPDATE"
-                  type="outline"
-                  accessibilityLabel="update" />
-              </View>
-              <View style={styles.buttonDelete}>
-                <Button
-                  onPress={() => { this.onPressDelete() }}
-                  title="DELETE"
-                  type="outline"
-                  accessibilityLabel="delete" />
-              </View>
-              <View style={styles.buttonExit}>
-                <Button
-                  onPress={() => { this.onPressExit() }}
-                  title="EXIT"
-                  type="outline"
-                  accessibilityLabel="exit" />
-              </View>
+            <View style={styles.buttonDelete}>
+              <Button
+                onPress={() => { this.onPressDelete() }}
+                title="DELETE"
+                type="outline"
+                accessibilityLabel="delete" />
             </View>
-          </View>)
-        }
+            <View style={styles.buttonExit}>
+              <Button
+                onPress={() => { this.onPressExit() }}
+                title="EXIT"
+                type="outline"
+                accessibilityLabel="exit" />
+            </View>
+          </View>
+        </View>
       </Overlay>
     );
   }
@@ -260,7 +250,6 @@ const styles = StyleSheet.create({
   },
   popupContent: {
     flex: 6,
-    backgroundColor: 'transparent'
   },
   textTitle: {
     flex: 1,

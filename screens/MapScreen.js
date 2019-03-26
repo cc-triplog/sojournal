@@ -85,8 +85,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   };
-  componentWillUpdate() {}
-  componentWillUnmount() {}
+  componentWillUpdate() { }
+  componentWillUnmount() { }
 
   async loadById() {
     await AsyncStorage.getItem("id")
@@ -143,6 +143,8 @@ class MapScreen extends React.Component {
     const epochToNormalStart = this.timeConvert(this.props.navigation.state.params.startDate)
     const epochToNormalEnd = this.timeConvert(this.props.navigation.state.params.endDate)
     console.log("=========================normal start", epochToNormalStart)
+    console.log("=========================normal end", epochToNormalEnd)
+
     await axios({
       url:
         "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
@@ -150,11 +152,11 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetPhotoByDate(type: {
-          userId: ${this.props.userId}
+          userId: 5
           startTime: "${epochToNormalStart}"
           endTime: "${epochToNormalEnd}"
         }) {
-         title, latitude, longitude, comment, imageFile, id
+         title, latitude, longitude, comment, imageFile, id, createdAt
         }
       }
         `
@@ -169,6 +171,7 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
+        date: `${this.timeConvert(object.createdAt)}`,
         id: Number(object.id)
       }));
       mapResult.sort((marker1, marker2) => {
