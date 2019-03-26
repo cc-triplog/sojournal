@@ -149,7 +149,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetPhotoByDate(type: {
-          userId: ${this.props.userId}
+          userId: 5
           startTime: "${epochToNormalStart}"
           endTime: "${epochToNormalEnd}"
         }) {
