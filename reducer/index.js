@@ -11,7 +11,7 @@ const initialState = {
     selectedImageIndex: null,
     displayImageFull: false,
     capture: null,
-    userId: null,
+    userId: 5,
     createGroupVisible: false,
     groupDatePickerVisible: false,
     groupStartDate: "",
@@ -63,7 +63,7 @@ const reducer = (state = initialState, action) => {
         case "INSERT_PHOTOWITHINDEX": {
             const stateChanges = {
                 markers: [
-                    ...state.markers.slice(0, state.selectedImageIndex + 1),
+                    ...state.markers.slice(0, state.selectedImageIndex),
                     action.photo,
                     ...state.markers.slice(state.selectedImageIndex + 1)
                 ]
@@ -77,7 +77,7 @@ const reducer = (state = initialState, action) => {
         case "DELETE_PHOTO": {
             const stateChanges = {
                 markers: [
-                    ...state.markers.slice(0, action.index - 1),
+                    ...state.markers.slice(0, action.index),
                     ...state.markers.slice(action.index + 1)
                 ]
             };

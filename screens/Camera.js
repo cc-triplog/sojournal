@@ -161,6 +161,7 @@ class CameraPage extends React.Component {
   uploadPicture = async () => {
     const { capture } = this.props;
     this.setState({ isLoading: true });
+
     axios({
       url:
         "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
