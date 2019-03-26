@@ -160,7 +160,7 @@ class CameraPage extends React.Component {
 
   uploadPicture = async () => {
     const { capture } = this.props;
-
+    this.setState({ isLoading: true });
     axios({
       url:
         "http://ec2-54-199-164-132.ap-northeast-1.compute.amazonaws.com:4000/graphql",
@@ -179,7 +179,7 @@ class CameraPage extends React.Component {
           })}`
       }
     }).then(() => {
-      this.setState({ imageView: false });
+      this.setState({ imageView: false, isLoading: false });
       this.props.screenProps.rerender();
     });
   };
@@ -215,24 +215,30 @@ class CameraPage extends React.Component {
     const { imageView, modalVisible, isLoading } = this.state;
 
     return imageView === true ? (
-      <React.Fragment>
-        <CaptureView capture={capture} />
+      isLoading ? (
+        <View style={[styles.container, styles.horizontal]}>
+          <ActivityIndicator size={100} color="#82bfff" />
+        </View>
+      ) : (
+        <React.Fragment>
+          <CaptureView capture={capture} />
 
-        <CaptureToolbar
-          trashPicture={this.trashPicture}
-          uploadPicture={this.uploadPicture}
-          addStory={this.addStory}
-        />
-        {modalVisible ? (
-          <CommentModal
-            modalVisible={modalVisible}
-            setModalVisible={this.setModalVisible}
+          <CaptureToolbar
+            trashPicture={this.trashPicture}
+            uploadPicture={this.uploadPicture}
+            addStory={this.addStory}
           />
-        ) : null}
-      </React.Fragment>
+          {modalVisible ? (
+            <CommentModal
+              modalVisible={modalVisible}
+              setModalVisible={this.setModalVisible}
+            />
+          ) : null}
+        </React.Fragment>
+      )
     ) : isLoading ? (
       <View style={[styles.container, styles.horizontal]}>
-        <ActivityIndicator size={100} color="#A9A9A9" />
+        <ActivityIndicator size={100} color="#82bfff" />
       </View>
     ) : (
       <View style={styles.choicePage}>
