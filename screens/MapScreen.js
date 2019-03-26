@@ -85,8 +85,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   };
-  componentWillUpdate() {}
-  componentWillUnmount() {}
+  componentWillUpdate() { }
+  componentWillUnmount() { }
 
   async loadById() {
     await AsyncStorage.getItem("id")
