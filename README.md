@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./images/sojournal.jpg" align="center" width="100%" alt="sojournal">
+    <img src="./assets/assets/images/sojournal.jpg" align="center" width="100%" alt="sojournal">
 </div>
 <h1 align="center" >SOJOURNAL</h1>
 
@@ -20,7 +20,7 @@
         App available at Google Play
         <br/>
         <a href="https://play.google.com/store/apps/details?id=com.codechrysalis.magellansmiles">
-        <img src="./images/playstore.svg" width="150px">
+        <img src="./assets/images/playstore.svg" width="150px">
         </a>
         <br/>
         ***********************************************************************
@@ -46,57 +46,59 @@ Trip Log™ is a cloud image storage based on geographic location. Though Trip L
 ### Frontend
 
 <div width="300px">
-<img alt="ReactNative" src="./images/react_native.png" width="100px">
-<img alt="Android" src="./images/android.png" width="100px">
-<img alt="Redux" src="./images/redux.png" width="100px">
+<img alt="ReactNative" src="./assets/images/react_native.png" width="150px">
+<img alt="Redux" src="./assets/images/redux.png" width="150px">
+<img alt="Android" src="./assets/images/android.png" width="50px">
 </div>
 
 ### Backend
 
 <div width="400px">
-<img alt="AWS" src="./images/aws.jpg" width="100px">
-<img alt="S3" src="./images/amazons3.jpg" width="100px">
-<img alt="EC2" src="./images/ec2.png" width="100px">
-<img alt="express" src="./images/express.png" width="100px">
-<img alt="graphql" src="./images/graphql.png" width="100px">
-<img alt="knex" src="./images/knex.png" width="100px">
-<img alt="postgres" src="./images/postgres.png" width="100px">
-<img alt="ubuntu.png" src="./images/ubuntu.png" width="100px">
+<img alt="AWS" src="./assets/images/aws.jpg" width="90px">
+<img alt="S3" src="./assets/images/amazons3.jpg" width="120px">
+<img alt="EC2" src="./assets/images/ec2.png" width="150px">
+<img alt="express" src="./assets/images/express.png" width="120px">
+<img alt="graphql" src="./assets/images/graphql.png" width="150px">
+<img alt="knex" src="./assets/images/knex.png" width="50px">
+<img alt="postgres" src="./assets/images/postgres.png" width="50px">
+<img alt="ubuntu.png" src="./assets/images/ubuntu.png" width="50px">
 </div>
 
 ### Hardware
 
 <div width="300px">
-<img alt="raspberry pi" src="./images/raspberrypi.png" width="100px">
-<img alt="python" src="./images/python.png" width="100px">
-<img alt="redis" src="./images/redis.png" width="100px">
+<img alt="raspberry pi" src="./assets/images/raspberrypi.png" width="50px">
+<img alt="python" src="./assets/images/python.png" width="50px">
+<img alt="redis" src="./assets/images/redis.png" width="150px">
 </div>
 
 ## 3. Architecture
 
 ### Frontend
 
+<img alt="screenshot_hard" src="./assets/images/frontend-screenshot.png">
+
 ### Backend
+
+<img alt="screenshot_hard" src="./assets/images/backend-screenshot.png">
 
 ### Hardware
 
-<img alt="screenshot_hard" src="./images/hardware_screenshot.png">
+<img alt="screenshot_hard" src="./assets/images/hardware_screenshot.png">
 
 ## 4. Features
 
-### a) _Upload Photos That Automatically Locates on Map_
+### Frontend
 
-Once you open the app, you will see your geographical location zoomed into google map.
+<img alt="screenshot_hard" src="./assets/images/frontend-current-feature.png">
 
-Click on the **Upload** button and it will direct you to your image gallery on your mobile device. Select one or multiple images to upload.
+### Backend
 
-Once photos are chosen, you will be able to see it on the map. Please refer to the instruction below to learn more about writting comments for each photo uploads.
+<img alt="screenshot_hard" src="./assets/images/backend-current-feature.png">
 
-### b) _Check out the name of a truck stop_
+### Hardware
 
-If you click a marker, an informational pop-up balloon with the name of that truck stop will appear just above the marker.
-
-To close a pop-up balloon, click the marker or the close button (marked with an 'x') in the upper-right hand corner of the balloon.
+<img alt="screenshot_hard" src="./assets/images/hardware-current-feature.png">
 
 ## 5. Setup
 
