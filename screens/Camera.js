@@ -244,24 +244,24 @@ class CameraPage extends React.Component {
         <ActivityIndicator size={100} color="#A9A9A9" />
       </View>
     ) : (
-      <View style={styles.choicePage}>
-        <TouchableOpacity
-          style={styles.choiceButtons}
-          onPress={this.launchCamera}
-        >
-          <AntDesign name="camera" color="white" size={100} />
-          <Text>Take Photo</Text>
-        </TouchableOpacity>
+          <View style={styles.choicePage}>
+            <TouchableOpacity
+              style={styles.choiceButtons}
+              onPress={this.launchCamera}
+            >
+              <AntDesign name="camera" color="white" size={100} />
+              <Text>Take Photo</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.choiceButtons}
-          onPress={this.launchLibrary}
-        >
-          <AntDesign name="picture" color="white" size={100} />
-          <Text>Pick Photo</Text>
-        </TouchableOpacity>
-      </View>
-    );
+            <TouchableOpacity
+              style={styles.choiceButtons}
+              onPress={this.launchLibrary}
+            >
+              <AntDesign name="picture" color="white" size={100} />
+              <Text>Pick Photo</Text>
+            </TouchableOpacity>
+          </View>
+        );
   }
 }
 

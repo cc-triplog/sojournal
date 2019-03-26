@@ -15,14 +15,11 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import ViewOverflow from "react-native-view-overflow";
 import "./styles";
-import { WebBrowser, Component } from "expo";
 import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
 import MapView from "react-native-maps";
 import moment from "moment";
-import { MonoText } from "../components/StyledText";
 import axios from "axios";
 import { connect } from "react-redux";
 import PopupCard from "../components/PopupCard";
@@ -140,8 +137,8 @@ class MapScreen extends React.Component {
     });
   };
   callDatabasePhotos = async () => {
-    const epochToNormalStart = this.timeConvert(this.props.navigation.state.params.startDate)
-    const epochToNormalEnd = this.timeConvert(this.props.navigation.state.params.endDate)
+    const epochToNormalStart = this.startTimeConvert(this.props.navigation.state.params.startDate)
+    const epochToNormalEnd = this.endTimeConvert(this.props.navigation.state.params.endDate)
     console.log("=========================normal start", epochToNormalStart)
     console.log("=========================normal end", epochToNormalEnd)
 
@@ -171,7 +168,7 @@ class MapScreen extends React.Component {
         title: `${object.title}`,
         description: `${object.comment}`,
         image: { uri: `${http + object.imageFile}` },
-        date: `${this.timeConvert(object.createdAt)}`,
+        date: `${this.startTimeConvert(object.createdAt)}`,
         id: Number(object.id)
       }));
       mapResult.sort((marker1, marker2) => {
@@ -201,9 +198,16 @@ class MapScreen extends React.Component {
   sortById = (marker1, marker2) => {
 
     return marker1.id - marker2.id
-  }
-  timeConvert = time => {
+  };
+  startTimeConvert = time => {
     const epoch = Number(time);
+    if (time == undefined || time == null) return moment(0).format("MMM DD YY")
+    return moment(epoch).format("MMM DD YY");
+  };
+  endTimeConvert = time => {
+    const epoch = Number(time);
+    if (time == undefined || time == null) return moment(99999999999999).format("MMM DD YY")
+
     return moment(epoch).format("MMM DD YY");
   };
 
@@ -229,17 +233,22 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        <Button
+        {/* <TouchableOpacity
+          onPress={() => this.props.navigation.goBack()}>
+          <AntDes type="left-square-o" size={40} />
+        </TouchableOpacity> */}
+        {/* <Button
           buttonStyle={{ marginTop: 30 }}
           title="Go Back"
           onPress={() => this.props.navigation.goBack()}
-        />
+        /> */}
         {this.props.visible ? <PopupCard /> : <View />}
         <MapView
           ref={map => (this.map = map)}
           initialRegion={this.props.region}
           style={styles.container}
         >
+
           {this.props.markers.map((marker, index) => {
             const scaleStyle = {
               transform: [
