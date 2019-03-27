@@ -108,8 +108,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   };
-  componentWillUpdate() {}
-  componentWillUnmount() {}
+  componentWillUpdate() { }
+  componentWillUnmount() { }
 
   async loadById() {
     await AsyncStorage.getItem("id")
@@ -169,8 +169,6 @@ class MapScreen extends React.Component {
     const epochToNormalEnd = this.endTimeConvert(
       this.props.navigation.state.params.endDate
     );
-    console.log("=========================normal start", epochToNormalStart);
-    console.log("=========================normal end", epochToNormalEnd);
 
     await axios({
       url:
@@ -179,7 +177,7 @@ class MapScreen extends React.Component {
       data: {
         query: `
         query {GetPhotoByDate(type: {
-          userId: 5
+          userId: ${this.props.userId}
           startTime: "${epochToNormalStart}"
           endTime: "${epochToNormalEnd}"
         }) {
@@ -196,19 +194,14 @@ class MapScreen extends React.Component {
             latitude: Number(object.latitude),
             longitude: Number(object.longitude)
           },
-          title: `${object.title}`,
-          description: `${object.comment}`,
+          title: `${this.processPhotoTitle(object.title)}`,
+          description: `${this.processPhotoDescription(object.comment)}`,
           image: { uri: `${http + object.imageFile}` },
           date: `${this.startTimeConvert(object.createdAt)}`,
           id: Number(object.id)
         }));
         mapResult.sort((marker1, marker2) => {
           return marker1.id - marker2.id;
-        });
-        mapResult.forEach(photo => {
-          if (photo.title == "null") photo.title = "Please Add Title";
-          if (photo.description == "undefined")
-            photo.description = "Please Add Comment";
         });
 
         this.props.renderPhotos(mapResult);
@@ -226,9 +219,20 @@ class MapScreen extends React.Component {
     this.props.changeCardVisibility(true);
     this.idToIndex(id);
   };
-  sortById = (marker1, marker2) => {
-    return marker1.id - marker2.id;
-  };
+  processPhotoTitle(title) {
+    if (title == undefined || title == null) {
+      return "Please Add Title"
+    } else {
+      return title
+    }
+  }
+  processPhotoDescription(description) {
+    if (description == undefined || description == null) {
+      return "Please Add Comment"
+    } else {
+      return description
+    }
+  }
   startTimeConvert = time => {
     const epoch = Number(time);
     if (time == undefined || time == null) return moment(0).format("MMM DD YY");
@@ -439,7 +443,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     position: "absolute",
-    backgroundColor: "#FF1493"
+    backgroundColor: "rgba(255, 20, 147, 1)"
   },
   ring: {
     width: 24,
@@ -453,9 +457,9 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "rgba(130,4,150, 0.3)",
+    backgroundColor: "rgba(255, 20, 147, 0.3)",
     borderWidth: 1,
-    borderColor: "rgba(130,4,150, 0.5)"
+    borderColor: "rgba(255, 20, 147, 0.5)"
   }
 });
 
