@@ -18,7 +18,7 @@ import {
 import "./styles";
 import { Button, Overlay } from "react-native-elements";
 import { getTheme } from "react-native-material-kit";
-import { AntDesign, SimpleLineIcons } from 'react-native-vector-icons';
+import { AntDesign, SimpleLineIcons } from "react-native-vector-icons";
 import MapView from "react-native-maps";
 import moment from "moment";
 import axios from "axios";
@@ -39,8 +39,25 @@ const CARD_WIDTH = CARD_HEIGHT - 50;
 
 class MapScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
-    header: null
-  })
+    headerLeft: (
+      <Image
+        style={{ width: 100, height: 40, marginLeft: 20 }}
+        source={require("../assets/images/sojournal_black.png")}
+      />
+    ),
+    headerRight: (
+      <Button
+        buttonStyle={{
+          width: 150,
+          height: 40,
+          backgroundColor: "#82bfff",
+          borderRadius: 50
+        }}
+        title="Go Back"
+        onPress={navigation.getParam("goBack")}
+      />
+    )
+  });
   constructor(props) {
     super(props);
   }
@@ -49,7 +66,7 @@ class MapScreen extends React.Component {
 
   componentDidMount = () => {
     this.props.navigation.setParams({
-      goBack: this.props.navigation.goBack
+      goBack: () => this.props.navigation.navigate("Group")
     });
 
     this.index = 0;
@@ -84,8 +101,8 @@ class MapScreen extends React.Component {
       }, 10);
     });
   };
-  componentWillUpdate() { }
-  componentWillUnmount() { }
+  componentWillUpdate() {}
+  componentWillUnmount() {}
 
   async loadById() {
     await AsyncStorage.getItem("id")
@@ -139,10 +156,14 @@ class MapScreen extends React.Component {
     });
   };
   callDatabasePhotos = async () => {
-    const epochToNormalStart = this.startTimeConvert(this.props.navigation.state.params.startDate)
-    const epochToNormalEnd = this.endTimeConvert(this.props.navigation.state.params.endDate)
-    console.log("=========================normal start", epochToNormalStart)
-    console.log("=========================normal end", epochToNormalEnd)
+    const epochToNormalStart = this.startTimeConvert(
+      this.props.navigation.state.params.startDate
+    );
+    const epochToNormalEnd = this.endTimeConvert(
+      this.props.navigation.state.params.endDate
+    );
+    console.log("=========================normal start", epochToNormalStart);
+    console.log("=========================normal end", epochToNormalEnd);
 
     await axios({
       url:
@@ -160,31 +181,32 @@ class MapScreen extends React.Component {
       }
         `
       }
-    }).then(result => {
-      const http = "http://";
-      const mapResult = result.data.data.GetPhotoByDate.map(object => ({
-        coordinate: {
-          latitude: Number(object.latitude),
-          longitude: Number(object.longitude)
-        },
-        title: `${object.title}`,
-        description: `${object.comment}`,
-        image: { uri: `${http + object.imageFile}` },
-        date: `${this.startTimeConvert(object.createdAt)}`,
-        id: Number(object.id)
-      }));
-      mapResult.sort((marker1, marker2) => {
-        return marker1.id - marker2.id;
-      });
-      mapResult.forEach(photo => {
-        if (photo.title == "null") photo.title = "Please Add Title";
-        if (photo.description == "undefined")
-          photo.description = "Please Add Comment";
-      });
-
-      this.props.renderPhotos(mapResult);
     })
-      .catch(err => console.log("============err========", err))
+      .then(result => {
+        const http = "http://";
+        const mapResult = result.data.data.GetPhotoByDate.map(object => ({
+          coordinate: {
+            latitude: Number(object.latitude),
+            longitude: Number(object.longitude)
+          },
+          title: `${object.title}`,
+          description: `${object.comment}`,
+          image: { uri: `${http + object.imageFile}` },
+          date: `${this.startTimeConvert(object.createdAt)}`,
+          id: Number(object.id)
+        }));
+        mapResult.sort((marker1, marker2) => {
+          return marker1.id - marker2.id;
+        });
+        mapResult.forEach(photo => {
+          if (photo.title == "null") photo.title = "Please Add Title";
+          if (photo.description == "undefined")
+            photo.description = "Please Add Comment";
+        });
+
+        this.props.renderPhotos(mapResult);
+      })
+      .catch(err => console.log("============err========", err));
   };
   idToIndex = id => {
     let index;
@@ -198,17 +220,17 @@ class MapScreen extends React.Component {
     this.idToIndex(id);
   };
   sortById = (marker1, marker2) => {
-
-    return marker1.id - marker2.id
+    return marker1.id - marker2.id;
   };
   startTimeConvert = time => {
     const epoch = Number(time);
-    if (time == undefined || time == null) return moment(0).format("MMM DD YY")
+    if (time == undefined || time == null) return moment(0).format("MMM DD YY");
     return moment(epoch).format("MMM DD YY");
   };
   endTimeConvert = time => {
     const epoch = Number(time);
-    if (time == undefined || time == null) return moment(99999999999999).format("MMM DD YY")
+    if (time == undefined || time == null)
+      return moment(99999999999999).format("MMM DD YY");
 
     return moment(epoch).format("MMM DD YY");
   };
@@ -235,68 +257,57 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        {/* <View>
-          <TouchableOpacity
-            style={styles.choiceButtons}
-            onPress={() => this.props.navigation.goBack())}
->
-        <AntDesign name="left" color="black" size={30} />
-      </TouchableOpacity>
-      </View> */}
+        <View />
         {this.props.visible ? <PopupCard /> : <View />}
-        < MapView
+        <MapView
           ref={map => (this.map = map)}
           initialRegion={this.props.region}
           style={styles.container}
         >
-          {
-            this.props.markers.map((marker, index) => {
-              const scaleStyle = {
-                transform: [
-                  {
-                    scale: interpolations[index].scale
-                  }
-                ]
-              };
-              const opacityStyle = {
-                opacity: interpolations[index].scale
-              };
-              return (
-                <View
-                  key={index}
-                  style={styles.markerWrap}
-                  pointerEvents="box-none"
-                >
-                  <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                    <Animated.View style={[styles.markerWrap, opacityStyle]}>
-                      <Animated.View style={[styles.ring, scaleStyle]} />
-                      <View style={styles.marker} />
-                    </Animated.View>
-                  </MapView.Marker>
-                </View>
-              );
-            })
-          }
+          {this.props.markers.map((marker, index) => {
+            const scaleStyle = {
+              transform: [
+                {
+                  scale: interpolations[index].scale
+                }
+              ]
+            };
+            const opacityStyle = {
+              opacity: interpolations[index].scale
+            };
+            return (
+              <View
+                key={index}
+                style={styles.markerWrap}
+                pointerEvents="box-none"
+              >
+                <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
+                  <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                    <Animated.View style={[styles.ring, scaleStyle]} />
+                    <View style={styles.marker} />
+                  </Animated.View>
+                </MapView.Marker>
+              </View>
+            );
+          })}
 
-          {
-            this.props.GPS.map((gps, index) => {
-              return (
-                <View
-                  key={index}
-                  pointerEvents="box-none"
-                  backgroundColor="transparent"
-                >
-                  <MapView.Marker coordinate={gps.coordinate}>
-                    <Animated.View style={[styles.markerWrap]}>
-                      <Animated.View style={[styles.ringGps]} />
-                      <View style={styles.markerGps} />
-                    </Animated.View>
-                  </MapView.Marker>
-                </View>
-              );
-            })
-          }
-        </MapView >
+          {this.props.GPS.map((gps, index) => {
+            return (
+              <View
+                key={index}
+                pointerEvents="box-none"
+                backgroundColor="transparent"
+              >
+                <MapView.Marker coordinate={gps.coordinate}>
+                  <Animated.View style={[styles.markerWrap]}>
+                    <Animated.View style={[styles.ringGps]} />
+                    <View style={styles.markerGps} />
+                  </Animated.View>
+                </MapView.Marker>
+              </View>
+            );
+          })}
+        </MapView>
         <Animated.ScrollView
           horizontal
           scrollEventThrottle={1}
@@ -341,7 +352,7 @@ class MapScreen extends React.Component {
             </TouchableOpacity>
           ))}
         </Animated.ScrollView>
-      </View >
+      </View>
     );
   }
 }
@@ -351,7 +362,7 @@ const theme = getTheme();
 const styles = StyleSheet.create({
   backIcon: {
     marginTop: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent"
   },
   container: {
     flex: 1,
