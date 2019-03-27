@@ -221,45 +221,45 @@ class CameraPage extends React.Component {
           <ActivityIndicator size={100} color="#82bfff" />
         </View>
       ) : (
-        <React.Fragment>
-          <CaptureView capture={capture} />
+          <React.Fragment>
+            <CaptureView capture={capture} />
 
-          <CaptureToolbar
-            trashPicture={this.trashPicture}
-            uploadPicture={this.uploadPicture}
-            addStory={this.addStory}
-          />
-          {modalVisible ? (
-            <CommentModal
-              modalVisible={modalVisible}
-              setModalVisible={this.setModalVisible}
+            <CaptureToolbar
+              trashPicture={this.trashPicture}
+              uploadPicture={this.uploadPicture}
+              addStory={this.addStory}
             />
-          ) : null}
-        </React.Fragment>
-      )
+            {modalVisible ? (
+              <CommentModal
+                modalVisible={modalVisible}
+                setModalVisible={this.setModalVisible}
+              />
+            ) : null}
+          </React.Fragment>
+        )
     ) : isLoading ? (
       <View style={[styles.container, styles.horizontal]}>
         <ActivityIndicator size={100} color="#82bfff" />
       </View>
     ) : (
-      <View style={styles.choicePage}>
-        <TouchableOpacity
-          style={styles.choiceButtons}
-          onPress={this.launchCamera}
-        >
-          <AntDesign name="camera" color="black" size={100} />
-          <Text style={styles.commandText}>Take Photo</Text>
-        </TouchableOpacity>
+          <View style={styles.choicePage}>
+            <TouchableOpacity
+              style={styles.choiceButtons}
+              onPress={this.launchCamera}
+            >
+              <AntDesign name="camera" color="black" size={100} />
+              <Text style={styles.commandText}>Take Photo</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.choiceButtons}
-          onPress={this.launchLibrary}
-        >
-          <AntDesign name="picture" color="black" size={100} />
-          <Text style={styles.commandText}>Pick Photo</Text>
-        </TouchableOpacity>
-      </View>
-    );
+            <TouchableOpacity
+              style={styles.choiceButtons}
+              onPress={this.launchLibrary}
+            >
+              <AntDesign name="picture" color="black" size={100} />
+              <Text style={styles.commandText}>Pick Photo</Text>
+            </TouchableOpacity>
+          </View>
+        );
   }
 }
 
