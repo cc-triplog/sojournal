@@ -400,7 +400,7 @@ let root = {
       .raw(
         "INSERT INTO photos(title, longitude, latitude, device_id, group_id, order_in_group," +
           "user_id, comment, image_file, altitude, bearing, created_at) " +
-          `VALUES ('${sTitle}', ${sLongitude}, ${sLatitude}, ${sDeviceId}, ${sGroupId}, ${sOrderInGroup}, ${currentUser}, '${sComment}', '${thumbKeyName}', ${sAltitude}, ${sBearing}, to_timestamp(${sCreatedAt}))`
+          `VALUES ('${sTitle}', ${sLongitude}, ${sLatitude}, ${sDeviceId}, ${sGroupId}, ${sOrderInGroup}, ${currentUser}, '${sComment}', '${thumbKeyName}', ${sAltitude}, ${sBearing}, to_timestamptz(${sCreatedAt}))`
       )
       // db("photos")
       //   .insert({
