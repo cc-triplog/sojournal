@@ -527,8 +527,8 @@ let root = {
         comment: req.input.comment,
         image_file: thumbKeyName,
         altitude: req.input.altitude,
-        bearing: req.input.bearing,
-        created_at: req.input.createdAt
+        bearing: req.input.bearing
+        //created_at: req.input.createdAt
       })
       .then(res => {
         console.log(res);
