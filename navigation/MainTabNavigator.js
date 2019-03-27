@@ -17,7 +17,7 @@ const MapStack = createStackNavigator({
 });
 
 MapStack.navigationOptions = {
-  tabBarLabel: "Map",
+  tabBarLabel: "Memories",
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -35,7 +35,7 @@ const CameraStack = createStackNavigator({
 });
 
 CameraStack.navigationOptions = {
-  tabBarLabel: "Photo",
+  tabBarLabel: "Upload",
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -49,7 +49,7 @@ const SettingsStack = createStackNavigator({
 });
 
 SettingsStack.navigationOptions = {
-  tabBarLabel: "Settings",
+  tabBarLabel: "SojournCam",
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}

@@ -119,6 +119,7 @@ class Groups extends React.Component {
       <ScrollView>
         <View style={styles.buttonContainer}>
           <Button
+            titleStyle={{ color: "black" }}
             buttonStyle={styles.viewAllButton}
             title="All Memories"
             onPress={() => this.renderOnMapAll()}
@@ -128,14 +129,15 @@ class Groups extends React.Component {
         {this.props.createGroupVisible ? (
           <CreateGroup toggleVisible={this.props.toggleCreateGroupVisible} />
         ) : (
-            <View style={styles.buttonContainer}>
-              <Button
-                buttonStyle={styles.button}
-                title="Create New"
-                onPress={this.props.toggleCreateGroupVisible}
-              />
-            </View>
-          )}
+          <View style={styles.buttonContainer}>
+            <Button
+              titleStyle={{ color: "black" }}
+              buttonStyle={styles.button}
+              title="Create New"
+              onPress={this.props.toggleCreateGroupVisible}
+            />
+          </View>
+        )}
         {this.props.pictureGroups.reverse().map(group => (
           <GroupCard
             key={group.id}
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
   button: {
     width: 150,
     height: 40,
-    backgroundColor: "#008080",
+    backgroundColor: "#82bfff",
     marginTop: 10,
     borderRadius: 50
   },
@@ -178,13 +180,13 @@ const styles = StyleSheet.create({
   viewAllButton: {
     width: 150,
     height: 40,
-    backgroundColor: "#BA55D3",
+    backgroundColor: "#82bfff",
     marginTop: 10,
     marginBottom: 30,
     borderRadius: 50
   },
   myTripsHeader: {
-    fontSize: 16,
+    fontSize: 24,
     marginBottom: 20
   }
 });

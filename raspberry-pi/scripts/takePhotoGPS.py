@@ -36,6 +36,7 @@ r = redis.Redis(host='localhost', port=6379, db=0)
 GRAPHQL_URL = os.environ['URL_PROD']
 
 # default timeout is about 1 min.
+# Now, set the timeout 10 seconds.
 socket.setdefaulttimeout(10)
 
 today = datetime.now()
@@ -159,19 +160,19 @@ def get_gps(data_stream, gps_socket):
         if newdata is not None:
             data_stream.unpack(newdata)
             if data_stream.TPV['time'] != 'n/a':
-                #print 'time : ', data_stream.TPV['time']
+                # print 'time : ', data_stream.TPV['time']
                 gps_info['time'] = data_stream.TPV['time']
             if (data_stream.TPV['lat'] != 'n/a' or data_stream.TPV['lon'] != 'n/a'):
-                #print 'lat : ', data_stream.TPV['lat']
+                # print 'lat : ', data_stream.TPV['lat']
                 gps_info['lat'] = data_stream.TPV['lat']
-                #print 'lon : ', data_stream.TPV['lon']
+                # print 'lon : ', data_stream.TPV['lon']
                 gps_info['lon'] = data_stream.TPV['lon']
                 lastLatLon = (gps_info['lat'], gps_info['lon'])
             if data_stream.TPV['alt'] != 'n/a':
-                #print 'alt : ', data_stream.TPV['alt']
+                # print 'alt : ', data_stream.TPV['alt']
                 gps_info['alt'] = data_stream.TPV['alt']
             if data_stream.TPV['track'] != 'n/a':
-                #print 'track : ', data_stream.TPV['track']
+                # print 'track : ', data_stream.TPV['track']
                 gps_info['track'] = data_stream.TPV['track']
     return gps_info
 
@@ -613,7 +614,7 @@ if __name__ == "__main__":
                     logger.info("stop thread")
             # time.sleep(0.5)
             if finishFlag == True:
-                #print threading.current_thread().name
+                # print threading.current_thread().name
                 led.control("green", "off")
                 logger.info("finish scripts")
                 sys.exit(0)
