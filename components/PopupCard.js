@@ -19,8 +19,6 @@ import { Button, Overlay } from 'react-native-elements';
 import { WebBrowser, Component } from "expo";
 import { getTheme } from 'react-native-material-kit';
 import MapView from "react-native-maps";
-import ImageFullScreen from "./ImageFullScreen";
-import { MonoText } from "../components/StyledText";
 import axios from 'axios';
 import { connect } from 'react-redux';
 import {
@@ -58,9 +56,8 @@ class PopupCard extends React.Component {
     const replaceTarget = /.jpg/gi;
     const midSizeImageUrl = copyImageUrl.replace(replaceTarget, '-mid.jpg');
     this.setState({ midSizeImage: { uri: `${midSizeImageUrl}` } })
-    console.log("========================image url", this.props.markers[this.props.selectedImageIndex].image)
-    console.log('========================midsizeimageurl', midSizeImageUrl)
   }
+
   onChangeTextTitle(text) {
     this.setState({ title: text })
   }
@@ -87,10 +84,8 @@ class PopupCard extends React.Component {
   }
   onPressExit() {
     this.props.changeCardVisibility(false)
-    console.log("======================midsize image url", this.state.midSizeImage)
   }
   onPressImage() {
-    console.log("==========================touched")
     this.setState({ ImageFullScreen: true })
   }
   onPressUpload() {
@@ -130,8 +125,8 @@ class PopupCard extends React.Component {
       .catch(err => console.log("==================error", err))
   }
 
-  render() {
 
+  render() {
     return (
       <Overlay
         key={this.props.selectedImageIndex}
@@ -304,4 +299,4 @@ const mapDispatchToProps = dispatch => ({
   }
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(PopupCard)
+export default connect(mapStateToProps, mapDispatchToProps)(PopupCard);

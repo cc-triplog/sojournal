@@ -11,7 +11,7 @@ const initialState = {
     selectedImageIndex: null,
     displayImageFull: false,
     capture: null,
-    userId: 5,
+    userId: null,
     createGroupVisible: false,
     groupDatePickerVisible: false,
     groupStartDate: "",
@@ -22,15 +22,9 @@ const initialState = {
 };
 
 const reducer = (state = initialState, action) => {
-    console.log("==================action=================", action);
-    console.log("==================state before=================", state);
     switch (action.type) {
         case "RENDER_PHOTO": {
             const stateChanges = { markers: action.photo };
-            console.log(
-                "=====================stateChanges================",
-                stateChanges
-            );
             return {
                 ...state,
                 markers: [...state.markers, action.photo]
@@ -38,7 +32,6 @@ const reducer = (state = initialState, action) => {
         }
         case "RENDER_PHOTOS": {
             const stateChanges = { markers: action.photos };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -46,7 +39,6 @@ const reducer = (state = initialState, action) => {
         }
         case "CHANGE_CARDVISIBILITY": {
             const stateChanges = { visible: action.visibility };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -54,7 +46,6 @@ const reducer = (state = initialState, action) => {
         }
         case "SELECT_IMAGECARD": {
             const stateChanges = { selectedImageIndex: action.index };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -68,7 +59,6 @@ const reducer = (state = initialState, action) => {
                     ...state.markers.slice(state.selectedImageIndex + 1)
                 ]
             };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -81,7 +71,6 @@ const reducer = (state = initialState, action) => {
                     ...state.markers.slice(action.index + 1)
                 ]
             };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -89,7 +78,6 @@ const reducer = (state = initialState, action) => {
         }
         case "REFLECT_STATECHANGE": {
             const stateChanges = { stateChanged: action.change };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -97,7 +85,6 @@ const reducer = (state = initialState, action) => {
         }
         case "REPLACE_ALLMARKERS": {
             const stateChanges = { markers: action.photos };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 ...stateChanges
@@ -105,7 +92,6 @@ const reducer = (state = initialState, action) => {
         }
         case "RENDER_GPS": {
             const stateChanges = { GPS: action.GPS };
-            "=====================stateChanges================", stateChanges;
             return {
                 ...state,
                 GPS: [...state.GPS, action.GPS]
