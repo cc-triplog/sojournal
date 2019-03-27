@@ -84,7 +84,7 @@ Trip Log™ is a cloud image storage based on geographic location. Though Trip L
 
 ### Hardware
 
-<img alt="screenshot_hard" src="./assets/images/hardware_screenshot.png">
+<img alt="screenshot_hard" src="./assets/images/hardware-screenshot.png">
 
 ## 4. Features
 
