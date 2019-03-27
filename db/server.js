@@ -394,14 +394,13 @@ let root = {
     let sComment = req.input.comment || "";
     let sAltitude = req.input.altitude || "0.0";
     let sBearing = req.input.bearing || "NULL";
-    let sCreatedAt = req.input.createdAt || "current_timestamp";
+    let sCreatedAt = req.input.createdAt / 1000 || "current_timestamp";
 
     db.schema
       .raw(
         "INSERT INTO photos(title, longitude, latitude, device_id, group_id, order_in_group," +
           "user_id, comment, image_file, altitude, bearing, created_at) " +
-          `VALUES ('${sTitle}', ${sLongitude}, ${sLatitude}, ${sDeviceId}, ${sGroupId}, ${sOrderInGroup}, ${currentUser}, '${sComment}', '${thumbKeyName}', ${sAltitude}, ${sBearing}, to_timestamp(${sCreatedAt /
-            1000}))`
+          `VALUES ('${sTitle}', ${sLongitude}, ${sLatitude}, ${sDeviceId}, ${sGroupId}, ${sOrderInGroup}, ${currentUser}, '${sComment}', '${thumbKeyName}', ${sAltitude}, ${sBearing}, to_timestamp(${sCreatedAt}))`
       )
       // db("photos")
       //   .insert({
