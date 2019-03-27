@@ -39,22 +39,8 @@ const CARD_WIDTH = CARD_HEIGHT - 50;
 
 class MapScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
-    headerLeft: (
-      <Image
-        style={{ width: 100, height: 40, marginLeft: 20 }}
-        source={require("../assets/images/sojournal_black.png")}
-      />
-    ),
-    headerRight: (
-      <TouchableOpacity onPress={navigation.getParam("logOut")}>
-        <SimpleLineIcons
-          name="logout"
-          size={30}
-          style={{ marginRight: 30, marginTop: 8 }}
-        />
-      </TouchableOpacity>
-    )
-  });
+    header: null
+  })
   constructor(props) {
     super(props);
   }
@@ -62,8 +48,9 @@ class MapScreen extends React.Component {
   animation = new Animated.Value(0);
 
   componentDidMount = () => {
-
-    console.log("===== navig params", this.props.navigation.state.params);
+    this.props.navigation.setParams({
+      goBack: this.props.navigation.goBack
+    });
 
     this.index = 0;
     this.animation = new Animated.Value(0);
@@ -248,100 +235,112 @@ class MapScreen extends React.Component {
 
     return (
       <View style={styles.container}>
-        {this.props.visible ? <PopupCard /> : <View />}
-        <MapView
-          ref={map => (this.map = map)}
-          initialRegion={this.props.region}
-          style={styles.container}
-        >
-          {this.props.markers.map((marker, index) => {
-            const scaleStyle = {
-              transform: [
-                {
-                  scale: interpolations[index].scale
-                }
-              ]
-            };
-            const opacityStyle = {
-              opacity: interpolations[index].scale
-            };
-            return (
-              <View
-                key={index}
-                style={styles.markerWrap}
-                pointerEvents="box-none"
-              >
-                <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
-                  <Animated.View style={[styles.markerWrap, opacityStyle]}>
-                    <Animated.View style={[styles.ring, scaleStyle]} />
-                    <View style={styles.marker} />
-                  </Animated.View>
-                </MapView.Marker>
-              </View>
-            );
-          })}
-
-          {this.props.GPS.map((gps, index) => {
-            return (
-              <View
-                key={index}
-                pointerEvents="box-none"
-                backgroundColor="transparent"
-              >
-                <MapView.Marker coordinate={gps.coordinate}>
-                  <Animated.View style={[styles.markerWrap]}>
-                    <Animated.View style={[styles.ringGps]} />
-                    <View style={styles.markerGps} />
-                  </Animated.View>
-                </MapView.Marker>
-              </View>
-            );
-          })}
-        </MapView>
-        <Animated.ScrollView
-          horizontal
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH}
-          onScroll={Animated.event(
-            [
+        <View>
+          <TouchableOpacity
+            style={styles.choiceButtons}
+            onPress={() => this.props.navigation.goBack())}
+>
+        <AntDesign name="left" color="black" size={30} />
+      </TouchableOpacity>
+      </View>
+      { this.props.visible ? <PopupCard /> : <View /> }
+    < MapView
+      ref={map => (this.map = map)}
+      initialRegion={this.props.region}
+      style={styles.container}
+    >
+      {
+        this.props.markers.map((marker, index) => {
+          const scaleStyle = {
+            transform: [
               {
-                nativeEvent: {
-                  contentOffset: {
-                    x: this.animation
-                  }
+                scale: interpolations[index].scale
+              }
+            ]
+          };
+          const opacityStyle = {
+            opacity: interpolations[index].scale
+          };
+          return (
+            <View
+              key={index}
+              style={styles.markerWrap}
+              pointerEvents="box-none"
+            >
+              <MapView.Marker key={marker.id} coordinate={marker.coordinate}>
+                <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                  <Animated.View style={[styles.ring, scaleStyle]} />
+                  <View style={styles.marker} />
+                </Animated.View>
+              </MapView.Marker>
+            </View>
+          );
+        })
+      }
+
+      {
+        this.props.GPS.map((gps, index) => {
+          return (
+            <View
+              key={index}
+              pointerEvents="box-none"
+              backgroundColor="transparent"
+            >
+              <MapView.Marker coordinate={gps.coordinate}>
+                <Animated.View style={[styles.markerWrap]}>
+                  <Animated.View style={[styles.ringGps]} />
+                  <View style={styles.markerGps} />
+                </Animated.View>
+              </MapView.Marker>
+            </View>
+          );
+        })
+      }
+    </MapView >
+      <Animated.ScrollView
+        horizontal
+        scrollEventThrottle={1}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={CARD_WIDTH}
+        onScroll={Animated.event(
+          [
+            {
+              nativeEvent: {
+                contentOffset: {
+                  x: this.animation
                 }
               }
-            ],
-            { useNativeDriver: true }
-          )}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-        >
-          {this.props.markers.map((marker, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => this.onPressImageCard(marker.id)}
-              ref={marker.id}
-            >
-              <View style={styles.card}>
-                <Image
-                  source={marker.image}
-                  style={styles.cardImage}
-                  resizeMode="cover"
-                />
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>
-                    {marker.title}
-                  </Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.description}
-                  </Text>
-                </View>
+            }
+          ],
+          { useNativeDriver: true }
+        )}
+        style={styles.scrollView}
+        contentContainerStyle={styles.endPadding}
+      >
+        {this.props.markers.map((marker, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => this.onPressImageCard(marker.id)}
+            ref={marker.id}
+          >
+            <View style={styles.card}>
+              <Image
+                source={marker.image}
+                style={styles.cardImage}
+                resizeMode="cover"
+              />
+              <View style={styles.textContent}>
+                <Text numberOfLines={1} style={styles.cardtitle}>
+                  {marker.title}
+                </Text>
+                <Text numberOfLines={1} style={styles.cardDescription}>
+                  {marker.description}
+                </Text>
               </View>
-            </TouchableOpacity>
-          ))}
-        </Animated.ScrollView>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </Animated.ScrollView>
       </View >
     );
   }
