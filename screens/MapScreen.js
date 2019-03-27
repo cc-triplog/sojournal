@@ -40,19 +40,23 @@ const CARD_WIDTH = CARD_HEIGHT - 50;
 class MapScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     headerLeft: (
-      <Image
-        style={{ width: 100, height: 40, marginLeft: 20 }}
-        source={require("../assets/images/sojournal_black.png")}
-      />
+      <View>
+        <TouchableOpacity
+          style={styles.choiceButtons}
+          onPress={() => this.props.navigation.goBack()}
+        >
+          <AntDesign name="left" color="black" size={40} />
+        </TouchableOpacity>
+      </View>
     ),
     headerRight: (
-      <TouchableOpacity onPress={navigation.getParam("logOut")}>
-        <SimpleLineIcons
-          name="logout"
-          size={30}
-          style={{ marginRight: 30, marginTop: 8 }}
-        />
-      </TouchableOpacity>
+      // <TouchableOpacity onPress={navigation.getParam("logOut")}>
+      //   <SimpleLineIcons
+      //     name="logout"
+      //     size={30}
+      //     style={{ marginRight: 30, marginTop: 8 }}
+      //   />
+      // </TouchableOpacity>
     )
   });
   constructor(props) {
