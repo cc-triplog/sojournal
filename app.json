@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.codechrysalis.magellansmiles",
-      "versionCode": 3
+      "versionCode": 5
     }
   }
 }

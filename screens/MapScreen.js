@@ -30,7 +30,8 @@ import {
   changeCardVisibility,
   selectImageCard,
   setUserId,
-  renderGPS
+  renderGPS,
+  resetState
 } from "../action";
 
 const { width, height } = Dimensions.get("window");
@@ -64,9 +65,15 @@ class MapScreen extends React.Component {
 
   animation = new Animated.Value(0);
 
+  goBack = () => {
+    this.props.resetState();
+    this.props.navigation.goBack();
+    this.props.screenProps.rerender();
+  };
+
   componentDidMount = () => {
     this.props.navigation.setParams({
-      goBack: () => this.props.navigation.navigate("Group")
+      goBack: () => this.goBack()
     });
 
     this.index = 0;
@@ -485,6 +492,10 @@ const mapDispatchToProps = dispatch => ({
   },
   setUserId: id => {
     const action = setUserId(id);
+    dispatch(action);
+  },
+  resetState: () => {
+    const action = resetState();
     dispatch(action);
   }
 });
