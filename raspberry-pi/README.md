@@ -158,7 +158,7 @@ $ git clone https://github.com/sojournalists/sojournal.git
 $ sudo nano "/etc/profile"
 ```
 
-2. Add the following environmental variables to bottom of the file
+2. Add the following environment variables to bottom of the file
 
 ```
 export URL_LOCAL=http://"Your local server's address":4000/graphql
