@@ -166,6 +166,8 @@ export URL_PROD=http://"Your production server's address":4000/graphql
 export DISPLAY=:0
 ```
 
+3. Close terminal and open it again
+
 ## Running Script
 
 1. Go to "/home/pi/scripts/" folder
