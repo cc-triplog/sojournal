@@ -150,6 +150,24 @@ $ git clone https://github.com/sojournalists/sojournal.git
    | takePhoto.py    | Taking photo                                     |
    | takePhotoGPS.py | Taking photo and send it to server with GPS data |
 
+## Setting up to server url
+
+1. Edit "/etc/profile" as super user
+
+```
+$ sudo nano "/etc/profile"
+```
+
+2. Add the following environment variables to bottom of the file
+
+```
+export URL_LOCAL=http://"Your local server's address":4000/graphql
+export URL_PROD=http://"Your production server's address":4000/graphql
+export DISPLAY=:0
+```
+
+3. Close terminal and open it again
+
 ## Running Script
 
 1. Go to "/home/pi/scripts/" folder
