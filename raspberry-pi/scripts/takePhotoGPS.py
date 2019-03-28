@@ -224,7 +224,7 @@ def upload_server(filename, timestr, gps_info, serialNo):
                     query = 'mutation{CamCreatePhoto(input: {imageFile: \"\"\"' + \
                         base64 + '\"\"\", longitude: ' + \
                         str(gps_info['lon']) + ', latitude: ' + \
-                        str(gps_info['lat']) + ', deviceSerial: "0000000076a55e56", altitude: ' + \
+                        str(gps_info['lat']) + ', deviceSerial: \"' + serialNo + '\", altitude: ' + \
                         str(gps_info['alt']) + ', bearing: ' + \
                         str(gps_info['track']) + '})}'
                     result = client.execute(
@@ -254,7 +254,7 @@ def upload_server(filename, timestr, gps_info, serialNo):
                     base64 + "\"\"\",  latitude: " + \
                     str(lastLatLon[0]) + ", longitude: " + \
                     str(lastLatLon[1]) + \
-                    ", deviceSerial: \"0000000076a55e56\"})}"
+                    ", deviceSerial: \'" + serialNo + "\'})}"
                 result = client.execute(
                     query
                 )
